@@ -36,9 +36,13 @@
             height: 100%;
             overflow: hidden;
             cursor: grab;
+            touch-action: none; /* 禁止默认的触摸行为 */
         }
         .workflow-viewport:active {
             cursor: grabbing;
+        }
+        .workflow-viewport * {
+            user-select: none; /* 禁止文字选择 */
         }
         .workflow-container {
             position: absolute;
@@ -698,32 +702,68 @@
             const canvas = document.getElementById('workflow-canvas');
             const container = document.getElementById('workflow-container');
             
-            // 检查是否点击在空白区域
-            function isClickOnEmpty(target) {
-                return target === viewport || target === canvas || target === container || 
-                       target.classList.contains('workflow-canvas') || 
-                       target.classList.contains('workflow-container') ||
-                       target.classList.contains('workflow-viewport');
+            // 检查是否可以开始拖拽
+            function canStartPanning(target) {
+                // 直接检查是否点击在不允许拖拽的元素上
+                const onNode = target.closest('.workflow-node');
+                const onControl = target.closest('.canvas-controls, .minimap, .coordinates-display');
+                const onSidebar = target.closest('#sidebar');
+                const onPropertiesPanel = target.closest('#propertiesPanel');
+                const onButton = target.tagName === 'BUTTON' || target.closest('button');
+                const onInput = target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA';
+                
+                // 只要不在这些元素上，就可以拖拽
+                return !onNode && !onControl && !onSidebar && !onPropertiesPanel && !onButton && !onInput;
             }
             
-            // 鼠标按下 - 开始拖拽
-            viewport.addEventListener('mousedown', function(e) {
-                // 只在空白区域才能拖拽画板，且不是节点，且不是控制按钮
-                const isOnNode = e.target.closest('.workflow-node');
-                const isOnControl = e.target.closest('.canvas-controls') || e.target.closest('.minimap') || e.target.closest('.coordinates-display');
-                
-                if (isClickOnEmpty(e.target) && !isOnNode && !isOnControl) {
-                    if (e.button === 0) { // 左键
-                        canvasState.isPanning = true;
-                        canvasState.lastPanPoint = { x: e.clientX, y: e.clientY };
-                        viewport.style.cursor = 'grabbing';
-                        e.preventDefault();
-                        e.stopPropagation();
+            // 鼠标按下事件 - 绑定到viewport
+            if (viewport) {
+                viewport.addEventListener('mousedown', function(e) {
+                    if (e.button === 0) { // 只处理左键
+                        const canPan = canStartPanning(e.target);
+                        
+                        // 临时显示调试信息
+                        if (canPan) {
+                            // 显示绿色点表示可以拖拽
+                            const indicator = document.createElement('div');
+                            indicator.style.position = 'fixed';
+                            indicator.style.left = e.clientX + 'px';
+                            indicator.style.top = e.clientY + 'px';
+                            indicator.style.width = '10px';
+                            indicator.style.height = '10px';
+                            indicator.style.backgroundColor = 'green';
+                            indicator.style.borderRadius = '50%';
+                            indicator.style.zIndex = '9999';
+                            indicator.style.pointerEvents = 'none';
+                            document.body.appendChild(indicator);
+                            setTimeout(() => indicator.remove(), 1000);
+                            
+                            canvasState.isPanning = true;
+                            canvasState.lastPanPoint = { x: e.clientX, y: e.clientY };
+                            document.body.style.cursor = 'grabbing';
+                            viewport.style.cursor = 'grabbing';
+                            e.preventDefault();
+                            e.stopPropagation();
+                        } else {
+                            // 显示红色点表示不可以拖拽
+                            const indicator = document.createElement('div');
+                            indicator.style.position = 'fixed';
+                            indicator.style.left = e.clientX + 'px';
+                            indicator.style.top = e.clientY + 'px';
+                            indicator.style.width = '10px';
+                            indicator.style.height = '10px';
+                            indicator.style.backgroundColor = 'red';
+                            indicator.style.borderRadius = '50%';
+                            indicator.style.zIndex = '9999';
+                            indicator.style.pointerEvents = 'none';
+                            document.body.appendChild(indicator);
+                            setTimeout(() => indicator.remove(), 1000);
+                        }
                     }
-                }
-            });
+                }, { passive: false });
+            }
             
-            // 鼠标移动 - 拖拽过程
+            // 鼠标移动事件 - 绑定到document
             document.addEventListener('mousemove', function(e) {
                 if (canvasState.isPanning) {
                     const deltaX = (e.clientX - canvasState.lastPanPoint.x) * canvasState.panSensitivity;
@@ -741,45 +781,50 @@
                 }
             });
             
-            // 鼠标释放 - 结束拖拽
+            // 鼠标释放事件 - 绑定到document
             document.addEventListener('mouseup', function(e) {
                 if (canvasState.isPanning) {
                     canvasState.isPanning = false;
-                    viewport.style.cursor = 'grab';
+                    document.body.style.cursor = '';
+                    if (viewport) {
+                        viewport.style.cursor = 'grab';
+                    }
                 }
             });
             
-            // 鼠标离开窗口 - 结束拖拽
+            // 鼠标离开窗口事件
             document.addEventListener('mouseleave', function(e) {
-                if (canvasState.isPanning) {
+                if (e.target === document.documentElement && canvasState.isPanning) {
                     canvasState.isPanning = false;
-                    viewport.style.cursor = 'grab';
+                    document.body.style.cursor = '';
                 }
             });
             
-            // 鼠标滚轮 - 缩放
-            viewport.addEventListener('wheel', function(e) {
-                e.preventDefault();
-                
-                const rect = viewport.getBoundingClientRect();
-                const mouseX = e.clientX - rect.left;
-                const mouseY = e.clientY - rect.top;
-                
-                const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                const newScale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, canvasState.scale * delta));
-                
-                if (newScale !== canvasState.scale) {
-                    // 以鼠标位置为中心缩放
-                    const scaleRatio = newScale / canvasState.scale;
-                    canvasState.x = mouseX - (mouseX - canvasState.x) * scaleRatio;
-                    canvasState.y = mouseY - (mouseY - canvasState.y) * scaleRatio;
-                    canvasState.scale = newScale;
+            // 鼠标滚轮事件 - 缩放
+            if (viewport) {
+                viewport.addEventListener('wheel', function(e) {
+                    e.preventDefault();
                     
-                    updateCanvasTransform();
-                    updateCoordinates();
-                    updateMinimap();
-                }
-            });
+                    const rect = viewport.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    const newScale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, canvasState.scale * delta));
+                    
+                    if (newScale !== canvasState.scale) {
+                        // 以鼠标位置为中心缩放
+                        const scaleRatio = newScale / canvasState.scale;
+                        canvasState.x = mouseX - (mouseX - canvasState.x) * scaleRatio;
+                        canvasState.y = mouseY - (mouseY - canvasState.y) * scaleRatio;
+                        canvasState.scale = newScale;
+                        
+                        updateCanvasTransform();
+                        updateCoordinates();
+                        updateMinimap();
+                    }
+                }, { passive: false });
+            }
         }
         
         // 设置控制按钮
