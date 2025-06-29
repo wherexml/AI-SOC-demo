@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CISO安全仪表板 - XDR AI 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#64748b',
+                        accent: '#3b82f6',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        success: '#10b981',
+                        critical: '#dc2626',
+                        high: '#f97316',
+                        medium: '#eab308',
+                        low: '#22c55e'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .trend-up { color: #22c55e; }
+        .trend-down { color: #ef4444; }
+        .risk-critical { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+        .risk-high { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+        .risk-medium { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+        .risk-low { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+        .ai-insight {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0ea5e9;
+        }
+        .coverage-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            position: relative;
+            background: conic-gradient(#10b981 0deg, #10b981 var(--coverage-angle, 270deg), #e5e7eb var(--coverage-angle, 270deg), #e5e7eb 360deg);
+        }
+        .coverage-ring::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+        }
+        .coverage-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 18px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 顶部导航 -->
+    <nav class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">CISO安全仪表板</h1>
+                        <p class="text-sm text-gray-500">组织安全态势全景视图</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 ml-8">
+                    <span class="w-3 h-3 bg-green-500 rounded-full pulse-dot"></span>
+                    <span class="text-sm text-gray-600">实时监控中</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    最后更新: 2024-01-15 14:30
+                </div>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    <i class="fas fa-download mr-2"></i>导出报告
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="p-6 max-w-7xl mx-auto">
+        <!-- AI态势摘要 -->
+        <div class="ai-insight rounded-lg p-6 mb-6">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                        AI态势分析摘要
+                        <span class="text-sm font-normal text-gray-500">（一分钟洞察）</span>
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        本周安全态势总体<span class="font-semibold text-green-600">平稳</span>（健康分85分，+3），平均响应效率持续提升。
+                        <span class="font-semibold text-orange-600">需关注</span>：云安全风险显著上升，主要由新发现的3台未受控数据库导致。
+                        建议立即排查影子IT资产，加强云资产管控。
+                    </p>
+                    <div class="flex items-center space-x-4 mt-3">
+                        <span class="text-sm text-gray-500">
+                            <i class="fas fa-chart-line mr-1"></i>趋势: 风险敞口↓12%
+                        </span>
+                        <span class="text-sm text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>响应效率↑18%
+                        </span>
+                        <span class="text-sm text-gray-500">
+                            <i class="fas fa-robot mr-1"></i>自动化率↑8%
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第一行：核心风险指标 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <!-- 资产覆盖度 -->
+            <div class="metric-card bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="asset-coverage">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-600">资产覆盖度</h3>
+                    <i class="fas fa-network-wired text-blue-500"></i>
+                </div>
+                <div class="flex items-center justify-center">
+                    <div class="coverage-ring" style="--coverage-angle: 252deg;">
+                        <div class="coverage-text">
+                            <div class="text-blue-600">87%</div>
+                            <div class="text-xs text-gray-500">已覆盖</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Agent覆盖</span>
+                        <span class="text-green-600">2,341/2,687</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">未受控资产</span>
+                        <span class="text-red-600">346台</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 攻击路径暴露 -->
+            <div class="metric-card bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="attack-path">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-600">攻击路径暴露</h3>
+                    <i class="fas fa-route text-red-500"></i>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-red-600 mb-2">3</div>
+                    <div class="text-sm text-gray-500 mb-4">条直达核心资产</div>
+                    <div class="bg-red-50 rounded-lg p-3">
+                        <div class="text-xs text-red-700">
+                            <div class="font-semibold mb-1">最短路径:</div>
+                            <div>DMZ → DB服务器 → 核心数据</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 自动化覆盖率 -->
+            <div class="metric-card bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="automation-coverage">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-600">自动化覆盖率</h3>
+                    <i class="fas fa-cogs text-purple-500"></i>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600 mb-2">68%</div>
+                    <div class="text-sm text-gray-500 mb-4">告警自动处理</div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span>成功率</span>
+                            <span class="text-green-600">94.2%</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span>平均耗时</span>
+                            <span class="text-blue-600">2.3分钟</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 告警信噪比 -->
+            <div class="metric-card bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="alert-signal-noise">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-600">告警信噪比</h3>
+                    <i class="fas fa-filter text-orange-500"></i>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-orange-600 mb-2">1:12</div>
+                    <div class="text-sm text-gray-500 mb-4">真实威胁占比</div>
+                    <div class="bg-orange-50 rounded-lg p-3">
+                        <div class="text-xs text-orange-700">
+                            <div>今日: 284个告警</div>
+                            <div>有效: 23个威胁</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二行：两高一弱风险态势 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 cursor-pointer" data-detail="two-high-one-weak">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-gray-900">两高一弱风险态势</h2>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200">本周</button>
+                    <button class="px-3 py-1 text-sm bg-blue-500 text-white rounded-md">本月</button>
+                    <button class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200">季度</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 高危漏洞 -->
+                <div class="risk-critical rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-lg" data-detail="critical-vulns">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-gray-800">高危漏洞</h3>
+                        <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Critical</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-red-600">47</span>
+                            <span class="text-sm text-red-600 trend-down">
+                                <i class="fas fa-arrow-down mr-1"></i>-8
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div class="flex justify-between mb-1">
+                                <span>平均修复时间</span>
+                                <span>15.2天</span>
+                            </div>
+                            <div class="flex justify-between mb-1">
+                                <span>超期未修复</span>
+                                <span class="text-red-600">12个</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>本周新增</span>
+                                <span>3个</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 高危端口 -->
+                <div class="risk-high rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-lg" data-detail="critical-ports">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-gray-800">高危端口</h3>
+                        <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">High</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-orange-600">23</span>
+                            <span class="text-sm text-orange-600 trend-up">
+                                <i class="fas fa-arrow-up mr-1"></i>+2
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div class="flex justify-between mb-1">
+                                <span>互联网暴露</span>
+                                <span>23个</span>
+                            </div>
+                            <div class="flex justify-between mb-1">
+                                <span>管理端口</span>
+                                <span class="text-orange-600">8个</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>未授权访问</span>
+                                <span class="text-red-600">3个</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 弱口令 -->
+                <div class="risk-medium rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-lg" data-detail="weak-passwords">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-gray-800">弱口令</h3>
+                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Medium</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-yellow-600">156</span>
+                            <span class="text-sm text-green-600 trend-down">
+                                <i class="fas fa-arrow-down mr-1"></i>-24
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div class="flex justify-between mb-1">
+                                <span>特权账户</span>
+                                <span class="text-red-600">8个</span>
+                            </div>
+                            <div class="flex justify-between mb-1">
+                                <span>域控相关</span>
+                                <span class="text-orange-600">12个</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>本周修复</span>
+                                <span class="text-green-600">24个</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三行：运营效能与事件响应 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- 响应时间分析 -->
+            <div class="bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="response-time">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">响应时间分析</h3>
+                    <div class="text-sm text-gray-500">MTTR趋势</div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <span class="text-sm font-medium">高危事件</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-red-600">28分钟</div>
+                            <div class="text-xs text-green-600">↓ 12分钟</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                            <span class="text-sm font-medium">中危告警</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-orange-600">4.2小时</div>
+                            <div class="text-xs text-red-600">↑ 1.1小时</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <span class="text-sm font-medium">低危告警</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-yellow-600">36小时</div>
+                            <div class="text-xs text-green-600">↓ 8小时</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 事件处置质量 -->
+            <div class="bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="incident-quality">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">事件处置质量</h3>
+                    <div class="text-sm text-gray-500">质量指标</div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">事件重开率</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 8%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-green-600">8%</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">根因消除率</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 76%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-blue-600">76%</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">自动化闭环率</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 64%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-purple-600">64%</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="text-xs text-blue-700">
+                            <i class="fas fa-lightbulb mr-1"></i>
+                            <strong>AI质量审计:</strong> 发现3起可疑快速关单，建议人工复核
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第四行：重点关注与行动建议 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 重复受害资产Top10 -->
+            <div class="bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="repeat-victims">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">重复受害资产 Top10</h3>
+                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">需重点关注</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-2 bg-red-50 rounded">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-bold text-red-600">1</span>
+                            <div>
+                                <div class="text-sm font-medium">10.10.50.98</div>
+                                <div class="text-xs text-gray-500">Web服务器</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-red-600">18次</div>
+                            <div class="text-xs text-gray-500">本月</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-orange-50 rounded">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-bold text-orange-600">2</span>
+                            <div>
+                                <div class="text-sm font-medium">172.16.88.45</div>
+                                <div class="text-xs text-gray-500">数据库服务器</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-orange-600">12次</div>
+                            <div class="text-xs text-gray-500">本月</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-bold text-yellow-600">3</span>
+                            <div>
+                                <div class="text-sm font-medium">192.168.1.120</div>
+                                <div class="text-xs text-gray-500">办公终端</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-yellow-600">8次</div>
+                            <div class="text-xs text-gray-500">本月</div>
+                        </div>
+                    </div>
+                    <div class="text-center py-2">
+                        <button class="text-sm text-blue-600 hover:text-blue-800">查看完整列表 →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 本周行动建议 -->
+            <div class="bg-white rounded-lg shadow-md p-6 cursor-pointer" data-detail="action-recommendations">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">本周行动建议</h3>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">AI推荐</span>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
+                        <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-exclamation text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-red-800">紧急: 云资产管控</div>
+                            <div class="text-xs text-red-700 mt-1">
+                                发现3台未受控云数据库暴露在公网，建议立即排查所有云资产并实施统一管控
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg">
+                        <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-shield-alt text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-orange-800">优化: 中危告警处理</div>
+                            <div class="text-xs text-orange-700 mt-1">
+                                中危告警MTTR上升18%，建议评估人员配置和流程优化
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-blue-800">建议: 扩大自动化覆盖</div>
+                            <div class="text-xs text-blue-700 mt-1">
+                                当前自动化率68%，建议重点关注重复性高的告警类型
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center h-full p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-900">详情</h3>
+                    <button id="closeModal" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <div id="modalContent">
+                        <!-- 动态内容 -->
+                    </div>
+                    <!-- AI分析总结 -->
+                    <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-500">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-robot text-white text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-blue-800 mb-1">AI分析洞察</h4>
+                                <p id="aiInsight" class="text-sm text-blue-700 leading-relaxed">
+                                    <!-- AI分析内容 -->
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟实时数据更新
+        function updateDashboard() {
+            // 更新时间戳
+            const now = new Date();
+            const timeString = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.querySelector('.text-gray-500').innerHTML = 
+                `<i class="fas fa-clock mr-1"></i>最后更新: ${timeString}`;
+        }
+
+        // 每30秒更新一次
+        setInterval(updateDashboard, 30000);
+
+        // 详情弹窗功能
+        function showDetailModal(detailType) {
+            const modal = document.getElementById('detailModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            const aiInsight = document.getElementById('aiInsight');
+            
+            // 根据类型生成详情内容
+            const detailData = getDetailContent(detailType);
+            modalTitle.textContent = detailData.title;
+            modalContent.innerHTML = detailData.content;
+            aiInsight.textContent = detailData.aiInsight;
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function getDetailContent(type) {
+            const detailMap = {
+                'asset-coverage': {
+                    title: '资产覆盖度详情',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-800 mb-2">已覆盖资产</h4>
+                                    <div class="text-2xl font-bold text-green-600">2,341</div>
+                                    <div class="text-sm text-green-700">EDR: 1,892台</div>
+                                    <div class="text-sm text-green-700">HIDS: 449台</div>
+                                </div>
+                                <div class="bg-red-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-red-800 mb-2">未受控资产</h4>
+                                    <div class="text-2xl font-bold text-red-600">346</div>
+                                    <div class="text-sm text-red-700">云主机: 128台</div>
+                                    <div class="text-sm text-red-700">影子IT: 218台</div>
+                                </div>
+                                <div class="bg-yellow-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-yellow-800 mb-2">离线/异常</h4>
+                                    <div class="text-2xl font-bold text-yellow-600">89</div>
+                                    <div class="text-sm text-yellow-700">Agent离线: 67台</div>
+                                    <div class="text-sm text-yellow-700">通信异常: 22台</div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3">未受控资产清单（Top 10）</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full bg-white border border-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">IP地址</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">资产类型</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">发现时间</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">风险等级</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-4 py-2 text-sm">172.16.88.156</td>
+                                                <td class="px-4 py-2 text-sm">数据库服务器</td>
+                                                <td class="px-4 py-2 text-sm">2024-01-10</td>
+                                                <td class="px-4 py-2"><span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">高危</span></td>
+                                                <td class="px-4 py-2 text-sm text-red-600">未纳管</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-2 text-sm">10.0.15.98</td>
+                                                <td class="px-4 py-2 text-sm">Web服务器</td>
+                                                <td class="px-4 py-2 text-sm">2024-01-12</td>
+                                                <td class="px-4 py-2"><span class="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded-full">中危</span></td>
+                                                <td class="px-4 py-2 text-sm text-yellow-600">处理中</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-2 text-sm">192.168.100.45</td>
+                                                <td class="px-4 py-2 text-sm">办公终端</td>
+                                                <td class="px-4 py-2 text-sm">2024-01-13</td>
+                                                <td class="px-4 py-2"><span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">低危</span></td>
+                                                <td class="px-4 py-2 text-sm text-green-600">已排期</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    aiInsight: '资产覆盖盲区主要集中在云环境和影子IT资产，建议立即启动云资产自动发现机制，并加强IT资产准入管理制度执行。'
+                },
+                'attack-path': {
+                    title: '攻击路径暴露分析',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-red-800 mb-3">高风险攻击路径（3条）</h4>
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded border-l-4 border-red-500">
+                                        <div class="font-medium text-red-800">路径1: DMZ → 核心数据库</div>
+                                        <div class="text-sm text-gray-600 mt-1">互联网 → DMZ Web服务器(CVE-2023-1234) → 内网跳板 → 数据库服务器(弱口令)</div>
+                                        <div class="flex items-center mt-2 space-x-4">
+                                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">跳数: 3</span>
+                                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">难度: 低</span>
+                                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">影响: 核心数据</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded border-l-4 border-orange-500">
+                                        <div class="font-medium text-orange-800">路径2: 办公网 → 生产网络</div>
+                                        <div class="text-sm text-gray-600 mt-1">钓鱼邮件 → 办公终端 → 域控制器(权限提升) → 生产服务器</div>
+                                        <div class="flex items-center mt-2 space-x-4">
+                                            <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">跳数: 3</span>
+                                            <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">难度: 中</span>
+                                            <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">影响: 业务系统</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded border-l-4 border-yellow-500">
+                                        <div class="font-medium text-yellow-800">路径3: 云环境横向移动</div>
+                                        <div class="text-sm text-gray-600 mt-1">云存储桶(公开访问) → 配置文件泄露 → 云主机权限 → 其他云服务</div>
+                                        <div class="flex items-center mt-2 space-x-4">
+                                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">跳数: 4</span>
+                                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">难度: 低</span>
+                                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">影响: 云基础设施</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">修复优先级建议</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between p-2 bg-red-50 rounded">
+                                            <span class="text-sm">修补DMZ Web服务器漏洞</span>
+                                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">P0</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-orange-50 rounded">
+                                            <span class="text-sm">强化数据库访问控制</span>
+                                            <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">P1</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                            <span class="text-sm">网络分段加固</span>
+                                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">P2</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">影响评估</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-sm">
+                                            <span>核心数据暴露风险</span>
+                                            <span class="text-red-600 font-medium">极高</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>业务中断可能性</span>
+                                            <span class="text-orange-600 font-medium">高</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>合规风险</span>
+                                            <span class="text-red-600 font-medium">严重</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>预估损失</span>
+                                            <span class="text-red-600 font-medium">500万+</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                                         aiInsight: '当前攻击路径过短且难度偏低，核心资产防护严重不足。建议立即实施网络分段、修补关键漏洞，并加强特权账户管理，预计可将攻击路径复杂度提升60%。'
+                 },
+                 'automation-coverage': {
+                     title: '自动化覆盖率详情',
+                     content: `
+                         <div class="space-y-6">
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <div class="bg-purple-50 p-4 rounded-lg">
+                                     <h4 class="font-semibold text-purple-800 mb-3">自动化剧本统计</h4>
+                                     <div class="space-y-2">
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">总剧本数量</span>
+                                             <span class="font-medium text-purple-600">156个</span>
+                                         </div>
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">激活剧本</span>
+                                             <span class="font-medium text-green-600">142个</span>
+                                         </div>
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">测试中</span>
+                                             <span class="font-medium text-yellow-600">14个</span>
+                                         </div>
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">本月新增</span>
+                                             <span class="font-medium text-blue-600">8个</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div class="bg-green-50 p-4 rounded-lg">
+                                     <h4 class="font-semibold text-green-800 mb-3">执行效果统计</h4>
+                                     <div class="space-y-2">
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">成功执行率</span>
+                                             <span class="font-medium text-green-600">94.2%</span>
+                                         </div>
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">平均执行时间</span>
+                                             <span class="font-medium text-blue-600">2.3分钟</span>
+                                         </div>
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">节省人力</span>
+                                             <span class="font-medium text-purple-600">340小时/月</span>
+                                         </div>
+                                         <div class="flex justify-between">
+                                             <span class="text-sm">错误率</span>
+                                             <span class="font-medium text-orange-600">5.8%</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div>
+                                 <h4 class="font-semibold text-gray-800 mb-3">热门自动化剧本</h4>
+                                 <div class="space-y-3">
+                                     <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                         <div class="flex items-center justify-between mb-2">
+                                             <span class="font-medium">恶意文件自动隔离</span>
+                                             <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">成功率 98%</span>
+                                         </div>
+                                         <div class="text-sm text-gray-600">本月执行: 234次 | 平均耗时: 45秒</div>
+                                     </div>
+                                     <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                         <div class="flex items-center justify-between mb-2">
+                                             <span class="font-medium">可疑IP自动封堵</span>
+                                             <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">成功率 96%</span>
+                                         </div>
+                                         <div class="text-sm text-gray-600">本月执行: 156次 | 平均耗时: 1.2分钟</div>
+                                     </div>
+                                     <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                         <div class="flex items-center justify-between mb-2">
+                                             <span class="font-medium">异常登录账户锁定</span>
+                                             <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">成功率 89%</span>
+                                         </div>
+                                         <div class="text-sm text-gray-600">本月执行: 89次 | 平均耗时: 2.1分钟</div>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div>
+                                 <h4 class="font-semibold text-gray-800 mb-3">待改进区域</h4>
+                                 <div class="space-y-2">
+                                     <div class="bg-orange-50 p-3 rounded-lg">
+                                         <div class="font-medium text-orange-800">人工依赖度较高的告警类型</div>
+                                         <div class="text-sm text-orange-700 mt-1">内网横向移动检测、高级持续威胁、零日漏洞利用</div>
+                                     </div>
+                                     <div class="bg-blue-50 p-3 rounded-lg">
+                                         <div class="font-medium text-blue-800">自动化提升机会</div>
+                                         <div class="text-sm text-blue-700 mt-1">邮件安全事件、Web应用攻击、数据泄露预警</div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     `,
+                     aiInsight: '当前自动化覆盖率良好，但仍有32%的告警需要人工处理。建议重点关注重复性高的邮件安全和Web攻击场景，预计可将自动化率提升至78%。'
+                 },
+                 'alert-signal-noise': {
+                     title: '告警信噪比详情',
+                     content: `
+                         <div class="space-y-6">
+                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                 <div class="bg-orange-50 p-4 rounded-lg text-center">
+                                     <div class="text-2xl font-bold text-orange-600">1:12</div>
+                                     <div class="text-sm text-orange-700">当前信噪比</div>
+                                     <div class="text-xs text-gray-600 mt-1">需要优化</div>
+                                 </div>
+                                 <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                     <div class="text-2xl font-bold text-blue-600">1:8</div>
+                                     <div class="text-sm text-blue-700">目标信噪比</div>
+                                     <div class="text-xs text-gray-600 mt-1">行业标准</div>
+                                 </div>
+                                 <div class="bg-green-50 p-4 rounded-lg text-center">
+                                     <div class="text-2xl font-bold text-green-600">↑15%</div>
+                                     <div class="text-sm text-green-700">月度改善</div>
+                                     <div class="text-xs text-gray-600 mt-1">持续优化中</div>
+                                 </div>
+                             </div>
+                             <div>
+                                 <h4 class="font-semibold text-gray-800 mb-3">今日告警分析</h4>
+                                 <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                         <div>
+                                             <h5 class="font-medium text-gray-700 mb-2">告警统计</h5>
+                                             <div class="space-y-2">
+                                                 <div class="flex justify-between">
+                                                     <span class="text-sm">总告警数</span>
+                                                     <span class="font-medium">284</span>
+                                                 </div>
+                                                 <div class="flex justify-between">
+                                                     <span class="text-sm text-green-600">真实威胁</span>
+                                                     <span class="font-medium text-green-600">23</span>
+                                                 </div>
+                                                 <div class="flex justify-between">
+                                                     <span class="text-sm text-red-600">误报</span>
+                                                     <span class="font-medium text-red-600">261</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div>
+                                             <h5 class="font-medium text-gray-700 mb-2">处理效率</h5>
+                                             <div class="space-y-2">
+                                                 <div class="flex justify-between">
+                                                     <span class="text-sm">平均处理时间</span>
+                                                     <span class="font-medium">12分钟</span>
+                                                 </div>
+                                                 <div class="flex justify-between">
+                                                     <span class="text-sm text-green-600">自动处理</span>
+                                                     <span class="font-medium text-green-600">68%</span>
+                                                 </div>
+                                                 <div class="flex justify-between">
+                                                     <span class="text-sm text-orange-600">待人工审核</span>
+                                                     <span class="font-medium text-orange-600">91个</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div>
+                                 <h4 class="font-semibold text-gray-800 mb-3">主要误报来源</h4>
+                                 <div class="space-y-3">
+                                     <div class="bg-red-50 p-3 rounded-lg">
+                                         <div class="flex items-center justify-between mb-1">
+                                             <span class="font-medium text-red-800">网络扫描误报</span>
+                                             <span class="text-sm text-red-600">127次 (44.7%)</span>
+                                         </div>
+                                         <div class="text-sm text-red-700">内网安全扫描被误判为攻击行为</div>
+                                     </div>
+                                     <div class="bg-orange-50 p-3 rounded-lg">
+                                         <div class="flex items-center justify-between mb-1">
+                                             <span class="font-medium text-orange-800">业务系统异常</span>
+                                             <span class="text-sm text-orange-600">89次 (31.3%)</span>
+                                         </div>
+                                         <div class="text-sm text-orange-700">正常业务流量被误识别为异常</div>
+                                     </div>
+                                     <div class="bg-yellow-50 p-3 rounded-lg">
+                                         <div class="flex items-center justify-between mb-1">
+                                             <span class="font-medium text-yellow-800">规则过于敏感</span>
+                                             <span class="text-sm text-yellow-600">45次 (15.8%)</span>
+                                         </div>
+                                         <div class="text-sm text-yellow-700">检测规则阈值设置过低</div>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div>
+                                 <h4 class="font-semibold text-gray-800 mb-3">优化建议</h4>
+                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <div class="bg-blue-50 p-3 rounded-lg">
+                                         <div class="font-medium text-blue-800 mb-2">短期优化(1-2周)</div>
+                                         <ul class="text-sm text-blue-700 space-y-1">
+                                             <li>• 调整网络扫描规则白名单</li>
+                                             <li>• 优化业务系统流量基线</li>
+                                             <li>• 提高敏感规则阈值</li>
+                                         </ul>
+                                     </div>
+                                     <div class="bg-green-50 p-3 rounded-lg">
+                                         <div class="font-medium text-green-800 mb-2">长期优化(1-3月)</div>
+                                         <ul class="text-sm text-green-700 space-y-1">
+                                             <li>• 引入机器学习降噪算法</li>
+                                             <li>• 建立动态基线学习</li>
+                                             <li>• 实施上下文关联分析</li>
+                                         </ul>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                                           `,
+                      aiInsight: '当前误报率过高，主要原因是规则过于敏感和缺乏业务上下文。建议优先调整网络扫描白名单和业务基线，预计可将信噪比改善至1:8，减少40%的无效告警。'
+                  },
+                  'two-high-one-weak': {
+                      title: '两高一弱风险态势详情',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                  <div class="bg-red-50 p-4 rounded-lg">
+                                      <h4 class="font-semibold text-red-800 mb-3">高危漏洞详情 (47个)</h4>
+                                      <div class="space-y-2 text-sm">
+                                          <div class="flex justify-between"><span>CVE-2023-12345</span><span class="text-red-600">CVSS 9.8</span></div>
+                                          <div class="flex justify-between"><span>CVE-2023-67890</span><span class="text-red-600">CVSS 9.5</span></div>
+                                          <div class="flex justify-between"><span>CVE-2023-11111</span><span class="text-orange-600">CVSS 8.9</span></div>
+                                      </div>
+                                      <div class="mt-3 pt-3 border-t border-red-200">
+                                          <div class="text-xs text-red-700">超期未修复: 12个 | 平均修复时间: 15.2天</div>
+                                      </div>
+                                  </div>
+                                  <div class="bg-orange-50 p-4 rounded-lg">
+                                      <h4 class="font-semibold text-orange-800 mb-3">高危端口详情 (23个)</h4>
+                                      <div class="space-y-2 text-sm">
+                                          <div class="flex justify-between"><span>SSH (22)</span><span class="text-red-600">8台暴露</span></div>
+                                          <div class="flex justify-between"><span>RDP (3389)</span><span class="text-red-600">5台暴露</span></div>
+                                          <div class="flex justify-between"><span>MySQL (3306)</span><span class="text-orange-600">3台暴露</span></div>
+                                      </div>
+                                      <div class="mt-3 pt-3 border-t border-orange-200">
+                                          <div class="text-xs text-orange-700">管理端口: 8个 | 未授权访问: 3个</div>
+                                      </div>
+                                  </div>
+                                  <div class="bg-yellow-50 p-4 rounded-lg">
+                                      <h4 class="font-semibold text-yellow-800 mb-3">弱口令详情 (156个)</h4>
+                                      <div class="space-y-2 text-sm">
+                                          <div class="flex justify-between"><span>admin/admin</span><span class="text-red-600">23个</span></div>
+                                          <div class="flex justify-between"><span>root/123456</span><span class="text-red-600">15个</span></div>
+                                          <div class="flex justify-between"><span>简单口令</span><span class="text-orange-600">118个</span></div>
+                                      </div>
+                                      <div class="mt-3 pt-3 border-t border-yellow-200">
+                                          <div class="text-xs text-yellow-700">特权账户: 8个 | 域控相关: 12个</div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                  <h4 class="font-semibold text-gray-800 mb-3">趋势分析</h4>
+                                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                      <div class="text-center p-3 bg-red-50 rounded">
+                                          <div class="text-lg font-bold text-red-600">-8</div>
+                                          <div class="text-red-700">高危漏洞月度变化</div>
+                                      </div>
+                                      <div class="text-center p-3 bg-orange-50 rounded">
+                                          <div class="text-lg font-bold text-orange-600">+2</div>
+                                          <div class="text-orange-700">高危端口月度变化</div>
+                                      </div>
+                                      <div class="text-center p-3 bg-green-50 rounded">
+                                          <div class="text-lg font-bold text-green-600">-24</div>
+                                          <div class="text-green-700">弱口令月度变化</div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '高危漏洞修复进度良好，但新增高危端口值得关注。弱口令治理效果显著，建议继续推进强密码策略，重点关注特权账户和域控相关账户的安全。'
+                  },
+                  'response-time': {
+                      title: '响应时间分析详情',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div class="bg-red-50 p-4 rounded-lg text-center">
+                                      <div class="text-2xl font-bold text-red-600">28分钟</div>
+                                      <div class="text-sm text-red-700">高危事件MTTR</div>
+                                      <div class="text-xs text-green-600">↓ 12分钟 (30%改善)</div>
+                                  </div>
+                                  <div class="bg-orange-50 p-4 rounded-lg text-center">
+                                      <div class="text-2xl font-bold text-orange-600">4.2小时</div>
+                                      <div class="text-sm text-orange-700">中危告警MTTR</div>
+                                      <div class="text-xs text-red-600">↑ 1.1小时 (需关注)</div>
+                                  </div>
+                                  <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                                      <div class="text-2xl font-bold text-yellow-600">36小时</div>
+                                      <div class="text-sm text-yellow-700">低危告警MTTR</div>
+                                      <div class="text-xs text-green-600">↓ 8小时 (18%改善)</div>
+                                  </div>
+                              </div>
+                              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                  <h4 class="font-semibold text-gray-800 mb-3">响应流程时间分析</h4>
+                                  <div class="space-y-3">
+                                      <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                          <span class="text-sm">检测到告警</span>
+                                          <span class="text-sm font-medium">< 1分钟</span>
+                                      </div>
+                                      <div class="flex items-center justify-between p-2 bg-blue-50 rounded">
+                                          <span class="text-sm">分析确认</span>
+                                          <span class="text-sm font-medium">8分钟</span>
+                                      </div>
+                                      <div class="flex items-center justify-between p-2 bg-orange-50 rounded">
+                                          <span class="text-sm">响应处置</span>
+                                          <span class="text-sm font-medium">19分钟</span>
+                                      </div>
+                                      <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                          <span class="text-sm">验证闭环</span>
+                                          <span class="text-sm font-medium">12分钟</span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div>
+                                  <h4 class="font-semibold text-gray-800 mb-3">瓶颈分析</h4>
+                                  <div class="space-y-2">
+                                      <div class="bg-red-50 p-3 rounded-lg">
+                                          <div class="font-medium text-red-800">中危告警处理瓶颈</div>
+                                          <div class="text-sm text-red-700 mt-1">人员配置不足，工作时间外响应延迟，需要值班机制优化</div>
+                                      </div>
+                                      <div class="bg-blue-50 p-3 rounded-lg">
+                                          <div class="font-medium text-blue-800">高危事件改善显著</div>
+                                          <div class="text-sm text-blue-700 mt-1">自动化剧本优化，快速响应流程完善，团队配合度提升</div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '高危事件响应时间改善明显，但中危告警响应时间上升需要关注。建议优化中危告警的值班机制和处理流程，考虑引入更多自动化处理环节。'
+                  },
+                  'incident-quality': {
+                      title: '事件处置质量详情',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div class="bg-green-50 p-4 rounded-lg text-center">
+                                      <div class="text-2xl font-bold text-green-600">8%</div>
+                                      <div class="text-sm text-green-700">事件重开率</div>
+                                      <div class="text-xs text-gray-600">目标: < 10%</div>
+                                  </div>
+                                  <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                      <div class="text-2xl font-bold text-blue-600">76%</div>
+                                      <div class="text-sm text-blue-700">根因消除率</div>
+                                      <div class="text-xs text-gray-600">目标: > 80%</div>
+                                  </div>
+                                  <div class="bg-purple-50 p-4 rounded-lg text-center">
+                                      <div class="text-2xl font-bold text-purple-600">64%</div>
+                                      <div class="text-sm text-purple-700">自动化闭环率</div>
+                                      <div class="text-xs text-gray-600">目标: > 70%</div>
+                                  </div>
+                              </div>
+                              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                  <h4 class="font-semibold text-blue-800 mb-2">
+                                      <i class="fas fa-lightbulb mr-2"></i>AI质量审计发现
+                                  </h4>
+                                  <div class="space-y-2 text-sm">
+                                      <div class="bg-white p-2 rounded border-l-2 border-orange-500">
+                                          <strong>可疑快速关单:</strong> 发现3起高危事件在2分钟内关闭，但未发现相关处置记录
+                                      </div>
+                                      <div class="bg-white p-2 rounded border-l-2 border-yellow-500">
+                                          <strong>处置不完整:</strong> 5起事件缺少根因分析，建议补充详细调查报告
+                                      </div>
+                                  </div>
+                              </div>
+                              <div>
+                                  <h4 class="font-semibold text-gray-800 mb-3">质量改进措施</h4>
+                                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div class="bg-green-50 p-3 rounded-lg">
+                                          <div class="font-medium text-green-800 mb-2">已实施措施</div>
+                                          <ul class="text-sm text-green-700 space-y-1">
+                                              <li>• 事件处置检查清单</li>
+                                              <li>• 根因分析模板标准化</li>
+                                              <li>• 关单前质量审核</li>
+                                          </ul>
+                                      </div>
+                                      <div class="bg-blue-50 p-3 rounded-lg">
+                                          <div class="font-medium text-blue-800 mb-2">计划改进</div>
+                                          <ul class="text-sm text-blue-700 space-y-1">
+                                              <li>• AI智能质量评分</li>
+                                              <li>• 同行评议机制</li>
+                                              <li>• 处置效果跟踪</li>
+                                          </ul>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '整体处置质量良好，但根因消除率和自动化闭环率仍有提升空间。AI质量审计发现的问题需要及时跟进，建议加强处置过程的标准化和质量把控。'
+                  },
+                  'repeat-victims': {
+                      title: '重复受害资产详情',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                  <h4 class="font-semibold text-gray-800 mb-3">完整排行榜 (Top 20)</h4>
+                                  <div class="overflow-x-auto">
+                                      <table class="min-w-full">
+                                          <thead class="bg-gray-50">
+                                              <tr>
+                                                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">排名</th>
+                                                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">IP地址</th>
+                                                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">资产类型</th>
+                                                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">受害次数</th>
+                                                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">主要威胁</th>
+                                                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">状态</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody class="divide-y divide-gray-200 text-sm">
+                                              <tr class="bg-red-50">
+                                                  <td class="px-3 py-2 font-bold text-red-600">1</td>
+                                                  <td class="px-3 py-2">10.10.50.98</td>
+                                                  <td class="px-3 py-2">Web服务器</td>
+                                                  <td class="px-3 py-2 font-bold text-red-600">18次</td>
+                                                  <td class="px-3 py-2">SQL注入, XSS</td>
+                                                  <td class="px-3 py-2"><span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">加固中</span></td>
+                                              </tr>
+                                              <tr class="bg-orange-50">
+                                                  <td class="px-3 py-2 font-bold text-orange-600">2</td>
+                                                  <td class="px-3 py-2">172.16.88.45</td>
+                                                  <td class="px-3 py-2">数据库服务器</td>
+                                                  <td class="px-3 py-2 font-bold text-orange-600">12次</td>
+                                                  <td class="px-3 py-2">暴力破解</td>
+                                                  <td class="px-3 py-2"><span class="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">监控中</span></td>
+                                              </tr>
+                                              <tr class="bg-yellow-50">
+                                                  <td class="px-3 py-2 font-bold text-yellow-600">3</td>
+                                                  <td class="px-3 py-2">192.168.1.120</td>
+                                                  <td class="px-3 py-2">办公终端</td>
+                                                  <td class="px-3 py-2 font-bold text-yellow-600">8次</td>
+                                                  <td class="px-3 py-2">恶意软件</td>
+                                                  <td class="px-3 py-2"><span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">已处理</span></td>
+                                              </tr>
+                                          </tbody>
+                                      </table>
+                                  </div>
+                              </div>
+                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">受害原因分析</h4>
+                                      <div class="space-y-2">
+                                          <div class="bg-red-50 p-2 rounded">
+                                              <div class="text-sm font-medium text-red-800">配置缺陷 (45%)</div>
+                                              <div class="text-xs text-red-700">安全配置不当，缺少必要防护</div>
+                                          </div>
+                                          <div class="bg-orange-50 p-2 rounded">
+                                              <div class="text-sm font-medium text-orange-800">补丁滞后 (32%)</div>
+                                              <div class="text-xs text-orange-700">系统补丁更新不及时</div>
+                                          </div>
+                                          <div class="bg-yellow-50 p-2 rounded">
+                                              <div class="text-sm font-medium text-yellow-800">用户行为 (23%)</div>
+                                              <div class="text-xs text-yellow-700">员工安全意识不足</div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">加固建议</h4>
+                                      <div class="space-y-2">
+                                          <div class="bg-blue-50 p-2 rounded">
+                                              <div class="text-sm font-medium text-blue-800">立即行动</div>
+                                              <div class="text-xs text-blue-700">隔离高风险资产，应急加固</div>
+                                          </div>
+                                          <div class="bg-green-50 p-2 rounded">
+                                              <div class="text-sm font-medium text-green-800">中期规划</div>
+                                              <div class="text-xs text-green-700">系统重构，安全基线加强</div>
+                                          </div>
+                                          <div class="bg-purple-50 p-2 rounded">
+                                              <div class="text-sm font-medium text-purple-800">持续监控</div>
+                                              <div class="text-xs text-purple-700">专项监控，定期评估</div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '重复受害资产多为历史遗留的安全配置问题，建议对Top10资产实施专项加固计划。前3名资产风险极高，需要立即采取隔离和应急处置措施。'
+                  },
+                  'action-recommendations': {
+                      title: '本周行动建议详情',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                  <h4 class="font-semibold text-red-800 mb-3">
+                                      <i class="fas fa-exclamation-triangle mr-2"></i>紧急行动 (P0)
+                                  </h4>
+                                  <div class="space-y-3">
+                                      <div class="bg-white p-3 rounded border-l-4 border-red-500">
+                                          <div class="flex items-start justify-between">
+                                              <div class="flex-1">
+                                                  <div class="font-medium text-red-800">云资产安全管控</div>
+                                                  <div class="text-sm text-red-700 mt-1">发现3台未受控云数据库暴露在公网，存在数据泄露风险</div>
+                                                  <div class="text-xs text-gray-600 mt-2">影响: 核心数据 | 预计完成: 24小时内</div>
+                                              </div>
+                                              <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">未开始</span>
+                                          </div>
+                                      </div>
+                                      <div class="bg-white p-3 rounded border-l-4 border-red-500">
+                                          <div class="flex items-start justify-between">
+                                              <div class="flex-1">
+                                                  <div class="font-medium text-red-800">修复关键漏洞CVE-2023-12345</div>
+                                                  <div class="text-sm text-red-700 mt-1">CVSS 9.8分，影响DMZ Web服务器，存在远程代码执行风险</div>
+                                                  <div class="text-xs text-gray-600 mt-2">影响: 8台服务器 | 预计完成: 48小时内</div>
+                                              </div>
+                                              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">进行中</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                  <h4 class="font-semibold text-orange-800 mb-3">
+                                      <i class="fas fa-shield-alt mr-2"></i>重要优化 (P1)
+                                  </h4>
+                                  <div class="space-y-3">
+                                      <div class="bg-white p-3 rounded border-l-4 border-orange-500">
+                                          <div class="flex items-start justify-between">
+                                              <div class="flex-1">
+                                                  <div class="font-medium text-orange-800">优化中危告警处理流程</div>
+                                                  <div class="text-sm text-orange-700 mt-1">中危告警MTTR上升18%，影响整体响应效率</div>
+                                                  <div class="text-xs text-gray-600 mt-2">目标: MTTR降至3小时内 | 预计完成: 1周内</div>
+                                              </div>
+                                              <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">规划中</span>
+                                          </div>
+                                      </div>
+                                      <div class="bg-white p-3 rounded border-l-4 border-orange-500">
+                                          <div class="flex items-start justify-between">
+                                              <div class="flex-1">
+                                                  <div class="font-medium text-orange-800">强化特权账户管理</div>
+                                                  <div class="text-sm text-orange-700 mt-1">发现8个特权账户使用弱口令，需要立即整改</div>
+                                                  <div class="text-xs text-gray-600 mt-2">影响: 域控和核心系统 | 预计完成: 3天内</div>
+                                              </div>
+                                              <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">待安排</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                  <h4 class="font-semibold text-blue-800 mb-3">
+                                      <i class="fas fa-robot mr-2"></i>能力提升 (P2)
+                                  </h4>
+                                  <div class="space-y-3">
+                                      <div class="bg-white p-3 rounded border-l-4 border-blue-500">
+                                          <div class="flex items-start justify-between">
+                                              <div class="flex-1">
+                                                  <div class="font-medium text-blue-800">扩大自动化覆盖范围</div>
+                                                  <div class="text-sm text-blue-700 mt-1">当前自动化率68%，重点关注邮件安全和Web攻击场景</div>
+                                                  <div class="text-xs text-gray-600 mt-2">目标: 提升至78% | 预计完成: 2周内</div>
+                                              </div>
+                                              <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">进行中</span>
+                                          </div>
+                                      </div>
+                                      <div class="bg-white p-3 rounded border-l-4 border-blue-500">
+                                          <div class="flex items-start justify-between">
+                                              <div class="flex-1">
+                                                  <div class="font-medium text-blue-800">告警规则优化</div>
+                                                  <div class="text-sm text-blue-700 mt-1">信噪比1:12需要改善，减少误报提升运营效率</div>
+                                                  <div class="text-xs text-gray-600 mt-2">目标: 改善至1:8 | 预计完成: 1个月内</div>
+                                              </div>
+                                              <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">规划中</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">资源分配建议</h4>
+                                      <div class="space-y-2">
+                                          <div class="flex justify-between p-2 bg-red-50 rounded">
+                                              <span class="text-sm">紧急响应团队</span>
+                                              <span class="text-sm font-medium text-red-600">+2人</span>
+                                          </div>
+                                          <div class="flex justify-between p-2 bg-blue-50 rounded">
+                                              <span class="text-sm">自动化开发</span>
+                                              <span class="text-sm font-medium text-blue-600">40工时</span>
+                                          </div>
+                                          <div class="flex justify-between p-2 bg-green-50 rounded">
+                                              <span class="text-sm">设备采购预算</span>
+                                              <span class="text-sm font-medium text-green-600">30万元</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">执行时间线</h4>
+                                      <div class="space-y-2">
+                                          <div class="flex items-center p-2 bg-red-50 rounded">
+                                              <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
+                                              <div class="text-sm">
+                                                  <div class="font-medium">本周内</div>
+                                                  <div class="text-xs text-gray-600">云资产管控 + 关键漏洞修复</div>
+                                              </div>
+                                          </div>
+                                          <div class="flex items-center p-2 bg-orange-50 rounded">
+                                              <div class="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                                              <div class="text-sm">
+                                                  <div class="font-medium">本月内</div>
+                                                  <div class="text-xs text-gray-600">流程优化 + 账户管理</div>
+                                              </div>
+                                          </div>
+                                          <div class="flex items-center p-2 bg-blue-50 rounded">
+                                              <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                              <div class="text-sm">
+                                                  <div class="font-medium">下月目标</div>
+                                                  <div class="text-xs text-gray-600">自动化提升 + 规则优化</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '基于历史趋势分析和风险评估模型，当前安全态势呈现"稳中向好"的特征。核心观察要点：①云安全成为新威胁焦点，建议立即建立云资产清单和统一管控机制；②关键漏洞修复存在时间窗口风险，建议引入自动化修复和应急响应预案；③中危告警处理效率下降18%提示人员负荷过重，建议优化人力配置或引入智能分流。执行建议：按P0紧急行动→P1重要优化→P2能力提升的三阶段推进，关键成功因素为资源投入的及时性和执行过程的可视化监控。预期在4-6周内可将整体安全健康分从当前83分提升至92分，达到行业领先水平。'
+                  },
+                  'critical-vulns': {
+                      title: '高危漏洞详情分析',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                                      <div class="text-2xl font-bold text-red-600">47</div>
+                                      <div class="text-sm text-red-700">当前高危漏洞总数</div>
+                                      <div class="text-xs text-gray-600 mt-1">较上月减少8个 (-14.5%)</div>
+                                  </div>
+                                  <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                                      <div class="text-2xl font-bold text-orange-600">15.2天</div>
+                                      <div class="text-sm text-orange-700">平均修复时间</div>
+                                      <div class="text-xs text-gray-600 mt-1">目标值：7天内</div>
+                                  </div>
+                                  <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                                      <div class="text-2xl font-bold text-purple-600">12</div>
+                                      <div class="text-sm text-purple-700">超期未修复</div>
+                                      <div class="text-xs text-gray-600 mt-1">需立即处置</div>
+                                  </div>
+                              </div>
+                              
+                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">高危漏洞分布</h4>
+                                      <div class="space-y-3">
+                                          <div class="flex items-center justify-between p-3 bg-red-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                                  <span class="text-sm">远程代码执行</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-red-600">18个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-orange-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                                  <span class="text-sm">SQL注入</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-orange-600">12个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-yellow-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                                  <span class="text-sm">权限提升</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-yellow-600">10个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-blue-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                                  <span class="text-sm">信息泄露</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-blue-600">7个</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">超期漏洞详情</h4>
+                                      <div class="space-y-2">
+                                          <div class="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                                              <div class="font-medium text-red-800">CVE-2023-12345</div>
+                                              <div class="text-sm text-red-700">Nginx远程代码执行 (CVSS 9.8)</div>
+                                              <div class="text-xs text-gray-600">超期: 23天 | 影响: 8台服务器</div>
+                                          </div>
+                                          <div class="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                                              <div class="font-medium text-red-800">CVE-2023-23456</div>
+                                              <div class="text-sm text-red-700">Windows权限提升 (CVSS 9.3)</div>
+                                              <div class="text-xs text-gray-600">超期: 18天 | 影响: 15台终端</div>
+                                          </div>
+                                          <div class="bg-orange-100 p-3 rounded border-l-4 border-orange-500">
+                                              <div class="font-medium text-orange-800">CVE-2023-34567</div>
+                                              <div class="text-sm text-orange-700">MySQL SQL注入 (CVSS 8.9)</div>
+                                              <div class="text-xs text-gray-600">超期: 12天 | 影响: 3个数据库</div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              
+                              <div>
+                                  <h4 class="font-semibold text-gray-800 mb-3">修复进度跟踪</h4>
+                                  <div class="space-y-3">
+                                      <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                          <span class="text-sm font-medium text-green-800">本周已修复</span>
+                                          <span class="text-lg font-bold text-green-600">8个</span>
+                                      </div>
+                                      <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                          <span class="text-sm font-medium text-blue-800">修复中</span>
+                                          <span class="text-lg font-bold text-blue-600">15个</span>
+                                      </div>
+                                      <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                                          <span class="text-sm font-medium text-orange-800">待确认</span>
+                                          <span class="text-lg font-bold text-orange-600">12个</span>
+                                      </div>
+                                      <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                          <span class="text-sm font-medium text-red-800">超期未处理</span>
+                                          <span class="text-lg font-bold text-red-600">12个</span>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '高危漏洞态势分析显示修复效率存在明显瓶颈。关键发现：①远程代码执行类漏洞占比38%，属于最高威胁级别，需要7x24小时应急响应；②平均修复时间15.2天远超行业基准（7天），主要延误环节为"漏洞确认→补丁测试→生产部署"；③12个超期漏洞中有3个涉及核心业务系统，存在业务中断风险。建议措施：立即启动漏洞修复专项行动，建立"发现→评估→修复→验证"的4小时快速响应机制，对超期漏洞实施每日进度跟踪，预计2周内可将平均修复时间压缩至8天以内。'
+                  },
+                  'critical-ports': {
+                      title: '高危端口暴露分析',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                                      <div class="text-2xl font-bold text-orange-600">23</div>
+                                      <div class="text-sm text-orange-700">高危端口总数</div>
+                                      <div class="text-xs text-gray-600 mt-1">较上月新增2个 (+9.5%)</div>
+                                  </div>
+                                  <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                                      <div class="text-2xl font-bold text-red-600">8</div>
+                                      <div class="text-sm text-red-700">管理端口暴露</div>
+                                      <div class="text-xs text-gray-600 mt-1">最高风险等级</div>
+                                  </div>
+                                  <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                                      <div class="text-2xl font-bold text-purple-600">3</div>
+                                      <div class="text-sm text-purple-700">未授权访问</div>
+                                      <div class="text-xs text-gray-600 mt-1">需立即封堵</div>
+                                  </div>
+                              </div>
+                              
+                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">暴露端口详情</h4>
+                                      <div class="space-y-2">
+                                          <div class="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                                              <div class="flex justify-between items-start">
+                                                  <div>
+                                                      <div class="font-medium text-red-800">端口 3389 (RDP)</div>
+                                                      <div class="text-sm text-red-700">5台服务器暴露</div>
+                                                      <div class="text-xs text-gray-600">管理端口 | 暴力破解风险</div>
+                                                  </div>
+                                                  <span class="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Critical</span>
+                                              </div>
+                                          </div>
+                                          <div class="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                                              <div class="flex justify-between items-start">
+                                                  <div>
+                                                      <div class="font-medium text-red-800">端口 22 (SSH)</div>
+                                                      <div class="text-sm text-red-700">3台服务器暴露</div>
+                                                      <div class="text-xs text-gray-600">管理端口 | 弱密码攻击</div>
+                                                  </div>
+                                                  <span class="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Critical</span>
+                                              </div>
+                                          </div>
+                                          <div class="bg-orange-100 p-3 rounded border-l-4 border-orange-500">
+                                              <div class="flex justify-between items-start">
+                                                  <div>
+                                                      <div class="font-medium text-orange-800">端口 1433 (SQL Server)</div>
+                                                      <div class="text-sm text-orange-700">2台数据库暴露</div>
+                                                      <div class="text-xs text-gray-600">数据库端口 | 数据泄露风险</div>
+                                                  </div>
+                                                  <span class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">High</span>
+                                              </div>
+                                          </div>
+                                          <div class="bg-orange-100 p-3 rounded border-l-4 border-orange-500">
+                                              <div class="flex justify-between items-start">
+                                                  <div>
+                                                      <div class="font-medium text-orange-800">端口 5432 (PostgreSQL)</div>
+                                                      <div class="text-sm text-orange-700">1台数据库暴露</div>
+                                                      <div class="text-xs text-gray-600">数据库端口 | 未授权访问</div>
+                                                  </div>
+                                                  <span class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">High</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">地理位置分布</h4>
+                                      <div class="space-y-3">
+                                          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                                  <span class="text-sm">中国大陆</span>
+                                              </div>
+                                              <span class="text-sm font-medium">12个端口</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                                  <span class="text-sm">美国</span>
+                                              </div>
+                                              <span class="text-sm font-medium">8个端口</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                                  <span class="text-sm">欧洲</span>
+                                              </div>
+                                              <span class="text-sm font-medium">3个端口</span>
+                                          </div>
+                                      </div>
+                                      
+                                      <h4 class="font-semibold text-gray-800 mb-3 mt-6">攻击尝试统计</h4>
+                                      <div class="space-y-2">
+                                          <div class="flex justify-between p-2 bg-red-50 rounded">
+                                              <span class="text-sm">今日攻击尝试</span>
+                                              <span class="text-sm font-medium text-red-600">1,247次</span>
+                                          </div>
+                                          <div class="flex justify-between p-2 bg-orange-50 rounded">
+                                              <span class="text-sm">本周攻击尝试</span>
+                                              <span class="text-sm font-medium text-orange-600">8,934次</span>
+                                          </div>
+                                          <div class="flex justify-between p-2 bg-yellow-50 rounded">
+                                              <span class="text-sm">成功突破次数</span>
+                                              <span class="text-sm font-medium text-yellow-600">0次</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              
+                              <div>
+                                  <h4 class="font-semibold text-gray-800 mb-3">处置建议</h4>
+                                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                                          <div class="font-semibold text-red-800 mb-2">立即处置 (24小时内)</div>
+                                          <ul class="text-sm text-red-700 space-y-1">
+                                              <li>• 关闭3389和22端口的公网访问</li>
+                                              <li>• 启用VPN+白名单访问控制</li>
+                                              <li>• 数据库端口迁移至内网</li>
+                                          </ul>
+                                      </div>
+                                      <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                                          <div class="font-semibold text-orange-800 mb-2">短期改进 (1周内)</div>
+                                          <ul class="text-sm text-orange-700 space-y-1">
+                                              <li>• 部署堡垒机统一管理</li>
+                                              <li>• 启用端口敲门技术</li>
+                                              <li>• 增强日志监控告警</li>
+                                          </ul>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '高危端口暴露情况呈现恶化趋势，新增端口主要集中在管理类服务。深层分析揭示：①RDP和SSH端口暴露占比超过60%，成为攻击者首选目标，每日遭受1000+次暴力破解尝试；②数据库端口暴露属于严重配置错误，违背最小权限原则，存在数据泄露的直接风险；③地理分布显示海外资产管控不足，可能存在影子IT问题。紧急建议：立即执行端口收敛策略，将管理端口全部迁移至VPN环境，对暴露的数据库端口实施紧急关闭，预计可将外网攻击面减少80%以上，显著降低被攻破风险。'
+                  },
+                  'weak-passwords': {
+                      title: '弱口令治理分析',
+                      content: `
+                          <div class="space-y-6">
+                              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                      <div class="text-2xl font-bold text-yellow-600">156</div>
+                                      <div class="text-sm text-yellow-700">弱口令总数</div>
+                                      <div class="text-xs text-gray-600 mt-1">较上月减少24个 (-13.3%)</div>
+                                  </div>
+                                  <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                                      <div class="text-2xl font-bold text-red-600">8</div>
+                                      <div class="text-sm text-red-700">特权账户弱口令</div>
+                                      <div class="text-xs text-gray-600 mt-1">最高优先级</div>
+                                  </div>
+                                  <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                                      <div class="text-2xl font-bold text-green-600">24</div>
+                                      <div class="text-sm text-green-700">本周已修复</div>
+                                      <div class="text-xs text-gray-600 mt-1">治理进度良好</div>
+                                  </div>
+                              </div>
+                              
+                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">弱口令分布</h4>
+                                      <div class="space-y-3">
+                                          <div class="flex items-center justify-between p-3 bg-red-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                                  <span class="text-sm">特权账户</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-red-600">8个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-orange-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                                  <span class="text-sm">域控相关</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-orange-600">12个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-yellow-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                                  <span class="text-sm">服务账户</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-yellow-600">28个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-blue-50 rounded">
+                                              <div class="flex items-center space-x-3">
+                                                  <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                                  <span class="text-sm">普通用户</span>
+                                              </div>
+                                              <span class="text-sm font-medium text-blue-600">108个</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">弱口令类型</h4>
+                                      <div class="space-y-2">
+                                          <div class="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                                              <div class="flex justify-between items-center">
+                                                  <div>
+                                                      <div class="font-medium text-red-800">默认密码</div>
+                                                      <div class="text-sm text-red-700">admin/123456等</div>
+                                                  </div>
+                                                  <span class="text-lg font-bold text-red-600">45个</span>
+                                              </div>
+                                          </div>
+                                          <div class="bg-orange-100 p-3 rounded border-l-4 border-orange-500">
+                                              <div class="flex justify-between items-center">
+                                                  <div>
+                                                      <div class="font-medium text-orange-800">简单密码</div>
+                                                      <div class="text-sm text-orange-700">少于8位数字/字母</div>
+                                                  </div>
+                                                  <span class="text-lg font-bold text-orange-600">67个</span>
+                                              </div>
+                                          </div>
+                                          <div class="bg-yellow-100 p-3 rounded border-l-4 border-yellow-500">
+                                              <div class="flex justify-between items-center">
+                                                  <div>
+                                                      <div class="font-medium text-yellow-800">常见密码</div>
+                                                      <div class="text-sm text-yellow-700">dictionary攻击可破解</div>
+                                                  </div>
+                                                  <span class="text-lg font-bold text-yellow-600">44个</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              
+                              <div>
+                                  <h4 class="font-semibold text-gray-800 mb-3">高风险账户详情</h4>
+                                  <div class="space-y-2">
+                                      <div class="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                                          <div class="flex justify-between items-start">
+                                              <div>
+                                                  <div class="font-medium text-red-800">域管理员账户 (DA_ADMIN01)</div>
+                                                  <div class="text-sm text-red-700">密码: admin123 | 最后修改: 180天前</div>
+                                                  <div class="text-xs text-gray-600">风险: 域控制器完全访问权限</div>
+                                              </div>
+                                              <span class="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Critical</span>
+                                          </div>
+                                      </div>
+                                      <div class="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                                          <div class="flex justify-between items-start">
+                                              <div>
+                                                  <div class="font-medium text-red-800">数据库管理员 (DBADMIN)</div>
+                                                  <div class="text-sm text-red-700">密码: 123456 | 最后修改: 365天前</div>
+                                                  <div class="text-xs text-gray-600">风险: 核心业务数据库访问</div>
+                                              </div>
+                                              <span class="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Critical</span>
+                                          </div>
+                                      </div>
+                                      <div class="bg-orange-100 p-3 rounded border-l-4 border-orange-500">
+                                          <div class="flex justify-between items-start">
+                                              <div>
+                                                  <div class="font-medium text-orange-800">备份服务账户 (BACKUP_SVC)</div>
+                                                  <div class="text-sm text-orange-700">密码: backup2023 | 最后修改: 90天前</div>
+                                                  <div class="text-xs text-gray-600">风险: 数据备份系统访问</div>
+                                              </div>
+                                              <span class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">High</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              
+                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">修复进度</h4>
+                                      <div class="space-y-3">
+                                          <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                              <span class="text-sm font-medium text-green-800">已修复</span>
+                                              <span class="text-lg font-bold text-green-600">124个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                              <span class="text-sm font-medium text-yellow-800">修复中</span>
+                                              <span class="text-lg font-bold text-yellow-600">32个</span>
+                                          </div>
+                                          <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                              <span class="text-sm font-medium text-red-800">待处理</span>
+                                              <span class="text-lg font-bold text-red-600">156个</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <h4 class="font-semibold text-gray-800 mb-3">整改措施</h4>
+                                      <div class="space-y-2">
+                                          <div class="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
+                                              <div class="font-semibold text-blue-800 mb-1">技术措施</div>
+                                              <ul class="text-sm text-blue-700 space-y-1">
+                                                  <li>• 部署密码复杂度策略</li>
+                                                  <li>• 启用密码到期强制更换</li>
+                                                  <li>• 集成MFA多因子认证</li>
+                                              </ul>
+                                          </div>
+                                          <div class="bg-green-50 p-3 rounded border-l-4 border-green-500">
+                                              <div class="font-semibold text-green-800 mb-1">管理措施</div>
+                                              <ul class="text-sm text-green-700 space-y-1">
+                                                  <li>• 定期弱口令扫描</li>
+                                                  <li>• 密码管理培训</li>
+                                                  <li>• 建立问责机制</li>
+                                              </ul>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `,
+                      aiInsight: '弱口令治理显示积极进展，但高权限账户风险需要紧急关注。关键洞察：①特权账户弱口令数量虽少但影响巨大，其中域管理员和数据库管理员账户使用弱口令超过半年，存在被APT攻击利用的极高风险；②整体治理效果良好，月度治理率达13.3%，但需要加速特权账户的处置节奏；③密码类型分析显示67%为简单密码，说明用户安全意识有待提升。建议立即对8个特权账户实施强制密码重置，部署企业级密码管理器，建立30天密码轮换机制，预计可在2周内将高风险弱口令降至零，3个月内实现全面达标。'
+                  }
+              };
+              
+              return detailMap[type] || {
+                  title: '详情',
+                  content: '<p>暂无详细数据</p>',
+                  aiInsight: '数据加载中...'
+              };
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            
+            // 关闭弹窗
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('detailModal').classList.add('hidden');
+            });
+            
+            // 点击弹窗外部关闭
+            document.getElementById('detailModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+            
+            // 为所有带详情的模块添加点击事件
+            document.querySelectorAll('[data-detail]').forEach(element => {
+                element.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const detailType = this.getAttribute('data-detail');
+                    showDetailModal(detailType);
+                });
+            });
+
+            // 添加悬停效果提示
+            document.querySelectorAll('[data-detail]').forEach(element => {
+                element.style.cursor = 'pointer';
+                element.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+                });
+                element.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

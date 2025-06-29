@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全工作流编排平台 - XDR AI 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/jsplumb@2.15.6/dist/js/jsplumb.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#64748b',
+                        accent: '#3b82f6',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        success: '#10b981'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .workflow-canvas {
+            background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            user-select: none;
+        }
+        .workflow-viewport {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            cursor: grab;
+        }
+        .workflow-viewport:active {
+            cursor: grabbing;
+        }
+        .workflow-container {
+            position: absolute;
+            width: 10000px;
+            height: 10000px;
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+        }
+        .canvas-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .canvas-control-btn {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+        .canvas-control-btn:hover {
+            background: #f9fafb;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            overflow: hidden;
+        }
+        .minimap-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #f9fafb;
+        }
+        .minimap-viewport {
+            position: absolute;
+            border: 2px solid #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            cursor: pointer;
+        }
+        .minimap-node {
+            position: absolute;
+            background: #6b7280;
+            border-radius: 2px;
+            width: 8px;
+            height: 6px;
+        }
+        .coordinates-display {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #6b7280;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .draggable-node {
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+        .draggable-node:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .node-trigger { border-left: 4px solid #10b981; }
+        .node-ai { border-left: 4px solid #3b82f6; }
+        .node-agent { border-left: 4px solid #8b5cf6; }
+        .node-soar { border-left: 4px solid #f59e0b; }
+        .node-human { border-left: 4px solid #ef4444; }
+        .node-logic { border-left: 4px solid #64748b; }
+        .node-comment { border-left: 4px solid #f59e0b; background: #fefce8; }
+        .node-group { border: 2px dashed #6366f1; background: rgba(99, 102, 241, 0.05); }
+        
+        .connector-endpoint {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: absolute;
+            cursor: crosshair;
+        }
+        .endpoint-source {
+            background: #10b981;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .endpoint-target {
+            background: #ef4444;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .sidebar-collapsed {
+            width: 60px;
+        }
+        .sidebar-expanded {
+            width: 280px;
+        }
+        
+        .debug-highlight {
+            animation: pulse 2s infinite;
+            border: 2px solid #f59e0b !important;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* 右键菜单样式 */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 120px;
+            display: none;
+        }
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+        .context-menu-item:hover {
+            background: #f9fafb;
+        }
+        .context-menu-item.danger:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <!-- 顶部工具栏 -->
+    <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-project-diagram text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-semibold text-gray-900">安全工作流编排平台</h1>
+                </div>
+            </div>
+            <div class="h-6 w-px bg-gray-300"></div>
+            <div class="flex items-center space-x-2">
+                <button id="saveBtn" class="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm">
+                    <i class="fas fa-save mr-1"></i>保存
+                </button>
+                <button id="debugBtn" class="px-3 py-1.5 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm">
+                    <i class="fas fa-bug mr-1"></i>调试
+                </button>
+                <button id="publishBtn" class="px-3 py-1.5 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
+                    <i class="fas fa-rocket mr-1"></i>发布
+                </button>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-500">
+                <span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span>
+                已保存
+            </div>
+            <button class="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100">
+                <i class="fas fa-question-circle"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex h-full">
+        <!-- 左侧节点工具栏 -->
+        <div id="sidebar" class="sidebar-expanded bg-white border-r border-gray-200 flex flex-col transition-all duration-300">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h2 class="font-semibold text-gray-900">节点库</h2>
+                <button id="toggleSidebar" class="p-1 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4">
+                <!-- 触发器节点 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-bolt text-green-500 mr-2"></i>触发器节点
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="node-template draggable-node node-trigger bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="trigger" data-subtype="alert">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                            <span class="text-sm font-medium">告警触发器</span>
+                        </div>
+                        <div class="node-template draggable-node node-trigger bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="trigger" data-subtype="event">
+                            <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
+                            <span class="text-sm font-medium">事件触发器</span>
+                        </div>
+                        <div class="node-template draggable-node node-trigger bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="trigger" data-subtype="webhook">
+                            <i class="fas fa-plug text-purple-500 mr-2"></i>
+                            <span class="text-sm font-medium">Webhook触发器</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Agent节点 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-robot text-blue-500 mr-2"></i>AI Agent节点
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="node-template draggable-node node-ai bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="ai" data-subtype="investigate">
+                            <i class="fas fa-search text-blue-500 mr-2"></i>
+                            <span class="text-sm font-medium">调查溯源Agent</span>
+                        </div>
+                        <div class="node-template draggable-node node-ai bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="ai" data-subtype="disposal">
+                            <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                            <span class="text-sm font-medium">实体处置Agent</span>
+                        </div>
+                        <div class="node-template draggable-node node-ai bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="ai" data-subtype="custom">
+                            <i class="fas fa-cog text-gray-500 mr-2"></i>
+                            <span class="text-sm font-medium">自定义Agent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 联络员Agent -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-user-tie text-purple-500 mr-2"></i>联络员Agent
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="node-template draggable-node node-agent bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="agent" data-subtype="contact">
+                            <i class="fas fa-comments text-purple-500 mr-2"></i>
+                            <span class="text-sm font-medium">联络员Agent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SOAR引擎 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-cogs text-orange-500 mr-2"></i>SOAR引擎
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="node-template draggable-node node-soar bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="soar" data-subtype="playbook">
+                            <i class="fas fa-play-circle text-orange-500 mr-2"></i>
+                            <span class="text-sm font-medium">处置Playbook</span>
+                        </div>
+                        <div class="node-template draggable-node node-soar bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="soar" data-subtype="ticket">
+                            <i class="fas fa-ticket-alt text-orange-500 mr-2"></i>
+                            <span class="text-sm font-medium">工单管理</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 人工节点 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-user text-red-500 mr-2"></i>人工节点
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="node-template draggable-node node-human bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="human" data-subtype="confirm">
+                            <i class="fas fa-check-circle text-red-500 mr-2"></i>
+                            <span class="text-sm font-medium">人工确认</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 逻辑控制节点 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-code-branch text-gray-500 mr-2"></i>逻辑控制
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="node-template draggable-node node-logic bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="logic" data-subtype="condition">
+                            <i class="fas fa-question text-gray-500 mr-2"></i>
+                            <span class="text-sm font-medium">条件判断</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 注释说明节点 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-sticky-note text-yellow-500 mr-2"></i>注释说明
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="node-template draggable-node node-comment bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="comment" data-subtype="text">
+                            <i class="fas fa-comment text-yellow-500 mr-2"></i>
+                            <span class="text-sm font-medium">文字说明</span>
+                        </div>
+                        <div class="node-template draggable-node node-comment bg-gray-50 p-3 rounded-lg cursor-move" 
+                             data-type="comment" data-subtype="group">
+                            <i class="fas fa-object-group text-indigo-500 mr-2"></i>
+                            <span class="text-sm font-medium">分组框</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要工作区域 -->
+        <div class="flex-1 flex flex-col">
+            <!-- 工作流画布 -->
+            <div class="flex-1 relative">
+                <div id="workflow-viewport" class="workflow-viewport">
+                    <div id="workflow-canvas" class="workflow-canvas" style="width: 100%; height: 100%;">
+                        <div id="workflow-container" class="workflow-container">
+                    <!-- 示例工作流：重大安全事件智能响应流程 -->
+                    <div id="start-node" class="workflow-node draggable-node node-trigger bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 100px; top: 100px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                            <span class="font-semibold text-sm">触发重大安全事件</span>
+                        </div>
+                        <div class="text-xs text-gray-500">告警触发器</div>
+                    </div>
+
+                    <div id="agent-node" class="workflow-node draggable-node node-agent bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 400px; top: 100px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-user-tie text-purple-500 mr-2"></i>
+                            <span class="font-semibold text-sm">联络员Agent</span>
+                        </div>
+                        <div class="text-xs text-gray-500">企业微信负责人</div>
+                    </div>
+
+                    <div id="human-task" class="workflow-node draggable-node node-human bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 700px; top: 50px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-comments text-blue-500 mr-2"></i>
+                            <span class="font-semibold text-sm">申请通知</span>
+                        </div>
+                        <div class="text-xs text-gray-500">企业微信回复超时</div>
+                    </div>
+
+                    <div id="investigate-agent" class="workflow-node draggable-node node-ai bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 700px; top: 200px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-search text-blue-500 mr-2"></i>
+                            <span class="font-semibold text-sm">调查溯源Agent</span>
+                        </div>
+                        <div class="text-xs text-gray-500">资产/进程/网络</div>
+                    </div>
+
+                    <div id="disposal-agent" class="workflow-node draggable-node node-ai bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 1000px; top: 200px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                            <span class="font-semibold text-sm">处置封堵Playbook</span>
+                        </div>
+                        <div class="text-xs text-gray-500">自动封堵</div>
+                    </div>
+
+                    <div id="ai-report" class="workflow-node draggable-node node-ai bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 1000px; top: 50px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-file-alt text-blue-500 mr-2"></i>
+                            <span class="font-semibold text-sm">AI总结闭环报告</span>
+                        </div>
+                        <div class="text-xs text-gray-500">企业微信+邮件</div>
+                    </div>
+
+                    <div id="soar-playbook" class="workflow-node draggable-node node-soar bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 1300px; top: 200px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-play-circle text-orange-500 mr-2"></i>
+                            <span class="font-semibold text-sm">处置封堵Playbook</span>
+                        </div>
+                        <div class="text-xs text-gray-500">调用SOAR引擎</div>
+                    </div>
+
+                    <div id="ticket-node" class="workflow-node draggable-node node-soar bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: 1000px; top: 350px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-ticket-alt text-orange-500 mr-2"></i>
+                            <span class="font-semibold text-sm">工单管理</span>
+                        </div>
+                        <div class="text-xs text-gray-500">创建处置工单</div>
+                    </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 画板控制按钮 -->
+                    <div class="canvas-controls">
+                        <button id="zoomIn" class="canvas-control-btn" title="放大">
+                            <i class="fas fa-plus text-gray-600"></i>
+                        </button>
+                        <button id="zoomOut" class="canvas-control-btn" title="缩小">
+                            <i class="fas fa-minus text-gray-600"></i>
+                        </button>
+                        <button id="zoomFit" class="canvas-control-btn" title="适应屏幕">
+                            <i class="fas fa-expand-arrows-alt text-gray-600"></i>
+                        </button>
+                        <button id="resetView" class="canvas-control-btn" title="重置视图">
+                            <i class="fas fa-home text-gray-600"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- 小地图 -->
+                    <div id="minimap" class="minimap">
+                        <div class="minimap-content">
+                            <div id="minimapViewport" class="minimap-viewport"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 坐标显示 -->
+                    <div id="coordinatesDisplay" class="coordinates-display">
+                        X: <span id="coordX">0</span>, Y: <span id="coordY">0</span>, 缩放: <span id="coordScale">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部状态栏 -->
+            <div class="bg-white border-t border-gray-200 px-4 py-2 flex items-center justify-between text-sm">
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-500">节点数量: <span id="nodeCount">8</span></span>
+                    <span class="text-gray-500">连接数量: <span id="connectionCount">8</span></span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-500">最后保存: 刚刚</span>
+                    <button class="text-blue-500 hover:text-blue-700">查看执行日志</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧属性配置面板 -->
+        <div id="propertiesPanel" class="w-80 bg-white border-l border-gray-200 hidden">
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="font-semibold text-gray-900">节点属性</h3>
+            </div>
+            <div class="p-4">
+                <div id="nodeProperties">
+                    <p class="text-gray-500 text-sm">请选择一个节点来配置属性</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" data-action="edit">
+            <i class="fas fa-edit mr-2"></i>编辑节点
+        </div>
+        <div class="context-menu-item" data-action="copy">
+            <i class="fas fa-copy mr-2"></i>复制节点
+        </div>
+        <div class="context-menu-item" data-action="disconnect">
+            <i class="fas fa-unlink mr-2"></i>断开连接
+        </div>
+        <div class="context-menu-item danger" data-action="delete">
+            <i class="fas fa-trash mr-2"></i>删除节点
+        </div>
+    </div>
+
+    <!-- 调试模态框 -->
+    <div id="debugModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center h-full">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">工作流调试模式</h3>
+                </div>
+                <div class="p-6">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">模拟输入数据</label>
+                        <textarea id="debugInput" class="w-full h-32 p-3 border border-gray-300 rounded-md" 
+                                  placeholder='请输入JSON格式的测试数据，例如：
+{
+  "alert_id": "A12",
+  "severity": "high",
+  "asset_ip": "192.168.50.98",
+  "attack_type": "file_upload",
+  "source_ip": "1.1.112.102"
+}'></textarea>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button id="startDebug" class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600">
+                            <i class="fas fa-play mr-2"></i>开始调试
+                        </button>
+                        <button id="closeDebug" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let jsPlumbInstance;
+        let selectedNode = null;
+        let nodeCounter = 0;
+        let isDebugMode = false;
+        let isDragging = false;
+        let clickTimer = null;
+        let isConnecting = false;
+        
+        // 无限画板相关变量
+        let canvasState = {
+            x: 0,
+            y: 0,
+            scale: 1,
+            isPanning: false,
+            lastPanPoint: { x: 0, y: 0 },
+            minScale: 0.1,
+            maxScale: 3,
+            panSensitivity: 1
+        };
+        let workflowContainer = null;
+        let workflowViewport = null;
+
+        // 初始化jsPlumb
+        function initJsPlumb() {
+            jsPlumbInstance = jsPlumb.getInstance({
+                Endpoint: ["Dot", { radius: 8 }],
+                Connector: ["Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }],
+                HoverPaintStyle: { stroke: "#1e40af", strokeWidth: 3 },
+                PaintStyle: { stroke: "#64748b", strokeWidth: 2, outlineStroke: "transparent", outlineWidth: 4 },
+                ConnectionOverlays: [
+                    ["Arrow", {
+                        location: 1,
+                        id: "arrow",
+                        length: 14,
+                        foldback: 0.8
+                    }]
+                ],
+                Container: "workflow-container",
+                DragOptions: { 
+                    cursor: 'move', 
+                    zIndex: 2000,
+                    start: function(params) { 
+                        isDragging = true;
+                    },
+                    stop: function(params) { 
+                        setTimeout(() => { 
+                            isDragging = false;
+                        }, 100); 
+                    }
+                },
+                PaintStyle: { stroke: '#64748b', strokeWidth: 2 },
+                EndpointStyle: { fill: '#64748b', stroke: '#64748b' }
+            });
+
+            // 设置默认连接点样式
+            jsPlumbInstance.registerEndpointType("source", {
+                endpoint: "Dot",
+                paintStyle: { fill: "#10b981", stroke: "#10b981" },
+                isSource: true,
+                connector: ["Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5 }],
+                connectorStyle: { stroke: "#64748b", strokeWidth: 2 },
+                hoverPaintStyle: { fill: "#059669", stroke: "#059669" },
+                connectorHoverStyle: { stroke: "#1e40af", strokeWidth: 3 },
+                dragOptions: {},
+                overlays: [
+                    ["Arrow", { location: 1, width: 20, length: 20, id: "arrow" }]
+                ]
+            });
+
+            jsPlumbInstance.registerEndpointType("target", {
+                endpoint: "Dot",
+                paintStyle: { fill: "#ef4444", stroke: "#ef4444" },
+                hoverPaintStyle: { fill: "#dc2626", stroke: "#dc2626" },
+                isTarget: true
+            });
+
+            // 使所有工作流节点可拖拽
+            jsPlumbInstance.draggable(jsPlumbInstance.getSelector(".workflow-node"));
+
+            // 为现有节点添加连接点
+            setupExistingNodes();
+
+            // 连接事件监听
+            jsPlumbInstance.bind("connection", function(info) {
+                updateConnectionCount();
+            });
+
+            jsPlumbInstance.bind("connectionDetached", function(info) {
+                updateConnectionCount();
+            });
+
+            // 连接开始和结束事件
+            jsPlumbInstance.bind("beforeStartDetach", function(info) {
+                isConnecting = true;
+                return true;
+            });
+
+            jsPlumbInstance.bind("connectionDragStop", function(info) {
+                setTimeout(() => { isConnecting = false; }, 100);
+            });
+
+            jsPlumbInstance.bind("beforeDrop", function(info) {
+                isConnecting = false;
+                return true;
+            });
+        }
+
+        // 初始化无限画板
+        function initInfiniteCanvas() {
+            workflowViewport = document.getElementById('workflow-viewport');
+            workflowContainer = document.getElementById('workflow-container');
+            
+            // 设置初始位置（居中显示）
+            canvasState.x = -4000; // 让画板中心区域居中
+            canvasState.y = -4000;
+            updateCanvasTransform();
+            
+            // 添加事件监听
+            setupCanvasEvents();
+            setupCanvasControls();
+            setupMinimap();
+            updateCoordinates();
+        }
+        
+        // 设置画板事件
+        function setupCanvasEvents() {
+            const viewport = document.getElementById('workflow-viewport');
+            const canvas = document.getElementById('workflow-canvas');
+            const container = document.getElementById('workflow-container');
+            
+            // 检查是否点击在空白区域
+            function isClickOnEmpty(target) {
+                return target === viewport || target === canvas || target === container || 
+                       target.classList.contains('workflow-canvas') || 
+                       target.classList.contains('workflow-container') ||
+                       target.classList.contains('workflow-viewport');
+            }
+            
+            // 鼠标按下 - 开始拖拽
+            viewport.addEventListener('mousedown', function(e) {
+                // 只在空白区域才能拖拽画板，且不是节点，且不是控制按钮
+                const isOnNode = e.target.closest('.workflow-node');
+                const isOnControl = e.target.closest('.canvas-controls') || e.target.closest('.minimap') || e.target.closest('.coordinates-display');
+                
+                if (isClickOnEmpty(e.target) && !isOnNode && !isOnControl) {
+                    if (e.button === 0) { // 左键
+                        canvasState.isPanning = true;
+                        canvasState.lastPanPoint = { x: e.clientX, y: e.clientY };
+                        viewport.style.cursor = 'grabbing';
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }
+            });
+            
+            // 鼠标移动 - 拖拽过程
+            document.addEventListener('mousemove', function(e) {
+                if (canvasState.isPanning) {
+                    const deltaX = (e.clientX - canvasState.lastPanPoint.x) * canvasState.panSensitivity;
+                    const deltaY = (e.clientY - canvasState.lastPanPoint.y) * canvasState.panSensitivity;
+                    
+                    canvasState.x += deltaX;
+                    canvasState.y += deltaY;
+                    
+                    canvasState.lastPanPoint = { x: e.clientX, y: e.clientY };
+                    
+                    updateCanvasTransform();
+                    updateCoordinates();
+                    updateMinimap();
+                    e.preventDefault();
+                }
+            });
+            
+            // 鼠标释放 - 结束拖拽
+            document.addEventListener('mouseup', function(e) {
+                if (canvasState.isPanning) {
+                    canvasState.isPanning = false;
+                    viewport.style.cursor = 'grab';
+                }
+            });
+            
+            // 鼠标离开窗口 - 结束拖拽
+            document.addEventListener('mouseleave', function(e) {
+                if (canvasState.isPanning) {
+                    canvasState.isPanning = false;
+                    viewport.style.cursor = 'grab';
+                }
+            });
+            
+            // 鼠标滚轮 - 缩放
+            viewport.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                
+                const rect = viewport.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, canvasState.scale * delta));
+                
+                if (newScale !== canvasState.scale) {
+                    // 以鼠标位置为中心缩放
+                    const scaleRatio = newScale / canvasState.scale;
+                    canvasState.x = mouseX - (mouseX - canvasState.x) * scaleRatio;
+                    canvasState.y = mouseY - (mouseY - canvasState.y) * scaleRatio;
+                    canvasState.scale = newScale;
+                    
+                    updateCanvasTransform();
+                    updateCoordinates();
+                    updateMinimap();
+                }
+            });
+        }
+        
+        // 设置控制按钮
+        function setupCanvasControls() {
+            document.getElementById('zoomIn').addEventListener('click', function() {
+                zoomCanvas(1.2);
+            });
+            
+            document.getElementById('zoomOut').addEventListener('click', function() {
+                zoomCanvas(0.8);
+            });
+            
+            document.getElementById('zoomFit').addEventListener('click', function() {
+                fitToScreen();
+            });
+            
+            document.getElementById('resetView').addEventListener('click', function() {
+                resetView();
+            });
+        }
+        
+        // 缩放画板
+        function zoomCanvas(factor) {
+            const newScale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, canvasState.scale * factor));
+            
+            if (newScale !== canvasState.scale) {
+                const viewport = workflowViewport.getBoundingClientRect();
+                const centerX = viewport.width / 2;
+                const centerY = viewport.height / 2;
+                
+                const scaleRatio = newScale / canvasState.scale;
+                canvasState.x = centerX - (centerX - canvasState.x) * scaleRatio;
+                canvasState.y = centerY - (centerY - canvasState.y) * scaleRatio;
+                canvasState.scale = newScale;
+                
+                updateCanvasTransform();
+                updateCoordinates();
+                updateMinimap();
+            }
+        }
+        
+        // 适应屏幕
+        function fitToScreen() {
+            const nodes = document.querySelectorAll('.workflow-node');
+            if (nodes.length === 0) return;
+            
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
+            nodes.forEach(node => {
+                const x = parseInt(node.style.left) || 0;
+                const y = parseInt(node.style.top) || 0;
+                const width = parseInt(node.style.width) || 200;
+                const height = node.offsetHeight;
+                
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x + width);
+                maxY = Math.max(maxY, y + height);
+            });
+            
+            const contentWidth = maxX - minX + 100; // 加上一些边距
+            const contentHeight = maxY - minY + 100;
+            
+            const viewport = workflowViewport.getBoundingClientRect();
+            const scaleX = viewport.width / contentWidth;
+            const scaleY = viewport.height / contentHeight;
+            const scale = Math.min(scaleX, scaleY, 1); // 不超过100%
+            
+            canvasState.scale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, scale));
+            canvasState.x = (viewport.width - contentWidth * canvasState.scale) / 2 - minX * canvasState.scale;
+            canvasState.y = (viewport.height - contentHeight * canvasState.scale) / 2 - minY * canvasState.scale;
+            
+            updateCanvasTransform();
+            updateCoordinates();
+            updateMinimap();
+        }
+        
+        // 重置视图
+        function resetView() {
+            canvasState.x = -4000;
+            canvasState.y = -4000;
+            canvasState.scale = 1;
+            
+            updateCanvasTransform();
+            updateCoordinates();
+            updateMinimap();
+        }
+        
+        // 更新画板变换
+        function updateCanvasTransform() {
+            const transform = `translate(${canvasState.x}px, ${canvasState.y}px) scale(${canvasState.scale})`;
+            workflowContainer.style.transform = transform;
+        }
+        
+        // 更新坐标显示
+        function updateCoordinates() {
+            document.getElementById('coordX').textContent = Math.round(-canvasState.x / canvasState.scale);
+            document.getElementById('coordY').textContent = Math.round(-canvasState.y / canvasState.scale);
+            document.getElementById('coordScale').textContent = Math.round(canvasState.scale * 100) + '%';
+        }
+        
+        // 设置小地图
+        function setupMinimap() {
+            const minimapViewport = document.getElementById('minimapViewport');
+            
+            // 点击小地图移动视图
+            minimapViewport.parentElement.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+                
+                const minimapScale = 0.02; // 小地图缩放比例
+                const targetX = -(clickX / minimapScale - workflowViewport.clientWidth / 2);
+                const targetY = -(clickY / minimapScale - workflowViewport.clientHeight / 2);
+                
+                canvasState.x = targetX;
+                canvasState.y = targetY;
+                
+                updateCanvasTransform();
+                updateCoordinates();
+                updateMinimap();
+            });
+            
+            updateMinimap();
+        }
+        
+        // 更新小地图
+        function updateMinimap() {
+            const minimapViewport = document.getElementById('minimapViewport');
+            const minimapScale = 0.02;
+            
+            // 更新视图框位置
+            const viewportWidth = workflowViewport.clientWidth * minimapScale;
+            const viewportHeight = workflowViewport.clientHeight * minimapScale;
+            const viewportX = -canvasState.x * minimapScale;
+            const viewportY = -canvasState.y * minimapScale;
+            
+            minimapViewport.style.width = viewportWidth + 'px';
+            minimapViewport.style.height = viewportHeight + 'px';
+            minimapViewport.style.left = viewportX + 'px';
+            minimapViewport.style.top = viewportY + 'px';
+            
+            // 更新小地图中的节点位置
+            updateMinimapNodes();
+        }
+        
+        // 更新小地图节点
+        function updateMinimapNodes() {
+            const minimapContent = document.querySelector('.minimap-content');
+            const existingMinimapNodes = minimapContent.querySelectorAll('.minimap-node');
+            existingMinimapNodes.forEach(node => node.remove());
+            
+            const workflowNodes = document.querySelectorAll('.workflow-node');
+            const minimapScale = 0.02;
+            
+            workflowNodes.forEach(node => {
+                const minimapNode = document.createElement('div');
+                minimapNode.className = 'minimap-node';
+                
+                const x = (parseInt(node.style.left) || 0) * minimapScale;
+                const y = (parseInt(node.style.top) || 0) * minimapScale;
+                
+                minimapNode.style.left = x + 'px';
+                minimapNode.style.top = y + 'px';
+                
+                minimapContent.appendChild(minimapNode);
+            });
+        }
+        
+        // 设置现有节点的连接点
+        function setupExistingNodes() {
+            // 为现有节点添加连接点
+            const existingNodes = document.querySelectorAll('.workflow-node');
+            existingNodes.forEach(node => {
+                addNodeEndpoints(node);
+            });
+
+            // 添加连接
+            jsPlumbInstance.connect({
+                source: "start-node",
+                target: "agent-node",
+                anchors: ["Right", "Left"]
+            });
+
+            jsPlumbInstance.connect({
+                source: "agent-node",
+                target: "human-task",
+                anchors: ["Right", "Left"],
+                overlays: [["Label", { label: "超时未回复", location: 0.5, cssClass: "text-xs bg-yellow-100 px-2 py-1 rounded" }]]
+            });
+
+            jsPlumbInstance.connect({
+                source: "agent-node",
+                target: "investigate-agent",
+                anchors: ["Right", "Left"],
+                overlays: [["Label", { label: "获得处置回复", location: 0.5, cssClass: "text-xs bg-green-100 px-2 py-1 rounded" }]]
+            });
+
+            jsPlumbInstance.connect({
+                source: "investigate-agent",
+                target: "disposal-agent",
+                anchors: ["Right", "Left"],
+                overlays: [["Label", { label: "输入封堵实体", location: 0.5, cssClass: "text-xs bg-blue-100 px-2 py-1 rounded" }]]
+            });
+
+            jsPlumbInstance.connect({
+                source: "disposal-agent",
+                target: "soar-playbook",
+                anchors: ["Right", "Left"],
+                overlays: [["Label", { label: "调用SOAR", location: 0.5, cssClass: "text-xs bg-orange-100 px-2 py-1 rounded" }]]
+            });
+
+            jsPlumbInstance.connect({
+                source: "human-task",
+                target: "ai-report",
+                anchors: ["Right", "Left"],
+                overlays: [["Label", { label: "无需处置", location: 0.5, cssClass: "text-xs bg-gray-100 px-2 py-1 rounded" }]]
+            });
+
+            jsPlumbInstance.connect({
+                source: "disposal-agent",
+                target: "ticket-node",
+                anchors: ["Bottom", "Top"],
+                overlays: [["Label", { label: "创建工单", location: 0.5, cssClass: "text-xs bg-orange-100 px-2 py-1 rounded" }]]
+            });
+
+            jsPlumbInstance.connect({
+                source: "soar-playbook",
+                target: "ai-report",
+                anchors: ["Top", "Bottom"],
+                overlays: [["Label", { label: "返回结果", location: 0.5, cssClass: "text-xs bg-purple-100 px-2 py-1 rounded" }]]
+            });
+
+            jsPlumbInstance.connect({
+                source: "ticket-node",
+                target: "ai-report",
+                anchors: ["Right", "Bottom"],
+                overlays: [["Label", { label: "工单完成", location: 0.5, cssClass: "text-xs bg-green-100 px-2 py-1 rounded" }]]
+            });
+        }
+
+        // 为节点添加连接点
+        function addNodeEndpoints(node) {
+            // 检查是否已经有连接点
+            const existingEndpoints = jsPlumbInstance.getEndpoints(node);
+            if (existingEndpoints && existingEndpoints.length > 0) {
+                return; // 已经有连接点，直接返回
+            }
+
+            // 移除现有的连接点HTML元素
+            const existingHTMLEndpoints = node.querySelectorAll('.connector-endpoint');
+            existingHTMLEndpoints.forEach(ep => ep.remove());
+
+            try {
+                // 添加源连接点（右侧）
+                jsPlumbInstance.addEndpoint(node, {
+                    anchor: "Right",
+                    type: "source",
+                    uuid: node.id + "-source",
+                    maxConnections: -1
+                });
+
+                // 添加目标连接点（左侧）
+                jsPlumbInstance.addEndpoint(node, {
+                    anchor: "Left",
+                    type: "target",
+                    uuid: node.id + "-target",
+                    maxConnections: -1
+                });
+
+                // 添加顶部和底部连接点用于复杂连线
+                jsPlumbInstance.addEndpoint(node, {
+                    anchor: "Top",
+                    type: "source",
+                    uuid: node.id + "-top-source",
+                    maxConnections: -1
+                });
+
+                jsPlumbInstance.addEndpoint(node, {
+                    anchor: "Bottom",
+                    type: "target",
+                    uuid: node.id + "-bottom-target",
+                    maxConnections: -1
+                });
+            } catch (e) {
+                console.warn('添加连接点失败:', e);
+            }
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            initJsPlumb();
+
+            // 侧边栏切换
+            document.getElementById('toggleSidebar').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                const icon = this.querySelector('i');
+                
+                if (sidebar.classList.contains('sidebar-expanded')) {
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                    icon.classList.remove('fa-chevron-left');
+                    icon.classList.add('fa-chevron-right');
+                } else {
+                    sidebar.classList.remove('sidebar-collapsed');
+                    sidebar.classList.add('sidebar-expanded');
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-left');
+                }
+            });
+
+            // 拖拽功能
+            setupDragAndDrop();
+
+            // 节点点击事件（使用事件委托和防抖）
+            document.addEventListener('click', function(e) {
+                // 如果正在拖拽画板，不处理点击事件
+                if (canvasState.isPanning) {
+                    return;
+                }
+                
+                // 清除之前的定时器
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                }
+                
+                // 延迟处理点击事件，避免与拖拽冲突
+                clickTimer = setTimeout(() => {
+                    // 如果正在拖拽或连线，忽略点击
+                    if (isDragging || isConnecting || canvasState.isPanning) {
+                        return;
+                    }
+                    
+                    const workflowNode = e.target.closest('.workflow-node');
+                    if (workflowNode) {
+                        selectNode(workflowNode);
+                    } else {
+                        // 点击空白处取消选择
+                        clearSelection();
+                    }
+                    
+                    // 点击其他地方隐藏右键菜单
+                    hideContextMenu();
+                }, 50);
+            });
+
+            // 右键菜单事件
+            document.addEventListener('contextmenu', function(e) {
+                const workflowNode = e.target.closest('.workflow-node');
+                if (workflowNode && !isDragging && !isConnecting && !canvasState.isPanning) {
+                    e.preventDefault();
+                    selectNode(workflowNode);
+                    showContextMenu(e.clientX, e.clientY, workflowNode);
+                }
+            });
+
+            // 右键菜单项点击事件
+            document.getElementById('contextMenu').addEventListener('click', function(e) {
+                const action = e.target.closest('.context-menu-item')?.dataset.action;
+                if (action && selectedNode) {
+                    handleContextMenuAction(action, selectedNode);
+                }
+                hideContextMenu();
+            });
+
+            // 调试功能
+            document.getElementById('debugBtn').addEventListener('click', function() {
+                document.getElementById('debugModal').classList.remove('hidden');
+            });
+
+            document.getElementById('closeDebug').addEventListener('click', function() {
+                document.getElementById('debugModal').classList.add('hidden');
+            });
+
+            document.getElementById('startDebug').addEventListener('click', function() {
+                startDebugMode();
+            });
+
+            // 保存功能
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                saveWorkflow();
+            });
+
+            // 发布功能
+            document.getElementById('publishBtn').addEventListener('click', function() {
+                publishWorkflow();
+            });
+        });
+
+        // 设置拖拽功能
+        function setupDragAndDrop() {
+            const canvas = document.getElementById('workflow-canvas');
+            const nodeTemplates = document.querySelectorAll('.node-template');
+
+            nodeTemplates.forEach(template => {
+                template.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        type: this.dataset.type,
+                        subtype: this.dataset.subtype,
+                        html: this.outerHTML
+                    }));
+                });
+
+                template.setAttribute('draggable', 'true');
+            });
+
+            canvas.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            canvas.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                
+                // 获取鼠标相对于画板的位置
+                const viewportRect = workflowViewport.getBoundingClientRect();
+                const mouseX = e.clientX - viewportRect.left;
+                const mouseY = e.clientY - viewportRect.top;
+                
+                // 转换到画板坐标系
+                const x = (mouseX - canvasState.x) / canvasState.scale;
+                const y = (mouseY - canvasState.y) / canvasState.scale;
+                createNode(data, x, y);
+            });
+        }
+
+        // 创建新节点
+        function createNode(data, x, y) {
+            nodeCounter++;
+            const nodeId = `node-${nodeCounter}`;
+            
+            const nodeElement = document.createElement('div');
+            nodeElement.id = nodeId;
+            nodeElement.className = `workflow-node draggable-node node-${data.type} bg-white rounded-lg shadow-md p-4 absolute`;
+            nodeElement.style.left = x + 'px';
+            nodeElement.style.top = y + 'px';
+            
+            // 根据节点类型设置尺寸
+            if (data.type === 'comment') {
+                if (data.subtype === 'group') {
+                    nodeElement.style.width = '300px';
+                    nodeElement.style.height = '200px';
+                    nodeElement.className = `workflow-node draggable-node node-group bg-white rounded-lg shadow-md p-4 absolute`;
+                } else {
+                    nodeElement.style.width = '250px';
+                    nodeElement.style.minHeight = '80px';
+                }
+            } else {
+                nodeElement.style.width = '200px';
+            }
+            
+            // 根据节点类型设置内容
+            const nodeContent = getNodeContent(data);
+            nodeElement.innerHTML = nodeContent;
+            
+            document.getElementById('workflow-canvas').appendChild(nodeElement);
+            
+            // 使新节点可拖拽
+            jsPlumbInstance.draggable(nodeElement);
+            
+            // 为非注释节点添加连接点
+            if (data.type !== 'comment') {
+                // 延迟添加连接点，确保DOM已完全渲染
+                setTimeout(() => {
+                    addNodeEndpoints(nodeElement);
+                }, 100);
+            }
+            
+            // 更新节点计数
+            updateNodeCount();
+            
+            // 更新小地图
+            updateMinimapNodes();
+        }
+
+        // 获取节点内容
+        function getNodeContent(data) {
+            const icons = {
+                trigger: {
+                    alert: 'fas fa-exclamation-triangle text-red-500',
+                    event: 'fas fa-calendar-alt text-blue-500',
+                    webhook: 'fas fa-plug text-purple-500'
+                },
+                ai: {
+                    investigate: 'fas fa-search text-blue-500',
+                    disposal: 'fas fa-shield-alt text-green-500',
+                    custom: 'fas fa-cog text-gray-500'
+                },
+                agent: {
+                    contact: 'fas fa-comments text-purple-500'
+                },
+                soar: {
+                    playbook: 'fas fa-play-circle text-orange-500',
+                    ticket: 'fas fa-ticket-alt text-orange-500'
+                },
+                human: {
+                    confirm: 'fas fa-check-circle text-red-500'
+                },
+                logic: {
+                    condition: 'fas fa-question text-gray-500'
+                },
+                comment: {
+                    text: 'fas fa-comment text-yellow-500',
+                    group: 'fas fa-object-group text-indigo-500'
+                }
+            };
+
+            const names = {
+                trigger: {
+                    alert: '告警触发器',
+                    event: '事件触发器',
+                    webhook: 'Webhook触发器'
+                },
+                ai: {
+                    investigate: '调查溯源Agent',
+                    disposal: '实体处置Agent',
+                    custom: '自定义Agent'
+                },
+                agent: {
+                    contact: '联络员Agent'
+                },
+                soar: {
+                    playbook: '处置Playbook',
+                    ticket: '工单管理'
+                },
+                human: {
+                    confirm: '人工确认'
+                },
+                logic: {
+                    condition: '条件判断'
+                },
+                comment: {
+                    text: '文字说明',
+                    group: '分组框'
+                }
+            };
+
+            const iconClass = icons[data.type][data.subtype];
+            const nodeName = names[data.type][data.subtype];
+
+            // 注释节点特殊处理
+            if (data.type === 'comment') {
+                if (data.subtype === 'group') {
+                    return `
+                        <div class="flex items-center mb-2">
+                            <i class="${iconClass} mr-2"></i>
+                            <span class="font-semibold text-sm">${nodeName}</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mb-4">双击编辑分组说明</div>
+                        <div class="text-center text-gray-400 border-2 border-dashed border-gray-300 rounded p-4 mt-4">
+                            <p class="text-sm">拖拽节点到此区域进行分组</p>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="flex items-center mb-2">
+                            <i class="${iconClass} mr-2"></i>
+                            <span class="font-semibold text-sm">${nodeName}</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mb-2">双击编辑内容</div>
+                        <div class="text-sm text-gray-700 editable-text p-2 border border-gray-200 rounded" 
+                             contenteditable="true" placeholder="在此输入说明文字...">
+                            点击输入说明文字...
+                        </div>
+                    `;
+                }
+            }
+
+            return `
+                <div class="flex items-center mb-2">
+                    <i class="${iconClass} mr-2"></i>
+                    <span class="font-semibold text-sm">${nodeName}</span>
+                </div>
+                <div class="text-xs text-gray-500">点击配置</div>
+            `;
+        }
+
+        // 选择节点
+        function selectNode(node) {
+            // 如果正在拖拽或连线，不执行选择
+            if (isDragging || isConnecting || canvasState.isPanning) {
+                return;
+            }
+            
+            // 移除之前选中的节点高亮
+            clearSelection();
+            
+            // 高亮当前选中的节点
+            node.classList.add('ring-2', 'ring-blue-500');
+            selectedNode = node;
+            
+            // 显示属性面板
+            showNodeProperties(node);
+        }
+        
+        // 清除选择
+        function clearSelection() {
+            document.querySelectorAll('.workflow-node').forEach(n => {
+                n.classList.remove('ring-2', 'ring-blue-500');
+            });
+            selectedNode = null;
+            document.getElementById('propertiesPanel').classList.add('hidden');
+        }
+
+        // 显示节点属性
+        function showNodeProperties(node) {
+            const panel = document.getElementById('propertiesPanel');
+            const properties = document.getElementById('nodeProperties');
+            
+            panel.classList.remove('hidden');
+            
+            // 根据节点类型显示不同的属性配置
+            const nodeType = getNodeType(node);
+            properties.innerHTML = getNodePropertiesHTML(nodeType, node);
+        }
+
+        // 获取节点类型
+        function getNodeType(node) {
+            if (node.classList.contains('node-trigger')) return 'trigger';
+            if (node.classList.contains('node-ai')) return 'ai';
+            if (node.classList.contains('node-agent')) return 'agent';
+            if (node.classList.contains('node-soar')) return 'soar';
+            if (node.classList.contains('node-human')) return 'human';
+            if (node.classList.contains('node-logic')) return 'logic';
+            if (node.classList.contains('node-comment') || node.classList.contains('node-group')) return 'comment';
+            return 'unknown';
+        }
+
+        // 获取节点属性配置HTML
+        function getNodePropertiesHTML(type, node) {
+            const nodeTitle = node.querySelector('.font-semibold').textContent;
+            
+            switch(type) {
+                case 'trigger':
+                    return `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">节点名称</label>
+                                <input type="text" value="${nodeTitle}" class="w-full p-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">触发条件</label>
+                                <textarea class="w-full p-2 border border-gray-300 rounded-md h-20" placeholder="设置触发条件..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                                <select class="w-full p-2 border border-gray-300 rounded-md">
+                                    <option>高</option>
+                                    <option>中</option>
+                                    <option>低</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                case 'agent':
+                    return `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">通知渠道</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="mr-2">
+                                        <span class="text-sm">企业微信</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2">
+                                        <span class="text-sm">邮件</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2">
+                                        <span class="text-sm">短信</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">联系人</label>
+                                <input type="text" placeholder="@用户名或角色组" class="w-full p-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">超时时间(分钟)</label>
+                                <input type="number" value="15" class="w-full p-2 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    `;
+                case 'ai':
+                    return `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">AI模型</label>
+                                <select class="w-full p-2 border border-gray-300 rounded-md">
+                                    <option>GPT-4</option>
+                                    <option>Claude-3</option>
+                                    <option>文心一言</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">自定义Prompt</label>
+                                <textarea class="w-full p-2 border border-gray-300 rounded-md h-32" placeholder="输入自定义提示词..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">知识库</label>
+                                <select class="w-full p-2 border border-gray-300 rounded-md">
+                                    <option>安全事件库</option>
+                                    <option>威胁情报库</option>
+                                    <option>资产信息库</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                case 'soar':
+                    if (nodeTitle.includes('工单')) {
+                        return `
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">工单系统</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded-md">
+                                        <option>ServiceNow</option>
+                                        <option>Jira Service Desk</option>
+                                        <option>企业内部工单系统</option>
+                                        <option>钉钉工单</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">工单类型</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded-md">
+                                        <option>安全事件处置</option>
+                                        <option>漏洞修复</option>
+                                        <option>系统维护</option>
+                                        <option>权限申请</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded-md">
+                                        <option>紧急</option>
+                                        <option>高</option>
+                                        <option>中</option>
+                                        <option>低</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">分配给</label>
+                                    <input type="text" placeholder="用户名或角色组" class="w-full p-2 border border-gray-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">工单模板</label>
+                                    <textarea class="w-full p-2 border border-gray-300 rounded-md h-20" placeholder="工单描述模板...">${nodeTitle.includes('工单') ? '安全事件: {{事件ID}}\n事件类型: {{事件类型}}\n影响资产: {{资产列表}}\n建议处置: {{AI建议}}' : ''}</textarea>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" checked class="mr-2">
+                                    <label class="text-sm text-gray-700">自动创建工单</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" class="mr-2">
+                                    <label class="text-sm text-gray-700">等待工单完成后继续</label>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Playbook名称</label>
+                                    <input type="text" value="${nodeTitle}" class="w-full p-2 border border-gray-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">SOAR平台</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded-md">
+                                        <option>Phantom</option>
+                                        <option>Demisto</option>
+                                        <option>IBM Resilient</option>
+                                        <option>自定义SOAR</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">执行参数</label>
+                                    <textarea class="w-full p-2 border border-gray-300 rounded-md h-20" placeholder="JSON格式参数..."></textarea>
+                                </div>
+                            </div>
+                        `;
+                    }
+                case 'comment':
+                    return `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">说明标题</label>
+                                <input type="text" value="${nodeTitle}" class="w-full p-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">说明内容</label>
+                                <textarea class="w-full p-2 border border-gray-300 rounded-md h-32" placeholder="输入详细说明..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">背景颜色</label>
+                                <select class="w-full p-2 border border-gray-300 rounded-md">
+                                    <option value="yellow">黄色</option>
+                                    <option value="blue">蓝色</option>
+                                    <option value="green">绿色</option>
+                                    <option value="red">红色</option>
+                                    <option value="gray">灰色</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                default:
+                    return `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">节点名称</label>
+                                <input type="text" value="${nodeTitle}" class="w-full p-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">描述</label>
+                                <textarea class="w-full p-2 border border-gray-300 rounded-md h-20" placeholder="节点描述..."></textarea>
+                            </div>
+                        </div>
+                    `;
+            }
+        }
+
+        // 开始调试模式
+        function startDebugMode() {
+            isDebugMode = true;
+            document.getElementById('debugModal').classList.add('hidden');
+            
+            // 高亮显示执行路径
+            const executionPath = [
+                'start-node', 'agent-node', 'investigate-agent', 
+                'disposal-agent', 'ticket-node', 'soar-playbook', 'ai-report'
+            ];
+            
+            let currentStep = 0;
+            
+            function highlightNextStep() {
+                // 移除之前的高亮
+                document.querySelectorAll('.debug-highlight').forEach(el => {
+                    el.classList.remove('debug-highlight');
+                });
+                
+                if (currentStep < executionPath.length) {
+                    const currentNode = document.getElementById(executionPath[currentStep]);
+                    if (currentNode) {
+                        currentNode.classList.add('debug-highlight');
+                        
+                        // 模拟处理时间
+                        setTimeout(() => {
+                            currentStep++;
+                            highlightNextStep();
+                        }, 2000);
+                    }
+                } else {
+                    // 调试完成
+                    isDebugMode = false;
+                    showDebugComplete();
+                }
+            }
+            
+            highlightNextStep();
+        }
+
+        // 显示调试完成
+        function showDebugComplete() {
+            alert('工作流调试完成！\n\n执行路径：\n1. 触发重大安全事件\n2. 联络员Agent推送通知\n3. 调查溯源Agent分析\n4. 处置封堵Agent执行\n5. 创建工单记录\n6. SOAR引擎调用\n7. AI生成闭环报告');
+        }
+
+        // 保存工作流
+        function saveWorkflow() {
+            const workflow = {
+                nodes: [],
+                connections: []
+            };
+            
+            // 收集节点信息
+            document.querySelectorAll('.workflow-node').forEach(node => {
+                workflow.nodes.push({
+                    id: node.id,
+                    type: getNodeType(node),
+                    position: {
+                        x: parseInt(node.style.left),
+                        y: parseInt(node.style.top)
+                    },
+                    title: node.querySelector('.font-semibold').textContent
+                });
+            });
+            
+            // 收集连接信息
+            jsPlumbInstance.getAllConnections().forEach(conn => {
+                workflow.connections.push({
+                    source: conn.sourceId,
+                    target: conn.targetId
+                });
+            });
+            
+            console.log('工作流已保存:', workflow);
+            alert('工作流保存成功！');
+        }
+
+        // 发布工作流
+        function publishWorkflow() {
+            if (confirm('确定要发布此工作流吗？发布后将开始监控和自动执行。')) {
+                alert('工作流发布成功！\n\n状态：已激活\n监控：24/7\n预计响应时间：< 5分钟');
+            }
+        }
+
+        // 更新节点计数
+        function updateNodeCount() {
+            const nodeCount = document.querySelectorAll('.workflow-node').length;
+            document.getElementById('nodeCount').textContent = nodeCount;
+        }
+
+        // 更新连接计数
+        function updateConnectionCount() {
+            const connectionCount = jsPlumbInstance.getAllConnections().length;
+            document.getElementById('connectionCount').textContent = connectionCount;
+        }
+
+        // 显示右键菜单
+        function showContextMenu(x, y, node) {
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.style.display = 'block';
+        }
+
+        // 隐藏右键菜单
+        function hideContextMenu() {
+            const menu = document.getElementById('contextMenu');
+            menu.style.display = 'none';
+        }
+
+        // 处理右键菜单操作
+        function handleContextMenuAction(action, node) {
+            switch(action) {
+                case 'edit':
+                    showNodeProperties(node);
+                    break;
+                case 'copy':
+                    copyNode(node);
+                    break;
+                case 'disconnect':
+                    disconnectNode(node);
+                    break;
+                case 'delete':
+                    deleteNode(node);
+                    break;
+            }
+        }
+
+        // 复制节点
+        function copyNode(node) {
+            const rect = node.getBoundingClientRect();
+            const canvas = document.getElementById('workflow-canvas');
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const nodeType = getNodeType(node);
+            const nodeSubtype = getNodeSubtype(node);
+            
+            const data = {
+                type: nodeType,
+                subtype: nodeSubtype
+            };
+            
+            // 在原节点右下方创建副本
+            const newX = parseInt(node.style.left) + 50;
+            const newY = parseInt(node.style.top) + 50;
+            
+            createNode(data, newX, newY);
+        }
+
+        // 断开节点连接
+        function disconnectNode(node) {
+            const connections = jsPlumbInstance.getAllConnections();
+            const nodeId = node.id;
+            
+            connections.forEach(conn => {
+                if (conn.sourceId === nodeId || conn.targetId === nodeId) {
+                    jsPlumbInstance.deleteConnection(conn);
+                }
+            });
+            
+            updateConnectionCount();
+        }
+
+        // 删除节点
+        function deleteNode(node) {
+            if (confirm('确定要删除这个节点吗？')) {
+                // 先断开所有连接
+                disconnectNode(node);
+                
+                // 从jsPlumb中移除
+                jsPlumbInstance.remove(node);
+                
+                // 从DOM中移除
+                node.remove();
+                
+                // 清除选中状态
+                if (selectedNode === node) {
+                    selectedNode = null;
+                    document.getElementById('propertiesPanel').classList.add('hidden');
+                }
+                
+                // 更新计数
+                updateNodeCount();
+                
+                // 更新小地图
+                updateMinimapNodes();
+            }
+        }
+
+        // 获取节点子类型
+        function getNodeSubtype(node) {
+            const title = node.querySelector('.font-semibold').textContent;
+            
+            // 根据标题判断子类型（简单实现）
+            if (title.includes('告警')) return 'alert';
+            if (title.includes('事件')) return 'event';
+            if (title.includes('Webhook')) return 'webhook';
+            if (title.includes('调查')) return 'investigate';
+            if (title.includes('处置') || title.includes('实体')) return 'disposal';
+            if (title.includes('自定义')) return 'custom';
+            if (title.includes('联络')) return 'contact';
+            if (title.includes('Playbook')) return 'playbook';
+            if (title.includes('工单')) return 'ticket';
+            if (title.includes('确认')) return 'confirm';
+            if (title.includes('条件')) return 'condition';
+            if (title.includes('文字')) return 'text';
+            if (title.includes('分组')) return 'group';
+            
+            return 'default';
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XDR+GPT智能运营 - 90秒上任引导</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .chat-bubble {
+            animation: slideInUp 0.5s ease-out;
+        }
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .typing-indicator {
+            animation: pulse 1.5s infinite;
+        }
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .option-card.selected {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #d4f4dd 0%, #c3f0ca 100%);
+        }
+        .success-checkmark {
+            animation: checkmark 0.6s ease-in-out;
+        }
+        @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 价值介绍页面 -->
+    <div id="intro-page" class="min-h-screen gradient-bg flex items-center justify-center">
+        <div class="max-w-4xl mx-auto px-6 text-center text-white">
+            <div class="mb-8">
+                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-rocket text-4xl text-white"></i>
+                </div>
+                <h1 class="text-5xl font-bold mb-6">XDR+GPT智能运营</h1>
+                <p class="text-2xl font-light mb-8">90秒完成专属安全运营体系配置</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bullseye text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">目标驱动</h3>
+                    <p class="text-white/90">基于业务目标制定安全策略</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">量化指标</h3>
+                    <p class="text-white/90">可衡量的KPI指标体系</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-robot text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">流程自动化</h3>
+                    <p class="text-white/90">智能Agent自动执行安全流程</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-sync-alt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">持续迭代改进</h3>
+                    <p class="text-white/90">基于反馈持续优化运营效果</p>
+                </div>
+            </div>
+
+            <!-- 运营体系架构图 -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-white text-center mb-8">智能运营体系架构</h2>
+                <div class="bg-white rounded-xl shadow-2xl p-8">
+                    <!-- 使用CSS Grid创建更美观的架构图 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <!-- 战略层 -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
+                            <div class="text-center mb-6">
+                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-chess-king text-white text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-blue-800">战略规划层</h3>
+                                <p class="text-sm text-blue-600">Plan & Strategy</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-orange-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-user-tie text-orange-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">安全负责人/CISO</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">制定安全策略与目标</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-blue-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-robot text-blue-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">AI 辅助交互</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">智能化策略建议</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-blue-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-bullseye text-blue-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">目标设定模块</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">KPI/SLA指标管理</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 执行层 -->
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
+                            <div class="text-center mb-6">
+                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-cogs text-white text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-green-800">运营执行层</h3>
+                                <p class="text-sm text-green-600">Do & Execute</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-project-diagram text-green-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">AI Workflow 编排</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">融入Agent的智能流程设计</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-play-circle text-green-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">SOAR执行引擎</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">24/7自动化运行</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-comments text-green-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">IM联络员中心</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">智能化即时沟通</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-orange-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-user-cog text-orange-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">安全分析师</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">从盯平台变成审核AI</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 监控层 -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
+                            <div class="text-center mb-6">
+                                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-chart-line text-white text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-purple-800">监控反馈层</h3>
+                                <p class="text-sm text-purple-600">Check & Act</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-tachometer-alt text-purple-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">监控仪表板</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">实时KPI监控</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-analytics text-purple-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">数据分析</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">目标达成分析</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-400">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-lightbulb text-purple-500 mr-2"></i>
+                                        <span class="font-medium text-gray-800">优化建议</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">持续改进指导</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PDCA闭环流程 -->
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <h4 class="text-lg font-bold text-gray-800 text-center mb-6">PDCA 闭环流程</h4>
+                        <div class="flex flex-wrap items-center justify-center gap-4">
+                            <div class="flex items-center bg-blue-100 rounded-full px-4 py-2">
+                                <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-2">1</span>
+                                <span class="text-blue-800 font-medium">目标设定</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 hidden md:block"></i>
+                            <div class="flex items-center bg-green-100 rounded-full px-4 py-2">
+                                <span class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-2">2</span>
+                                <span class="text-green-800 font-medium">流程执行</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 hidden md:block"></i>
+                            <div class="flex items-center bg-purple-100 rounded-full px-4 py-2">
+                                <span class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-2">3</span>
+                                <span class="text-purple-800 font-medium">效果监控</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 hidden md:block"></i>
+                            <div class="flex items-center bg-orange-100 rounded-full px-4 py-2">
+                                <span class="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-2">4</span>
+                                <span class="text-orange-800 font-medium">持续优化</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中央行动按钮区域 -->
+            <div class="text-center mt-8">
+                <div class="relative inline-block">
+                    <!-- 背景光圈效果 -->
+                    <div class="absolute inset-0 bg-white rounded-full blur-2xl opacity-30 animate-pulse scale-150"></div>
+                    
+                    <!-- 主按钮 -->
+                    <button id="start-journey" class="relative bg-white text-purple-600 font-bold text-2xl px-16 py-6 rounded-full hover:bg-gray-50 transition-all transform hover:scale-110 shadow-2xl border-4 border-white/30 backdrop-blur-sm">
+                        <div class="flex items-center justify-center space-x-3">
+                            <i class="fas fa-rocket text-3xl"></i>
+                            <span>开始90秒配置之旅</span>
+                            <i class="fas fa-arrow-right text-xl animate-bounce"></i>
+                        </div>
+                    </button>
+                    
+                    <!-- 提示文字 -->
+                    <div class="mt-6 text-white/90">
+                        <p class="text-lg font-medium">👆 点击开始，AI将引导您完成专属配置</p>
+                        <p class="text-sm text-white/70 mt-2">无需复杂设置，90秒即可拥有智能安全运营中心</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI对话引导页面 -->
+    <div id="chat-page" class="min-h-screen bg-gray-50 hidden">
+        <div class="max-w-6xl mx-auto flex h-screen">
+            
+            <!-- 左侧进度区域 -->
+            <div class="w-1/4 bg-gray-900 text-white p-6">
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold mb-2">配置进度</h3>
+                    <div class="text-sm text-gray-400">90秒上任引导</div>
+                </div>
+
+                <div class="space-y-6">
+                    <div id="step-1" class="progress-step active">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-handshake text-sm"></i>
+                            </div>
+                            <span class="font-medium">建立联系 & 行业选择</span>
+                        </div>
+                        <div class="text-sm text-gray-400 ml-11">了解基本情况并选择行业</div>
+                    </div>
+                    
+                    <div id="step-2" class="progress-step">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-bullseye text-sm"></i>
+                            </div>
+                            <span class="font-medium">优先级设定</span>
+                        </div>
+                        <div class="text-sm text-gray-400 ml-11">确定处理优先级</div>
+                    </div>
+                    
+                    <div id="step-3" class="progress-step">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-phone text-sm"></i>
+                            </div>
+                            <span class="font-medium">联络方式</span>
+                        </div>
+                        <div class="text-sm text-gray-400 ml-11">设置紧急联络</div>
+                    </div>
+                </div>
+
+                <div class="mt-12 p-4 bg-gray-800 rounded-lg">
+                    <div class="text-sm text-gray-400 mb-2">完成进度</div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="text-sm text-gray-400 mt-2">
+                        <span id="progress-text">0% 完成</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧对话区域 -->
+            <div class="flex-1 flex flex-col">
+                <!-- 顶部栏 -->
+                <div class="bg-white border-b border-gray-200 p-4 flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-robot text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900">AI安全运营助手</h3>
+                        <div class="text-sm text-gray-500">为您量身定制安全流程</div>
+                    </div>
+                </div>
+
+                <!-- 聊天区域 -->
+                <div id="chat-container" class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                    <!-- 动态生成的聊天内容 -->
+                </div>
+
+                <!-- 输入区域 -->
+                <div id="input-area" class="bg-white border-t border-gray-200 p-4">
+                    <!-- 动态生成的输入控件 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let selectedIndustry = '';
+        let selectedPriorities = [];
+        let selectedContact = '';
+
+        // 对话流程数据
+        const chatFlow = {
+            step1: {
+                title: "建立联系",
+                messages: [
+                    {
+                        type: "ai",
+                        content: "王总您好！我是您的AI安全运营助手。为了给您量身定制一套最适合您的高效安全流程，能花30秒了解几个情况吗？",
+                        delay: 1000
+                    },
+                    {
+                        type: "ai", 
+                        content: "在开始之前，容我向您简单介绍一下，许多和您一样优秀的安全负责人，是如何通过我们这套 XDR+GPT 的智能运营方案取得成功的。",
+                        delay: 2000
+                    },
+                    {
+                        type: "ai",
+                        content: "他们过去也常被海量的告警和重复的'救火'工作所困扰。通过我们，他们将顶尖专家的应急响应经验，固化成了一套能7x24小时自动化运行的智能流程。",
+                        delay: 3000
+                    },
+                    {
+                        type: "ai",
+                        content: "最终达成的成效非常显著：平均响应速度提升了5-10倍，90%的重复性工作被自动化，让团队能真正从'被动救火'转向'主动的风险治理'。",
+                        delay: 4000
+                    },
+                    {
+                        type: "ai",
+                        content: "接下来，我们就将借鉴这些成功经验，为您构建专属的流程体系。首先从您所在的行业开始...",
+                        delay: 5000
+                    },
+                    {
+                        type: "ai",
+                        content: "为了给您提供更贴合的建议，请问贵公司所属的行业是？",
+                        delay: 6000
+                    }
+                ],
+                options: [
+                    { id: "government", text: "A. 政府与公共事业", icon: "fas fa-university" },
+                    { id: "energy", text: "B. 能源行业", icon: "fas fa-bolt" },
+                    { id: "finance", text: "C. 金融和科技", icon: "fas fa-coins" },
+                    { id: "enterprise", text: "D. 泛企业/其他", icon: "fas fa-building" }
+                ]
+            },
+            step2: {
+                title: "优先级设定",
+                messages: [
+                    {
+                        type: "ai",
+                        content: "感谢！那么在日常运营中，您认为以下哪类安全事件的处理优先级最高？（可多选）",
+                        delay: 1000
+                    }
+                ],
+                options: [
+                    { id: "external", text: "A. 来自互联网的外部攻击（如Web攻击、病毒入侵）", icon: "fas fa-globe" },
+                    { id: "vulnerability", text: "B. 高危漏洞的发现与闭环修复", icon: "fas fa-bug" },
+                    { id: "phishing", text: "C. 员工遭受的钓鱼邮件或社工攻击", icon: "fas fa-envelope" },
+                    { id: "operations", text: "D. 安全事件的日常运营闭环", icon: "fas fa-cogs" }
+                ],
+                multiSelect: true
+            },
+            step3: {
+                title: "联络方式",
+                messages: [
+                    {
+                        type: "ai",
+                        content: "明白了。最后确认一下，当发生需要您亲自决策的紧急事件时，您希望我们通过哪种方式第一时间找到您？",
+                        delay: 1000
+                    }
+                ],
+                options: [
+                    { id: "wechat", text: "A. 企业微信", icon: "fab fa-weixin" },
+                    { id: "dingtalk", text: "B. 钉钉", icon: "fas fa-comments" },
+                    { id: "sms", text: "C. 手机短信", icon: "fas fa-sms" }
+                ]
+            }
+        };
+
+        // 行业最佳实践内容
+        const industryPractices = {
+            government: {
+                name: "政府与公共事业",
+                practices: [
+                    "第一，将合规融入血液。他们会利用Workflow，确保每一次重大事件的处置，都自动生成一份不可抵赖的、符合审计标准的工单记录，让内外部的合规检查不再是难事。",
+                    "第二，向速度要安全。面对层出不穷的外部攻击和漏洞，他们会部署'全自动化'的响应剧本，将高危漏洞的平均修复时间（MTTR）严格控制在24小时内。",
+                    "第三，为人机协同赋能。在处置任何可能影响核心业务的事件时，他们会通过联络员Agent，在几分钟内用手机触达业务负责人完成决策，实现了安全与业务敏捷的完美平衡。"
+                ]
+            },
+            energy: {
+                name: "能源行业",
+                practices: [
+                    "第一，工控系统专项防护。他们会利用专门的工控安全Workflow，对关键基础设施进行7x24小时监控，确保任何异常都能在第一时间得到处置。",
+                    "第二，供应链安全管控。建立完整的供应商安全评估体系，通过自动化流程确保每个环节的安全可控。",
+                    "第三，应急响应体系。针对能源行业的特殊性，建立多层级应急响应机制，确保在关键时刻能够快速恢复业务连续性。"
+                ]
+            },
+            finance: {
+                name: "金融和科技",
+                practices: [
+                    "第一，将合规融入血液。他们会利用Workflow，确保每一次重大事件的处置，都自动生成一份不可抵赖的、符合审计标准的工单记录，让内外部的合规检查不再是难事。",
+                    "第二，向速度要安全。面对层出不穷的外部攻击和漏洞，他们会部署'全自动化'的响应剧本，将高危漏洞的平均修复时间（MTTR）严格控制在24小时内。",
+                    "第三，为人机协同赋能。在处置任何可能影响核心业务的事件时，他们会通过联络员Agent，在几分钟内用手机触达业务负责人完成决策，实现了安全与业务敏捷的完美平衡。"
+                ]
+            },
+            enterprise: {
+                name: "泛企业/其他",
+                practices: [
+                    "第一，业务风险优先。他们会根据业务影响程度建立分级响应机制，确保关键业务系统的安全优先得到保障。",
+                    "第二，成本效益平衡。通过智能化的风险评估，在安全投入和业务效率之间找到最佳平衡点。",
+                    "第三，人员培训体系。建立完善的安全意识培训体系，让每个员工都成为安全防线的一部分。"
+                ]
+            }
+        };
+
+        // 开始引导流程
+        document.getElementById('start-journey').addEventListener('click', function() {
+            document.getElementById('intro-page').classList.add('hidden');
+            document.getElementById('chat-page').classList.remove('hidden');
+            startChatFlow();
+        });
+
+        // 开始聊天流程
+        function startChatFlow() {
+            currentStep = 1;
+            updateProgress();
+            showStep(currentStep);
+        }
+
+        // 显示步骤
+        function showStep(step) {
+            const stepData = chatFlow[`step${step}`];
+            if (!stepData) return;
+
+            // 更新进度状态
+            updateStepStatus(step);
+
+            // 显示消息
+            stepData.messages.forEach((message, index) => {
+                setTimeout(() => {
+                    addMessage(message.type, message.content);
+                }, message.delay || (index * 1000));
+            });
+
+            // 显示选项
+            if (stepData.options) {
+                setTimeout(() => {
+                    showOptions(stepData.options, stepData.multiSelect);
+                }, (stepData.messages.length * 1000) + 1000);
+            }
+        }
+
+        // 添加消息
+        function addMessage(type, content) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-bubble mb-4 ${type === 'ai' ? 'flex' : 'flex justify-end'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="flex items-start max-w-3xl ${type === 'ai' ? '' : 'flex-row-reverse'}">
+                    <div class="w-8 h-8 rounded-full ${type === 'ai' ? 'bg-blue-100 mr-3' : 'bg-gray-300 ml-3'} flex items-center justify-center">
+                        <i class="fas ${type === 'ai' ? 'fa-robot text-blue-600' : 'fa-user text-gray-600'} text-sm"></i>
+                    </div>
+                    <div class="px-4 py-3 rounded-lg ${type === 'ai' ? 'bg-white border border-gray-200' : 'bg-blue-600 text-white'}">
+                        <p class="text-sm leading-relaxed">${content}</p>
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // 显示选项
+        function showOptions(options, multiSelect = false) {
+            const inputArea = document.getElementById('input-area');
+            const optionsHtml = options.map(option => `
+                <div class="option-card bg-white border-2 border-gray-200 rounded-lg p-4 mb-3 ${multiSelect ? 'multi-select' : 'single-select'}" data-id="${option.id}">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="${option.icon} text-gray-600"></i>
+                        </div>
+                        <span class="font-medium text-gray-900">${option.text}</span>
+                        ${multiSelect ? '<div class="ml-auto"><i class="fas fa-check text-green-500 hidden"></i></div>' : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            inputArea.innerHTML = `
+                <div class="space-y-3">
+                    ${optionsHtml}
+                    <button id="continue-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors ${multiSelect ? 'opacity-50 cursor-not-allowed' : ''}" ${multiSelect ? 'disabled' : ''}>
+                        继续 <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            `;
+
+            // 绑定选项点击事件
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.addEventListener('click', () => selectOption(card, multiSelect));
+            });
+
+            // 绑定继续按钮
+            document.getElementById('continue-btn').addEventListener('click', () => {
+                if (currentStep === 1) {
+                    showIndustryPractices();
+                } else {
+                    nextStep();
+                }
+            });
+        }
+
+        // 选择选项
+        function selectOption(card, multiSelect) {
+            const id = card.dataset.id;
+            
+            if (multiSelect) {
+                if (card.classList.contains('selected')) {
+                    card.classList.remove('selected');
+                    card.querySelector('.fa-check').classList.add('hidden');
+                    selectedPriorities = selectedPriorities.filter(p => p !== id);
+                } else {
+                    card.classList.add('selected');
+                    card.querySelector('.fa-check').classList.remove('hidden');
+                    selectedPriorities.push(id);
+                }
+                
+                const continueBtn = document.getElementById('continue-btn');
+                if (selectedPriorities.length > 0) {
+                    continueBtn.disabled = false;
+                    continueBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    continueBtn.disabled = true;
+                    continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            } else {
+                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                
+                if (currentStep === 1) {
+                    selectedIndustry = id;
+                } else if (currentStep === 3) {
+                    selectedContact = id;
+                }
+            }
+        }
+
+        // 显示行业最佳实践
+        function showIndustryPractices() {
+            const practices = industryPractices[selectedIndustry];
+            
+            addMessage('ai', `收到！已选择**【${practices.name}】**。`);
+            
+            setTimeout(() => {
+                addMessage('ai', '这是一个对安全和效率要求极高的行业。在服务众多头部客户后，我们为您总结了该行业领先者的三个共通实践，他们正是这样做的：');
+            }, 1000);
+
+            practices.practices.forEach((practice, index) => {
+                setTimeout(() => {
+                    const practiceHtml = `
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-3 rounded-r-lg">
+                            <p class="text-gray-800">${practice}</p>
+                        </div>
+                    `;
+                    addMessage('ai', practiceHtml);
+                }, 2000 + (index * 1500));
+            });
+
+            setTimeout(() => {
+                addMessage('ai', '基于这些行业最佳实践，我们将为您优先推荐经过验证的、效果最佳的安全流程模板。');
+                setTimeout(() => {
+                    showConfigurationChoice();
+                }, 1000);
+            }, 2000 + (practices.practices.length * 1500) + 1000);
+        }
+
+        // 显示配置选择
+        function showConfigurationChoice() {
+            addMessage('ai', '您希望如何继续配置您的安全运营体系？');
+            
+            setTimeout(() => {
+                const inputArea = document.getElementById('input-area');
+                inputArea.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="option-card bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg p-6 single-select cursor-pointer" data-id="detailed">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-cog text-white text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-gray-900 mb-1">详细配置流程</h3>
+                                    <p class="text-gray-600 text-sm">继续完成优先级设定和联络方式配置，获得完全定制化的安全运营体系</p>
+                                </div>
+                                <div class="text-blue-500">
+                                    <i class="fas fa-arrow-right text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="option-card bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-lg p-6 single-select cursor-pointer" data-id="oneclick">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-magic text-white text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-gray-900 mb-1">一键应用最佳实践</h3>
+                                    <p class="text-gray-600 text-sm">立即应用${industryPractices[selectedIndustry].name}的成熟配置，快速开始智能化安全运营</p>
+                                </div>
+                                <div class="text-green-500">
+                                    <i class="fas fa-bolt text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // 绑定选择事件
+                document.querySelectorAll('.option-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const choice = card.dataset.id;
+                        card.classList.add('selected');
+                        
+                        if (choice === 'detailed') {
+                            addMessage('user', '我选择详细配置流程，希望获得完全定制化的安全运营体系。');
+                            setTimeout(() => {
+                                nextStep();
+                            }, 1000);
+                        } else if (choice === 'oneclick') {
+                            addMessage('user', '我选择一键应用最佳实践，希望快速开始使用。');
+                            setTimeout(() => {
+                                applyBestPractices();
+                            }, 1000);
+                        }
+                    });
+                });
+            }, 500);
+        }
+
+        // 一键应用最佳实践
+        function applyBestPractices() {
+            addMessage('ai', '好的！正在为您应用行业最佳实践配置...');
+            
+            setTimeout(() => {
+                addMessage('ai', '✅ 已为您自动配置以下内容：');
+            }, 1000);
+
+            const practiceItems = [
+                '🛡️ 自动化安全监控和告警系统',
+                '⚡ 智能化事件响应工作流',
+                '📊 行业标准KPI指标仪表板',
+                '🤖 AI驱动的威胁检测Agent',
+                '📋 合规性自动化检查流程'
+            ];
+
+            practiceItems.forEach((item, index) => {
+                setTimeout(() => {
+                    const itemHtml = `
+                        <div class="bg-green-50 border-l-4 border-green-500 p-3 my-2 rounded-r-lg flex items-center">
+                            <span class="text-gray-800">${item}</span>
+                            <div class="ml-auto text-green-500">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    `;
+                    addMessage('ai', itemHtml);
+                }, 1500 + (index * 800));
+            });
+
+            setTimeout(() => {
+                addMessage('ai', '🎉 配置完成！您的智能化安全运营中心已就绪，现在就可以开始使用了！');
+                setTimeout(() => {
+                    showFinalOptions();
+                }, 1500);
+            }, 1500 + (practiceItems.length * 800) + 1000);
+        }
+
+        // 显示最终选项
+        function showFinalOptions() {
+            const inputArea = document.getElementById('input-area');
+            inputArea.innerHTML = `
+                <div class="space-y-3">
+                    <a href="ciso-security-dashboard.html" class="block w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors text-center">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        进入安全运营中心
+                    </a>
+                    <a href="workflow-editor-prototype.html" class="block w-full bg-purple-600 text-white font-bold py-4 px-6 rounded-lg hover:bg-purple-700 transition-colors text-center">
+                        <i class="fas fa-edit mr-2"></i>
+                        查看和编辑工作流
+                    </a>
+                </div>
+            `;
+        }
+
+        // 下一步
+        function nextStep() {
+            if (currentStep < 3) {
+                currentStep++;
+                updateProgress();
+                setTimeout(() => {
+                    showStep(currentStep);
+                }, 1000);
+            } else {
+                completeOnboarding();
+            }
+        }
+
+        // 完成引导
+        function completeOnboarding() {
+            addMessage('ai', '🎉 恭喜！您的专属安全运营体系配置已完成！');
+            setTimeout(() => {
+                addMessage('ai', '系统正在为您生成定制化的安全运营流程，请稍候...');
+            }, 1000);
+            
+            setTimeout(() => {
+                window.location.href = 'ciso-security-dashboard.html';
+            }, 3000);
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const progress = (currentStep / 3) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${Math.round(progress)}% 完成`;
+        }
+
+        // 更新步骤状态
+        function updateStepStatus(activeStep) {
+            for (let i = 1; i <= 3; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                const circle = stepEl.querySelector('.w-8');
+                
+                if (i < activeStep) {
+                    circle.className = 'w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3';
+                    circle.innerHTML = '<i class="fas fa-check text-sm"></i>';
+                } else if (i === activeStep) {
+                    circle.className = 'w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3';
+                    stepEl.classList.add('active');
+                } else {
+                    circle.className = 'w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center mr-3';
+                    stepEl.classList.remove('active');
+                }
+            }
+        }
+
+
+    </script>
+
+    <style>
+        .progress-step.active {
+            opacity: 1;
+        }
+        .progress-step {
+            opacity: 0.6;
+        }
+    </style>
+</body>
+</html> 

@@ -1,0 +1,43 @@
+# macOS系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 依赖目录 (如果将来添加)
+node_modules/
+package-lock.json
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 构建输出 (如果将来添加)
+dist/
+build/
+
+# 备份文件
+*.bak
+*.backup
