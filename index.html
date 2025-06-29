@@ -3,414 +3,681 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI安全运营Demo系统</title>
+    <title>XDR+GPT智能运营中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1e40af',
-                        secondary: '#64748b',
-                        accent: '#3b82f6',
-                        danger: '#ef4444',
-                        warning: '#f59e0b',
-                        success: '#10b981'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        .demo-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        .demo-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border-color: #3b82f6;
-        }
-        .architecture-diagram {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        }
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        .glow-effect {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        .menu-item {
+            transition: all 0.3s ease;
         }
-        .typing-animation {
-            overflow: hidden;
-            border-right: 3px solid #3b82f6;
-            white-space: nowrap;
-            animation: typing 3s steps(30, end), blink-caret 0.75s step-end infinite;
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
         }
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-right: 4px solid #fff;
         }
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: #3b82f6; }
+        .content-frame {
+            transition: all 0.3s ease;
+        }
+        .loading-overlay {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+        }
+        .sidebar-collapsed {
+            width: 80px;
+        }
+        .sidebar-expanded {
+            width: 280px;
+        }
+        .content-expanded {
+            margin-left: 80px;
+        }
+        .content-normal {
+            margin-left: 280px;
+        }
+        .menu-text {
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-collapsed .menu-text {
+            opacity: 0;
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- 顶部导航 -->
-    <nav class="gradient-bg shadow-lg">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                        <i class="fas fa-shield-alt text-white text-xl"></i>
+<body class="bg-gray-50 font-sans overflow-hidden">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-30 h-16">
+        <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white"></i>
                     </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-white">AI安全运营Demo系统</h1>
-                        <p class="text-blue-100 text-sm">AI安全运营——从战略到执行的智能驾驶舱</p>
-                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">XDR+GPT智能运营中心</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-white text-sm">
-                        <i class="fas fa-clock mr-2"></i>
-                        <span id="currentTime"></span>
-                    </div>
-                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                    <span class="text-white text-sm">系统运行中</span>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- 时间控件 -->
+                <div class="flex items-center space-x-2 bg-gray-100 rounded-lg p-2">
+                    <i class="fas fa-calendar text-gray-500"></i>
+                    <select class="bg-transparent text-sm font-medium text-gray-700 border-none outline-none cursor-pointer">
+                        <option>实时监控</option>
+                        <option>近24小时</option>
+                        <option>近7天</option>
+                        <option>近30天</option>
+                    </select>
+                </div>
+                
+                <!-- 通知按钮 -->
+                <button class="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                </button>
+                
+                <!-- 用户菜单 -->
+                <div class="flex items-center space-x-2">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" 
+                         alt="用户头像" class="w-8 h-8 rounded-full">
+                    <span class="text-sm font-medium text-gray-700">安全管理员</span>
+                    <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-6 py-8">
-        <!-- 欢迎区域 -->
-        <div class="text-center mb-12">
-            <h2 class="text-4xl font-bold text-gray-900 mb-4">
-                <span class="typing-animation">欢迎体验AI安全运营系统Demo演示</span>
-            </h2>
-            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                AI安全运营——从战略到执行的智能驾驶舱，从安全分析到决策支持，从流程编排到自动化执行，从监控反馈到持续优化，让安全运营更智能、更高效、更可靠。
-            </p>
+    <!-- 左侧菜单栏 -->
+    <div id="sidebar" class="fixed left-0 top-16 bottom-0 gradient-bg text-white sidebar-expanded transition-all duration-300 ease-in-out z-20">
+        <div class="p-6">
+            <div class="mb-8">
+                <div class="flex items-center space-x-3 mb-2">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-white"></i>
+                    </div>
+                    <div class="menu-text">
+                        <h3 class="text-lg font-bold">AI助手</h3>
+                        <p class="text-sm text-white/80">智能运营管理</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 菜单项 -->
+            <nav class="space-y-2">
+                <div class="menu-item active rounded-lg p-3 cursor-pointer" data-page="demo" data-url="demo.html">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-play-circle text-xl w-6"></i>
+                        <span class="menu-text font-medium">演示Demo</span>
+                    </div>
+                </div>
+
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="setup" data-url="ciso-onboarding-guide.html">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-magic text-xl w-6"></i>
+                        <span class="menu-text font-medium">初始配置向导</span>
+                    </div>
+                </div>
+
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="ciso" data-url="ciso-security-dashboard.html">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-tachometer-alt text-xl w-6"></i>
+                        <span class="menu-text font-medium">CISO驾驶舱</span>
+                    </div>
+                </div>
+
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="alerts" data-url="im-security-alert-prototype.html">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-comments text-xl w-6"></i>
+                        <span class="menu-text font-medium">IM联络员（演示）</span>
+                    </div>
+                </div>
+
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="workflow" data-url="workflow-editor-prototype.html">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-project-diagram text-xl w-6"></i>
+                        <span class="menu-text font-medium">工作流管理</span>
+                    </div>
+                </div>
+
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="reports" data-url="ai-report-prototype.html">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-chart-bar text-xl w-6"></i>
+                        <span class="menu-text font-medium">AI报表中心</span>
+                    </div>
+                </div>
+
+                <!-- 分割线 -->
+                <div class="border-t border-white/20 my-4"></div>
+
+                <!-- 系统设置 -->
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="settings" data-url="settings">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-cog text-xl w-6"></i>
+                        <span class="menu-text font-medium">系统设置</span>
+                    </div>
+                </div>
+
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="help" data-url="help">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-question-circle text-xl w-6"></i>
+                        <span class="menu-text font-medium">帮助文档</span>
+                    </div>
+                </div>
+            </nav>
         </div>
 
-        <!-- 交互式Demo提示 -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-lg">
-                <i class="fas fa-mouse-pointer mr-2"></i>
-                <span class="font-semibold">交互式Demo演示，请点击下方模块体验</span>
-            </div>
-        </div>
-
-        <!-- 系统模块展示 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-         
-
-            <!-- CISO安全仪表板 -->
-            <div class="demo-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="openDemo('ciso-security-dashboard.html')">
-                <div class="text-center mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 glow-effect">
-                        <i class="fas fa-tachometer-alt text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">CISO安全仪表板</h3>
-                    <p class="text-gray-600 text-sm">高管级安全态势感知与决策支持平台</p>
+        <!-- 底部状态 -->
+        <div class="absolute bottom-4 left-4 right-4">
+            <div class="bg-white/10 rounded-lg p-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm menu-text">系统运行正常</span>
                 </div>
-                <div class="space-y-2 text-sm">
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        一分钟态势洞察
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        风险评估矩阵
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        决策支持建议
-                    </div>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">高管视图</span>
-                    <span class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full ml-2">态势感知</span>
-                </div>
-            </div>
-
-            <!-- 智能安全告警 -->
-            <div class="demo-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="openDemo('im-security-alert-prototype.html')">
-                <div class="text-center mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-r from-red-400 to-red-600 rounded-xl flex items-center justify-center mx-auto mb-4 glow-effect">
-                        <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">IM联络员系统</h3>
-                    <p class="text-gray-600 text-sm">基于AI的智能即时通讯与联络管理系统</p>
-                </div>
-                <div class="space-y-2 text-sm">
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        智能降噪过滤
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        掌上移动运营
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        AI交互响应
-                    </div>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">IM联络</span>
-                    <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full ml-2">智能分析</span>
-                </div>
-            </div>
-
-            <!-- 工作流编辑器 -->
-            <div class="demo-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="openDemo('workflow-editor-prototype.html')">
-                <div class="text-center mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-4 glow-effect">
-                        <i class="fas fa-project-diagram text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Agent智能工作流</h3>
-                    <p class="text-gray-600 text-sm">可视化AI安全运营流程自动化</p>
-                </div>
-                <div class="space-y-2 text-sm">
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        拖拽式编辑
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        Agent集成
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        联络员推送
-                    </div>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">流程编排</span>
-                    <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full ml-2">Agent决策</span>
-                </div>
-            </div>
-               <!-- AI报表生成系统 -->
-               <div class="demo-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="openDemo('ai-report-prototype.html')">
-                <div class="text-center mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 glow-effect">
-                        <i class="fas fa-chart-line text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">AI报表生成系统</h3>
-                    <p class="text-gray-600 text-sm">智能化安全分析报表生成与可视化展示</p>
-                </div>
-                <div class="space-y-2 text-sm">
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        AI智能分析
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        实时数据可视化
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <i class="fas fa-check text-green-500 mr-2"></i>
-                        自然语言交互
-                    </div>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">报表生成</span>
-                    <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full ml-2">AI驱动</span>
-                </div>
-            </div>
-        </div>
-
-    <!-- 页面预览弹窗 -->
-    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center h-full p-4">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden">
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-900">系统演示</h3>
-                    <div class="flex items-center space-x-4">
-                        <button onclick="openFullscreen()" class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100">
-                            <i class="fas fa-expand"></i>
-                        </button>
-                        <button onclick="closePreview()" class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="h-[calc(90vh-80px)]">
-                    <iframe id="previewFrame" src="" class="w-full h-full border-0"></iframe>
-                </div>
+                <div class="text-xs text-white/70 mt-1 menu-text">最后更新: 刚刚</div>
             </div>
         </div>
     </div>
 
-
-        <!-- 系统架构图 -->
-        <div class="architecture-diagram rounded-2xl p-8 mb-12 border border-blue-200">
-            <h3 class="text-2xl font-bold text-center text-gray-800 mb-6">AI安全运营架构图</h3>
-            <div class="bg-white rounded-xl p-6 shadow-lg">
-                <div class="mermaid" id="architectureDiagram">
-                    graph TD
-
-                        %% 定义样式
-                        classDef module fill:#EBF5FF,stroke:#367CFF,stroke-width:2px,color:#222;
-                        classDef user fill:#FFF2D4,stroke:#FFAA00,stroke-width:2px,color:#222;
-                        classDef process fill:#E8F8F5,stroke:#2ECC71,stroke-width:2px,color:#222;
-
-                        %% A. 战略规划与设定层
-                        subgraph "A. 战略规划与设定层 (Plan & Strategy)"
-                            CISO(["👨‍💼 安全负责人/CISO"])
-                            AIInteraction("🤖 AI 辅助交互")
-                            GoalSetting("🎯 目标设定模块")
-
-                            CISO -- "我想提升..." --> AIInteraction
-                            AIInteraction -- "生成目标建议" --> GoalSetting
-                        end
-
-                        %% B. 运营执行与编排层
-                        subgraph "B. 运营执行与编排层 (Do & Execute)"
-                            WorkflowEditor("🛠️ Workflow 编排模块")
-                            ExecutionEngine("⚙️ 工作流执行引擎<br>(后台运行)")
-                            TodoCenter("💬 IM联络员中心")
-                            Analyst(["👨‍💻 安全分析师"])
-
-                            WorkflowEditor -- "部署自动化流程" --> ExecutionEngine
-                            ExecutionEngine -- "创建人工决策任务" --> TodoCenter
-                            TodoCenter -- "分配任务" --> Analyst
-                            Analyst -- "完成决策/审批" --> TodoCenter
-                            TodoCenter -- "返回决策结果" --> ExecutionEngine
-                        end
-                        
-                        %% C. 监控反馈与决策层
-                        subgraph "C. 监控反馈与决策层 (Check & Act)"
-                            Dashboard("📊 目标监控管理 (Dashboard)")
-                        end
-
-                        %% 核心流程连线 (展示闭环)
-                        GoalSetting -- "1.定义KPI/SLA<br>指导流程设计" --> WorkflowEditor
-                        ExecutionEngine -- "2.执行结果<br>更新指标数据" --> Dashboard
-                        Dashboard -- "3.监控目标差距<br>提供决策依据" --> CISO
-                        CISO -- "4a. 审视并优化流程" --> WorkflowEditor
-                        CISO -- "4b. 审视并调整目标" --> GoalSetting
-
-                        %% 为节点应用样式
-                        class CISO,Analyst user;
-                        class GoalSetting,WorkflowEditor,TodoCenter,Dashboard module;
-                        class ExecutionEngine process;
-                </div>
-                <div class="mt-4 text-center">
-                    <p class="text-gray-600 text-sm">基于AI的安全运营架构：策略规划层 → 运营执行层 → 监控反馈层</p>
+    <!-- 主内容区域 -->
+    <div id="main-content" class="content-normal transition-all duration-300 ease-in-out">
+        <div class="pt-16 h-screen relative">
+            <!-- 加载指示器 -->
+            <div id="loading-overlay" class="absolute inset-0 loading-overlay items-center justify-center hidden z-10">
+                <div class="text-center">
+                    <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-gray-600 font-medium">加载中...</p>
                 </div>
             </div>
+
+            <!-- 默认内容隐藏 -->
+            <div id="dashboard-content" class="h-full p-6 hidden">
+                <!-- 这里保留为空，因为已删除运营概览功能 -->
+            </div>
+
+            <!-- 动态内容区域 -->
+            <iframe id="content-frame" class="w-full h-full border-none hidden" src="about:blank"></iframe>
         </div>
-
-
-    <!-- 底部信息 -->
-    <footer class="bg-gray-900 text-white py-8">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <div class="flex items-center justify-center space-x-4 mb-4">
-                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-shield-alt text-white"></i>
-                </div>
-                <span class="text-lg font-semibold">XDR AI 2.0 安全运营系统</span>
-            </div>
-            <p class="text-gray-400">下一代智能化安全运营中心 | 让安全运营更智能、更高效、更可靠</p>
-            <div class="mt-4 flex items-center justify-center space-x-6 text-sm text-gray-400">
-                <span>© 2024 XDR AI 2.0</span>
-                <span class="flex items-center"><i class="fas fa-circle text-green-400 mr-2 text-xs"></i>系统正常运行</span>
-                <span>版本: v2.0.1</span>
-            </div>
-        </div>
-    </footer>
+    </div>
 
     <script>
-        // 初始化 Mermaid
-        mermaid.initialize({
-            startOnLoad: true,
-            theme: 'default',
-            securityLevel: 'loose',
-            flowchart: {
-                htmlLabels: true,
-                curve: 'basis',
-                diagramPadding: 20
+        let sidebarCollapsed = false;
+        let currentPage = null; // 初始化为null，允许首次加载
+
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebarCollapsed = !sidebarCollapsed;
+            
+            if (sidebarCollapsed) {
+                sidebar.classList.remove('sidebar-expanded');
+                sidebar.classList.add('sidebar-collapsed');
+                mainContent.classList.remove('content-normal');
+                mainContent.classList.add('content-expanded');
+            } else {
+                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.add('sidebar-expanded');
+                mainContent.classList.remove('content-expanded');
+                mainContent.classList.add('content-normal');
             }
         });
 
-        // 时间显示
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('zh-CN', {
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            document.getElementById('currentTime').textContent = timeString;
-        }
-
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        // 演示弹窗功能
-        function openDemo(htmlFile) {
-            const modal = document.getElementById('previewModal');
-            const frame = document.getElementById('previewFrame');
-            const title = document.getElementById('modalTitle');
-            
-            const titles = {
-                'ai-report-prototype.html': 'AI报表生成系统',
-                'ciso-security-dashboard.html': 'CISO安全仪表板',
-                'im-security-alert-prototype.html': '智能安全告警系统',
-                'workflow-editor-prototype.html': '工作流编辑器'
-            };
-            
-            title.textContent = titles[htmlFile] || '系统演示';
-            frame.src = htmlFile;
-            modal.classList.remove('hidden');
-            
-            // 添加ESC键关闭功能
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closePreview();
+        // 菜单项点击事件
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const page = this.dataset.page;
+                const url = this.dataset.url;
+                
+                if (page && url) {
+                    navigateToPage(page, url);
+                    
+                    // 更新活跃状态
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
                 }
             });
-        }
-
-        function closePreview() {
-            const modal = document.getElementById('previewModal');
-            const frame = document.getElementById('previewFrame');
-            modal.classList.add('hidden');
-            frame.src = '';
-        }
-
-        function openFullscreen() {
-            const frame = document.getElementById('previewFrame');
-            if (frame.requestFullscreen) {
-                frame.requestFullscreen();
-            } else if (frame.webkitRequestFullscreen) {
-                frame.webkitRequestFullscreen();
-            } else if (frame.mozRequestFullScreen) {
-                frame.mozRequestFullScreen();
-            } else if (frame.msRequestFullscreen) {
-                frame.msRequestFullscreen();
-            }
-        }
-
-        // 点击模态框外部关闭
-        document.getElementById('previewModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePreview();
-            }
         });
 
-        // 页面加载动画
-        window.addEventListener('load', function() {
-            document.body.style.opacity = '0';
-            document.body.style.transition = 'opacity 0.5s ease-in-out';
+
+
+        // 导航到页面
+        function navigateToPage(page, url, force = false) {
+            if (page === currentPage && !force) return;
+            
+            const dashboardContent = document.getElementById('dashboard-content');
+            const contentFrame = document.getElementById('content-frame');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            // 显示加载指示器
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            
+            if (url === 'settings') {
+                // 系统设置页面
+                setTimeout(() => {
+                    showSettingsPage();
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                    currentPage = page;
+                }, 500);
+            } else if (url === 'help') {
+                // 帮助文档页面
+                setTimeout(() => {
+                    showHelpPage();
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                    currentPage = page;
+                }, 500);
+            } else {
+                // 加载外部页面
+                dashboardContent.classList.add('hidden');
+                contentFrame.src = url;
+                contentFrame.classList.remove('hidden');
+                
+                contentFrame.onload = function() {
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                    currentPage = page;
+                };
+                
+                // 超时处理
+                setTimeout(() => {
+                    if (loadingOverlay.classList.contains('flex')) {
+                        loadingOverlay.classList.add('hidden');
+                        loadingOverlay.classList.remove('flex');
+                        currentPage = page;
+                    }
+                }, 5000);
+            }
+        }
+
+        // 显示设置页面
+        function showSettingsPage() {
+            const dashboardContent = document.getElementById('dashboard-content');
+            const contentFrame = document.getElementById('content-frame');
+            
+            dashboardContent.innerHTML = `
+                <div class="h-full p-6">
+                    <div class="max-w-4xl mx-auto">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-8">系统设置</h1>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                <h3 class="text-xl font-bold text-gray-900 mb-4">基础配置</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">系统名称</label>
+                                        <input type="text" value="XDR+GPT智能运营中心" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">组织名称</label>
+                                        <input type="text" value="示例企业" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">时区设置</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option>UTC+08:00 (北京时间)</option>
+                                            <option>UTC+00:00 (UTC)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                <h3 class="text-xl font-bold text-gray-900 mb-4">AI配置</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">AI模型</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option>GPT-4</option>
+                                            <option>GPT-3.5-turbo</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">响应级别</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option>智能（推荐）</option>
+                                            <option>保守</option>
+                                            <option>激进</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" checked class="mr-2">
+                                        <label class="text-sm text-gray-700">启用自动化响应</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 flex justify-end space-x-4">
+                            <button class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">重置</button>
+                            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">保存设置</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            contentFrame.classList.add('hidden');
+            dashboardContent.classList.remove('hidden');
+        }
+
+        // 显示帮助页面
+        function showHelpPage() {
+            const dashboardContent = document.getElementById('dashboard-content');
+            const contentFrame = document.getElementById('content-frame');
+            
+            dashboardContent.innerHTML = `
+                <div class="h-full p-6 overflow-y-auto">
+                    <div class="max-w-6xl mx-auto">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-8">XDR+GPT智能运营中心 - 用户手册</h1>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                            <div class="lg:col-span-1">
+                                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 sticky top-6">
+                                    <h3 class="font-bold text-gray-900 mb-4">📚 快速导航</h3>
+                                    <nav class="space-y-2">
+                                        <a href="#demo" class="block text-blue-600 hover:text-blue-800 py-1">🎬 演示Demo</a>
+                                        <a href="#setup" class="block text-blue-600 hover:text-blue-800 py-1">🚀 初始配置向导</a>
+                                        <a href="#ciso" class="block text-blue-600 hover:text-blue-800 py-1">📊 CISO驾驶舱</a>
+                                        <a href="#alerts" class="block text-blue-600 hover:text-blue-800 py-1">💬 IM联络员</a>
+                                        <a href="#workflow" class="block text-blue-600 hover:text-blue-800 py-1">🔄 工作流管理</a>
+                                        <a href="#reports" class="block text-blue-600 hover:text-blue-800 py-1">📈 AI报表中心</a>
+                                        <a href="#ai-features" class="block text-blue-600 hover:text-blue-800 py-1">🤖 AI核心功能</a>
+                                        <a href="#troubleshooting" class="block text-blue-600 hover:text-blue-800 py-1">🔧 故障排除</a>
+                                    </nav>
+                                </div>
+                            </div>
+                            
+                            <div class="lg:col-span-3">
+                                <div class="space-y-8">
+                                    <!-- 演示Demo -->
+                                    <div id="demo" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-blue-100 p-2 rounded-lg mr-3">🎬</span>
+                                            演示Demo
+                                        </h2>
+                                        <p class="text-gray-600 mb-4">系统入门演示页面，展示核心功能亮点：</p>
+                                        <ul class="list-disc list-inside space-y-2 text-gray-600 ml-4">
+                                            <li><strong>产品概览：</strong>了解XDR+GPT智能运营中心的核心价值</li>
+                                            <li><strong>功能演示：</strong>观看AI驱动的安全运营流程演示</li>
+                                            <li><strong>架构介绍：</strong>了解三层智能运营体系架构</li>
+                                            <li><strong>效果展示：</strong>查看真实客户案例和效果数据</li>
+                                        </ul>
+                                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                            <p class="text-blue-800 text-sm"><strong>💡 使用建议：</strong>新用户建议先观看演示Demo，了解系统整体功能后再进行配置。</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- 初始配置向导 -->
+                                    <div id="setup" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-green-100 p-2 rounded-lg mr-3">🚀</span>
+                                            初始配置向导
+                                        </h2>
+                                        <p class="text-gray-600 mb-4">AI引导的90秒快速配置流程，帮您量身定制安全运营体系：</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                                <h4 class="font-medium text-gray-900 mb-2">🏢 步骤1：行业选择</h4>
+                                                <p class="text-sm text-gray-600">选择您的行业类型（政府、能源、金融、企业），获得专业的最佳实践建议</p>
+                                            </div>
+                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                                <h4 class="font-medium text-gray-900 mb-2">🎯 步骤2：优先级设定</h4>
+                                                <p class="text-sm text-gray-600">确定安全事件处理优先级，制定符合业务需求的响应策略</p>
+                                            </div>
+                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                                <h4 class="font-medium text-gray-900 mb-2">📱 步骤3：联络配置</h4>
+                                                <p class="text-sm text-gray-600">设置紧急联络方式，确保关键决策能及时触达负责人</p>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-green-50 rounded-lg">
+                                            <p class="text-green-800 text-sm"><strong>⚡ 特色功能：</strong>支持一键应用行业最佳实践，也可选择详细配置获得完全定制化体验。</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- CISO驾驶舱 -->
+                                    <div id="ciso" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-purple-100 p-2 rounded-lg mr-3">📊</span>
+                                            CISO驾驶舱
+                                        </h2>
+                                        <p class="text-gray-600 mb-4">高管级别的安全态势大屏，实时展示组织安全状况：</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-2">📈 核心KPI监控</h4>
+                                                <ul class="text-sm text-gray-600 space-y-1">
+                                                    <li>• 安全事件数量和趋势</li>
+                                                    <li>• 平均响应时间(MTTR)</li>
+                                                    <li>• 自动化处理率</li>
+                                                    <li>• 风险评分变化</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-2">🎯 业务价值展示</h4>
+                                                <ul class="text-sm text-gray-600 space-y-1">
+                                                    <li>• 效率提升统计</li>
+                                                    <li>• 成本节约分析</li>
+                                                    <li>• 合规达成状况</li>
+                                                    <li>• 团队工作负载</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-purple-50 rounded-lg">
+                                            <p class="text-purple-800 text-sm"><strong>🎯 设计理念：</strong>为CISO和高管设计，聚焦业务价值展示，支持向上汇报和决策支持。</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- IM联络员 -->
+                                    <div id="alerts" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-blue-100 p-2 rounded-lg mr-3">💬</span>
+                                            IM联络员
+                                        </h2>
+                                        <p class="text-gray-600 mb-4">智能化的即时通讯安全联络系统，实现人机高效协同：</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-2">💬 智能沟通</h4>
+                                                <ul class="text-sm text-gray-600 space-y-1">
+                                                    <li>• 自动识别安全事件紧急程度</li>
+                                                    <li>• 智能选择最佳联络方式</li>
+                                                    <li>• 多渠道消息推送（微信/钉钉/短信）</li>
+                                                    <li>• 实时状态跟踪和反馈</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-2">🤖 智能决策</h4>
+                                                <ul class="text-sm text-gray-600 space-y-1">
+                                                    <li>• 基于上下文的智能建议</li>
+                                                    <li>• 快速决策选项推荐</li>
+                                                    <li>• 历史决策模式学习</li>
+                                                    <li>• 紧急事件自动升级</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-blue-50 rounded-lg">
+                                            <p class="text-blue-800 text-sm"><strong>💡 核心价值：</strong>通过智能化的IM联络，实现24/7无缝的人机协同安全运营，让关键决策随时触达。</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- 工作流管理 -->
+                                    <div id="workflow" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-indigo-100 p-2 rounded-lg mr-3">🔄</span>
+                                            工作流管理
+                                        </h2>
+                                        <p class="text-gray-600 mb-4">可视化的工作流设计器，构建智能化安全响应流程：</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                                <h4 class="font-medium text-gray-900 mb-2">🎨 可视化设计</h4>
+                                                <p class="text-sm text-gray-600">拖拽式流程设计，支持条件分支、循环、并行等复杂逻辑</p>
+                                            </div>
+                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                                <h4 class="font-medium text-gray-900 mb-2">🤖 AI Agent集成</h4>
+                                                <p class="text-sm text-gray-600">融入GPT能力，实现智能决策、自然语言处理等高级功能</p>
+                                            </div>
+                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                                <h4 class="font-medium text-gray-900 mb-2">🔗 系统集成</h4>
+                                                <p class="text-sm text-gray-600">对接各类安全工具和平台，实现统一编排和管理</p>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-indigo-50 rounded-lg">
+                                            <p class="text-indigo-800 text-sm"><strong>🚀 高级特性：</strong>支持模板库、版本管理、A/B测试，让流程优化成为持续改进的过程。</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- AI报表中心 -->
+                                    <div id="reports" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-orange-100 p-2 rounded-lg mr-3">📈</span>
+                                            AI报表中心
+                                        </h2>
+                                        <p class="text-gray-600 mb-4">智能化的报表生成和分析平台，支持自然语言交互：</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-2">🗣️ 自然语言查询</h4>
+                                                <ul class="text-sm text-gray-600 space-y-1">
+                                                    <li>• "生成近7天SQL注入攻击趋势"</li>
+                                                    <li>• "对比上月安全事件数量变化"</li>
+                                                    <li>• "分析高危漏洞修复效率"</li>
+                                                    <li>• "生成月度安全运营报告"</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-2">📊 智能可视化</h4>
+                                                <ul class="text-sm text-gray-600 space-y-1">
+                                                    <li>• 自动选择最佳图表类型</li>
+                                                    <li>• 交互式Dashboard生成</li>
+                                                    <li>• 一键导出和分享</li>
+                                                    <li>• 定时报表自动发送</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-orange-50 rounded-lg">
+                                            <p class="text-orange-800 text-sm"><strong>💡 创新亮点：</strong>告别复杂的报表配置，用自然语言描述需求，AI自动生成专业报表。</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- AI核心功能 -->
+                                    <div id="ai-features" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-cyan-100 p-2 rounded-lg mr-3">🤖</span>
+                                            AI核心功能
+                                        </h2>
+                                        <p class="text-gray-600 mb-4">基于GPT技术的核心AI能力，贯穿整个安全运营流程：</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-3">🧠 智能分析能力</h4>
+                                                <ul class="text-sm text-gray-600 space-y-2">
+                                                    <li>• <strong>威胁情报分析：</strong>自动关联外部威胁信息</li>
+                                                    <li>• <strong>异常行为检测：</strong>基于上下文的智能判断</li>
+                                                    <li>• <strong>根因分析：</strong>自动追溯攻击链路和原因</li>
+                                                    <li>• <strong>风险评估：</strong>综合评估业务影响程度</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-3">⚡ 自动化响应</h4>
+                                                <ul class="text-sm text-gray-600 space-y-2">
+                                                    <li>• <strong>智能决策：</strong>基于历史经验的自动判断</li>
+                                                    <li>• <strong>动态响应：</strong>根据威胁级别调整响应策略</li>
+                                                    <li>• <strong>预测性维护：</strong>提前识别潜在安全风险</li>
+                                                    <li>• <strong>持续学习：</strong>从每次处理中优化算法</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-cyan-50 rounded-lg">
+                                            <p class="text-cyan-800 text-sm"><strong>🎯 核心优势：</strong>将顶尖安全专家的经验和判断能力，通过AI技术实现7x24小时不间断的智能化运营。</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- 故障排除 -->
+                                    <div id="troubleshooting" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                                        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span class="bg-yellow-100 p-2 rounded-lg mr-3">🔧</span>
+                                            故障排除
+                                        </h2>
+                                        <div class="space-y-4">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900 mb-2">❓ 常见问题</h4>
+                                                <div class="space-y-3">
+                                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                                        <p class="font-medium text-gray-800 mb-1">Q: 页面加载缓慢或卡住？</p>
+                                                        <p class="text-sm text-gray-600">A: 检查网络连接，清除浏览器缓存，建议使用Chrome或Firefox最新版本。</p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                                        <p class="font-medium text-gray-800 mb-1">Q: AI功能响应异常？</p>
+                                                        <p class="text-sm text-gray-600">A: 确认AI服务状态正常，检查API配置，如持续异常请联系管理员。</p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                                        <p class="font-medium text-gray-800 mb-1">Q: 工作流执行失败？</p>
+                                                        <p class="text-sm text-gray-600">A: 查看执行日志，检查各步骤配置，确认外部系统连接正常。</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                                <h4 class="font-medium text-yellow-800 mb-2">📞 技术支持</h4>
+                                                <p class="text-sm text-yellow-700">如遇到无法解决的问题，请联系技术支持团队：</p>
+                                                <p class="text-sm text-yellow-700 mt-1">• 邮箱：support@xdr-gpt.com</p>
+                                                <p class="text-sm text-yellow-700">• 电话：400-123-4567</p>
+                                                <p class="text-sm text-yellow-700">• 在线客服：工作日 9:00-18:00</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            contentFrame.classList.add('hidden');
+            dashboardContent.classList.remove('hidden');
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 强制加载演示Demo页面
+            const dashboardContent = document.getElementById('dashboard-content');
+            const contentFrame = document.getElementById('content-frame');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            // 显示加载指示器
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            
+            // 确保iframe显示
+            dashboardContent.classList.add('hidden');
+            contentFrame.classList.remove('hidden');
+                            contentFrame.src = 'demo.html';
+            
+            // 监听iframe加载完成
+            contentFrame.onload = function() {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+            };
+            
+            // 超时处理，防止无限加载
             setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 100);
+                if (loadingOverlay.classList.contains('flex')) {
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                }
+            }, 3000);
+            
+            // 设置当前页面状态
+            currentPage = 'demo';
+            
+            // 确保正确的菜单项被激活
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            const demoMenuItem = document.querySelector('[data-page="demo"]');
+            if (demoMenuItem) {
+                demoMenuItem.classList.add('active');
+            }
         });
     </script>
 </body>

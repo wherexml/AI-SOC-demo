@@ -312,6 +312,16 @@
                         </div>
                         <div class="text-sm text-gray-400 ml-11">设置紧急联络</div>
                     </div>
+                    
+                    <div id="step-4" class="progress-step">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-magic text-sm"></i>
+                            </div>
+                            <span class="font-medium">智能推荐与配置完成</span>
+                        </div>
+                        <div class="text-sm text-gray-400 ml-11">生成定制化运营体系</div>
+                    </div>
                 </div>
 
                 <div class="mt-12 p-4 bg-gray-800 rounded-lg">
@@ -430,6 +440,21 @@
                     { id: "wechat", text: "A. 企业微信", icon: "fab fa-weixin" },
                     { id: "dingtalk", text: "B. 钉钉", icon: "fas fa-comments" },
                     { id: "sms", text: "C. 手机短信", icon: "fas fa-sms" }
+                ]
+            },
+            step4: {
+                title: "智能推荐与配置完成",
+                messages: [
+                    {
+                        type: "ai",
+                        content: "感谢您的配合！配置已全部完成。",
+                        delay: 1000
+                    },
+                    {
+                        type: "ai",
+                        content: "基于您对【{{industry}}】行业的洞察，以及对【{{priorities}}】的优先关注，AI已为您自动启用以下3个核心Workflow模板。它们是经过行业客户反复验证的最佳实践：",
+                        delay: 2000
+                    }
                 ]
             }
         };
@@ -586,6 +611,41 @@
                 if (selectedPriorities.length > 0) {
                     continueBtn.disabled = false;
                     continueBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    
+                    // 添加用户选择的回应消息
+                    if (selectedPriorities.length > 0 && currentStep === 2) {
+                        const priorityMap = {
+                            'external': '外部攻击',
+                            'vulnerability': '高危漏洞',
+                            'phishing': '钓鱼攻击',
+                            'operations': '日常运营'
+                        };
+                        const selectedText = selectedPriorities.map(p => priorityMap[p]).join('、');
+                        
+                        // 移除之前的用户回应消息（如果存在）
+                        const existingUserMessage = document.querySelector('.user-priority-response');
+                        if (existingUserMessage) {
+                            existingUserMessage.remove();
+                        }
+                        
+                        setTimeout(() => {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = 'chat-bubble mb-4 flex justify-end user-priority-response';
+                            messageDiv.innerHTML = `
+                                <div class="flex items-start max-w-3xl flex-row-reverse">
+                                    <div class="w-8 h-8 rounded-full bg-gray-300 ml-3 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600 text-sm"></i>
+                                    </div>
+                                    <div class="px-4 py-3 rounded-lg bg-blue-600 text-white">
+                                        <p class="text-sm leading-relaxed">我认为【${selectedText}】的处理优先级最高。</p>
+                                    </div>
+                                </div>
+                            `;
+                            const chatContainer = document.getElementById('chat-container');
+                            chatContainer.appendChild(messageDiv);
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }, 300);
+                    }
                 } else {
                     continueBtn.disabled = true;
                     continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -598,6 +658,15 @@
                     selectedIndustry = id;
                 } else if (currentStep === 3) {
                     selectedContact = id;
+                    // 添加用户的选择回应
+                    const contactMap = {
+                        'wechat': '企业微信',
+                        'dingtalk': '钉钉',
+                        'sms': '手机短信'
+                    };
+                    setTimeout(() => {
+                        addMessage('user', `我选择通过${contactMap[id]}接收紧急通知。`);
+                    }, 500);
                 }
             }
         }
@@ -750,11 +819,15 @@
 
         // 下一步
         function nextStep() {
-            if (currentStep < 3) {
+            if (currentStep < 4) {
                 currentStep++;
                 updateProgress();
                 setTimeout(() => {
-                    showStep(currentStep);
+                    if (currentStep === 4) {
+                        showFinalStep();
+                    } else {
+                        showStep(currentStep);
+                    }
                 }, 1000);
             } else {
                 completeOnboarding();
@@ -765,24 +838,170 @@
         function completeOnboarding() {
             addMessage('ai', '🎉 恭喜！您的专属安全运营体系配置已完成！');
             setTimeout(() => {
-                addMessage('ai', '系统正在为您生成定制化的安全运营流程，请稍候...');
+                addMessage('ai', '正在跳转到您的CISO战略驾驶舱...');
             }, 1000);
             
             setTimeout(() => {
                 window.location.href = 'ciso-security-dashboard.html';
-            }, 3000);
+            }, 2500);
         }
 
         // 更新进度
         function updateProgress() {
-            const progress = (currentStep / 3) * 100;
+            const progress = (currentStep / 4) * 100;
             document.getElementById('progress-bar').style.width = `${progress}%`;
             document.getElementById('progress-text').textContent = `${Math.round(progress)}% 完成`;
         }
 
+        // 显示最终步骤（第4步）
+        function showFinalStep() {
+            // 更新进度状态
+            updateStepStatus(4);
+
+            // 获取行业和优先级的描述
+            const industryName = getIndustryName(selectedIndustry);
+            const prioritiesText = getPrioritiesText(selectedPriorities);
+
+            // 显示感谢和配置完成消息
+            addMessage('ai', '感谢您的配合！配置已全部完成。');
+            
+            setTimeout(() => {
+                addMessage('ai', `基于您对【${industryName}】行业的洞察，以及对【${prioritiesText}】的优先关注，AI已为您自动启用以下3个核心Workflow模板。它们是经过行业客户反复验证的最佳实践：`);
+            }, 1500);
+
+            // 显示Workflow模板列表
+            setTimeout(() => {
+                showWorkflowTemplates();
+            }, 3000);
+        }
+
+        // 获取行业名称
+        function getIndustryName(industryId) {
+            const industryMap = {
+                'government': '政府与公共事业',
+                'energy': '能源行业',
+                'finance': '金融和科技',
+                'enterprise': '泛企业/其他'
+            };
+            return industryMap[industryId] || '未知行业';
+        }
+
+        // 获取优先级文本
+        function getPrioritiesText(priorities) {
+            const priorityMap = {
+                'external': '外部攻击',
+                'vulnerability': '高危漏洞',
+                'phishing': '钓鱼攻击',
+                'operations': '日常运营'
+            };
+            
+            return priorities.map(p => priorityMap[p]).join('】和【');
+        }
+
+        // 显示Workflow模板
+        function showWorkflowTemplates() {
+            const templatesHtml = `
+                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 my-4 border-2 border-blue-200">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6 text-center">🚀 您的专属Workflow模板</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-lg p-5 shadow-sm border-l-4 border-red-400">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-shield-alt text-red-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-gray-900 mb-2">1. 互联网攻击自动化阻断流程</h4>
+                                    <p class="text-gray-600 text-sm mb-2">
+                                        <strong>价值说明：</strong>7x24小时自动拦截外部高危攻击，第一时间遏制威胁。
+                                    </p>
+                                    <div class="flex items-center text-green-600 text-sm">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        <span>已启用</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg p-5 shadow-sm border-l-4 border-orange-400">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-bug text-orange-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-gray-900 mb-2">2. 高可利用漏洞确认与修复流程</h4>
+                                    <p class="text-gray-600 text-sm mb-2">
+                                        <strong>价值说明：</strong>自动化跟进高危漏洞从发现到修复的全过程，缩短风险暴露窗口。
+                                    </p>
+                                    <div class="flex items-center text-green-600 text-sm">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        <span>已启用</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg p-5 shadow-sm border-l-4 border-purple-400">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-exclamation-triangle text-purple-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-gray-900 mb-2">3. 重大安全事件应急响应流程</h4>
+                                    <p class="text-gray-600 text-sm mb-2">
+                                        <strong>价值说明：</strong>这是一个综合性流程，用于处理最紧急的事件，确保响应的协同性和完整性。
+                                    </p>
+                                    <div class="flex items-center text-green-600 text-sm">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        <span>已启用</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            addMessage('ai', templatesHtml);
+
+            setTimeout(() => {
+                addMessage('ai', '您的专属自动化运营体系现已启动！');
+            }, 1500);
+
+            setTimeout(() => {
+                addMessage('ai', '您可以稍后前往【Workflow管理】页面，查看、管理这些模板的详细信息。所有流程的运行成效，都将在您的【CISO战略驾驶舱】中实时呈现。');
+            }, 2500);
+
+            setTimeout(() => {
+                showFinalButtons();
+            }, 3500);
+        }
+
+        // 显示最终按钮
+        function showFinalButtons() {
+            const inputArea = document.getElementById('input-area');
+            inputArea.innerHTML = `
+                <div class="space-y-3">
+                    <a href="workflow-editor-prototype.html" class="block w-full bg-purple-600 text-white font-bold py-4 px-6 rounded-lg hover:bg-purple-700 transition-colors text-center">
+                        <i class="fas fa-cogs mr-2"></i>
+                        前往Workflow管理
+                    </a>
+                    <button id="complete-btn" class="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-check mr-2"></i>
+                        完成
+                    </button>
+                </div>
+            `;
+
+            // 绑定完成按钮
+            document.getElementById('complete-btn').addEventListener('click', () => {
+                completeOnboarding();
+            });
+        }
+
         // 更新步骤状态
         function updateStepStatus(activeStep) {
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 4; i++) {
                 const stepEl = document.getElementById(`step-${i}`);
                 const circle = stepEl.querySelector('.w-8');
                 

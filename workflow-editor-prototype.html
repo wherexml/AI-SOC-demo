@@ -36,13 +36,9 @@
             height: 100%;
             overflow: hidden;
             cursor: grab;
-            touch-action: none; /* 禁止默认的触摸行为 */
         }
         .workflow-viewport:active {
             cursor: grabbing;
-        }
-        .workflow-viewport * {
-            user-select: none; /* 禁止文字选择 */
         }
         .workflow-container {
             position: absolute;
@@ -125,10 +121,30 @@
         .draggable-node {
             cursor: move;
             transition: all 0.2s ease;
+            position: relative;
         }
         .draggable-node:hover {
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .draggable-node:hover .connection-hint {
+            opacity: 1;
+        }
+        .connection-hint {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1000;
         }
         .node-trigger { border-left: 4px solid #10b981; }
         .node-ai { border-left: 4px solid #3b82f6; }
@@ -204,43 +220,495 @@
             background: #fee2e2;
             color: #dc2626;
         }
+        
+        /* 连接模式和端点增强样式 */
+        body.connecting-mode {
+            cursor: crosshair !important;
+        }
+        body.connecting-mode * {
+            cursor: crosshair !important;
+        }
+        .endpoint-highlight {
+            animation: pulse-endpoint 1.5s infinite;
+        }
+        @keyframes pulse-endpoint {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 连接点默认隐藏 */
+        .jtk-endpoint {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* 节点悬停或激活时显示连接点 */
+        .workflow-node:hover .jtk-endpoint,
+        .workflow-node.show-endpoints .jtk-endpoint {
+            opacity: 1;
+        }
+        
+        /* 连接指引 - 只在悬停时显示 */
+        .workflow-node:hover::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+            animation: pulse-connection-hint 2s infinite;
+        }
+        .workflow-node:hover::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -15px;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+            animation: pulse-connection-hint 2s infinite;
+        }
+        @keyframes pulse-connection-hint {
+            0% { opacity: 0.6; transform: translateY(-50%) scale(1); }
+            50% { opacity: 1; transform: translateY(-50%) scale(1.1); }
+            100% { opacity: 0.6; transform: translateY(-50%) scale(1); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 h-screen overflow-hidden">
-    <!-- 顶部工具栏 -->
-    <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-project-diagram text-white text-sm"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-semibold text-gray-900">安全工作流编排平台</h1>
+    <!-- 主页面：模板商店 -->
+    <div id="templateStorePage" class="min-h-screen bg-gray-50">
+        <!-- 顶部导航和统计 -->
+        <div class="bg-white shadow-sm">
+            <!-- 主导航 -->
+            <div class="border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-project-diagram text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-900">安全工作流编排平台</h1>
+                                <p class="text-sm text-gray-500">XDR AI SecOps 2.0</p>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-gray-300"></div>
+                        <nav class="flex items-center space-x-6">
+                            <button id="homeBtn" class="px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-lg">
+                                <i class="fas fa-home mr-2"></i>工作流商店
+                            </button>
+                            <button id="editorBtn" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                                <i class="fas fa-edit mr-2"></i>流程编辑器
+                            </button>
+                            <button id="monitorBtn" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                                <i class="fas fa-chart-line mr-2"></i>运行监控
+                            </button>
+                        </nav>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-500 flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                            系统运行正常
+                        </div>
+                        <button class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100" title="帮助">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100" title="设置">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="h-6 w-px bg-gray-300"></div>
-            <div class="flex items-center space-x-2">
-                <button id="saveBtn" class="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm">
-                    <i class="fas fa-save mr-1"></i>保存
-                </button>
-                <button id="debugBtn" class="px-3 py-1.5 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm">
-                    <i class="fas fa-bug mr-1"></i>调试
-                </button>
-                <button id="publishBtn" class="px-3 py-1.5 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
-                    <i class="fas fa-rocket mr-1"></i>发布
-                </button>
+            
+            <!-- 统计仪表板 -->
+            <div class="px-6 py-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-blue-100 text-sm">今日执行</p>
+                                <p class="text-2xl font-bold">1,247</p>
+                                <p class="text-xs text-blue-200 mt-1">
+                                    <i class="fas fa-arrow-up mr-1"></i>+12.5% 较昨日
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-play text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-green-100 text-sm">成功率</p>
+                                <p class="text-2xl font-bold">98.2%</p>
+                                <p class="text-xs text-green-200 mt-1">
+                                    <i class="fas fa-arrow-up mr-1"></i>+0.3% 较昨日
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check-circle text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-orange-100 text-sm">活跃工作流</p>
+                                <p class="text-2xl font-bold">23</p>
+                                <p class="text-xs text-orange-200 mt-1">
+                                    <i class="fas fa-arrow-right mr-1"></i>运行中
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-stream text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-purple-100 text-sm">平均响应时间</p>
+                                <p class="text-2xl font-bold">2.3s</p>
+                                <p class="text-xs text-purple-200 mt-1">
+                                    <i class="fas fa-arrow-down mr-1"></i>-0.5s 较昨日
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="flex items-center space-x-4">
-            <div class="text-sm text-gray-500">
-                <span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span>
-                已保存
+        
+        <!-- 模板商店内容区域 -->
+        <div class="px-6 py-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Workflow模板商店</h2>
+                    <p class="text-gray-600">选择预构建的安全运营工作流模板，快速开始您的自动化之旅</p>
+                </div>
+                
+                <!-- 搜索和筛选 -->
+                <div class="mb-8 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索模板..." 
+                                   class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>所有类别</option>
+                            <option>告警事件威胁运营</option>
+                            <option>资产漏洞风险管理</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <span>共 10 个模板</span>
+                        <div class="w-px h-4 bg-gray-300"></div>
+                        <button class="text-blue-600 hover:text-blue-700">最新</button>
+                        <button class="text-gray-500 hover:text-gray-700">最热</button>
+                        <button class="text-gray-500 hover:text-gray-700">推荐</button>
+                    </div>
+                </div>
+                
+                <!-- 模板卡片展示区域 -->
+                <div class="space-y-12">
+                    <!-- 告警事件威胁运营类 -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                            告警事件威胁运营类
+                            <span class="ml-3 text-sm font-normal text-gray-500 bg-red-50 px-2 py-1 rounded-full">4个模板</span>
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="internet-attack-block">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-red-400 to-red-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                                    </div>
+                                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">热门</span>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">互联网攻击自动化阻断流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">发生外到内真实攻击告警，实体分析后确认是否封堵</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 2-5分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>1,247次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="security-incident-response">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-orange-400 to-orange-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-fire text-white text-xl"></i>
+                                    </div>
+                                    <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">推荐</span>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">重大安全事件应急响应流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">触发重要的安全事件后，自动化调查、分析、确认与响应流程</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 10-30分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>892次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="phishing-notification">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-fish text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">钓鱼事件通知与闭环流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">用户点击钓鱼邮件，确认为真后，推送终端用户提醒并获得回复</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 5-15分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>634次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="executive-security-incident">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-crown text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">高管安全事件专项流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">高管用户的安全事件，推送管理员确认后再自动化推送通知确认</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 15-45分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>423次使用
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 资产漏洞风险管理类 -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                            <i class="fas fa-server text-blue-500 mr-3"></i>
+                            资产漏洞风险管理类
+                            <span class="ml-3 text-sm font-normal text-gray-500 bg-blue-50 px-2 py-1 rounded-full">6个模板</span>
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="core-asset-exposure">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-globe text-white text-xl"></i>
+                                    </div>
+                                    <span class="bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full">新增</span>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">核心资产发现新的互联网暴露</h5>
+                                <p class="text-gray-600 text-sm mb-4">对于设定的核心资产，发现了新的关键暴露面</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 3-10分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>156次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="agent-coverage-monitoring">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-chart-line text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">Agent覆盖率监控与补齐流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">检测到新的新的安全事件但主机未安装Agent</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 5-20分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>287次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="high-risk-vulnerability">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-red-700 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-bug text-white text-xl"></i>
+                                    </div>
+                                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">高危</span>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">高可利用漏洞确认与修复流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">检测到高可利用漏洞，推送人工确认后进行流程化修复</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 30-120分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>512次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="vulnerability-lifecycle">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-recycle text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">漏洞生命周期管理流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">完整的漏洞管理流程，包含责任人推送等</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 60-240分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>398次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="internet-exposure-closure">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-teal-400 to-teal-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-lock text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">互联网暴露资产端口闭环流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">新增互联网暴露端口或服务</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 10-30分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>245次使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-300 group" 
+                                 data-template="weak-password-response">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-amber-400 to-amber-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-key text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">弱口令风险自动响应流程</h5>
+                                <p class="text-gray-600 text-sm mb-4">探测到重要弱口令并生成安全事件</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>预计执行时间: 5-15分钟</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-download mr-1"></i>189次使用
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 底部提示 -->
+                <div class="mt-12 text-center">
+                    <div class="bg-blue-50 rounded-xl p-6 inline-block">
+                        <i class="fas fa-lightbulb text-blue-500 text-2xl mb-2"></i>
+                        <p class="text-blue-900 font-medium mb-1">点击任意模板开始编辑</p>
+                        <p class="text-blue-700 text-sm">所有模板都已经过安全专家验证，可以直接使用或根据需要自定义</p>
+                    </div>
+                </div>
             </div>
-            <button class="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100">
-                <i class="fas fa-question-circle"></i>
-            </button>
         </div>
     </div>
+
+    <!-- 工作流编辑器页面（默认隐藏） -->
+    <div id="workflowEditorPage" class="hidden">
+        <!-- 顶部工具栏 -->
+        <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button id="backToStoreBtn" class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100" title="返回模板商店">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-project-diagram text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-900">工作流编辑器</h1>
+                    </div>
+                </div>
+                <div class="h-6 w-px bg-gray-300"></div>
+                <div class="flex items-center space-x-2">
+                    <button id="saveBtn" class="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm">
+                        <i class="fas fa-save mr-1"></i>保存
+                    </button>
+                    <button id="debugBtn" class="px-3 py-1.5 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm">
+                        <i class="fas fa-bug mr-1"></i>调试
+                    </button>
+                    <button id="publishBtn" class="px-3 py-1.5 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
+                        <i class="fas fa-rocket mr-1"></i>发布
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-xs text-gray-500 bg-blue-50 px-3 py-1 rounded-md border border-blue-200">
+                    <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                    连线提示：悬停节点显示连接点，拖拽绿色点连接到红色点
+                </div>
+                <div class="text-sm text-gray-500">
+                    <span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span>
+                    已保存
+                </div>
+                <button class="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100" 
+                        title="帮助：绿色点为输出端，红色点为输入端">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+            </div>
+        </div>
 
     <div class="flex h-full">
         <!-- 左侧节点工具栏 -->
@@ -570,6 +1038,8 @@
         </div>
     </div>
 
+    <!-- 旧的模板商店模态框已移除，现在使用页面切换方式 -->
+
     <script>
         // 全局变量
         let jsPlumbInstance;
@@ -629,11 +1099,21 @@
             // 设置默认连接点样式
             jsPlumbInstance.registerEndpointType("source", {
                 endpoint: "Dot",
-                paintStyle: { fill: "#10b981", stroke: "#10b981" },
+                paintStyle: { 
+                    fill: "#10b981", 
+                    stroke: "#059669", 
+                    strokeWidth: 2,
+                    radius: 6 
+                },
                 isSource: true,
                 connector: ["Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5 }],
                 connectorStyle: { stroke: "#64748b", strokeWidth: 2 },
-                hoverPaintStyle: { fill: "#059669", stroke: "#059669" },
+                hoverPaintStyle: { 
+                    fill: "#059669", 
+                    stroke: "#047857", 
+                    strokeWidth: 3,
+                    radius: 8
+                },
                 connectorHoverStyle: { stroke: "#1e40af", strokeWidth: 3 },
                 dragOptions: {},
                 overlays: [
@@ -643,8 +1123,18 @@
 
             jsPlumbInstance.registerEndpointType("target", {
                 endpoint: "Dot",
-                paintStyle: { fill: "#ef4444", stroke: "#ef4444" },
-                hoverPaintStyle: { fill: "#dc2626", stroke: "#dc2626" },
+                paintStyle: { 
+                    fill: "#ef4444", 
+                    stroke: "#dc2626", 
+                    strokeWidth: 2,
+                    radius: 6 
+                },
+                hoverPaintStyle: { 
+                    fill: "#dc2626", 
+                    stroke: "#b91c1c", 
+                    strokeWidth: 3,
+                    radius: 8
+                },
                 isTarget: true
             });
 
@@ -653,6 +1143,9 @@
 
             // 为现有节点添加连接点
             setupExistingNodes();
+            
+            // 添加连接点增强功能
+            setupEndpointEnhancements();
 
             // 连接事件监听
             jsPlumbInstance.bind("connection", function(info) {
@@ -684,9 +1177,10 @@
             workflowViewport = document.getElementById('workflow-viewport');
             workflowContainer = document.getElementById('workflow-container');
             
-            // 设置初始位置（居中显示）
-            canvasState.x = -4000; // 让画板中心区域居中
-            canvasState.y = -4000;
+            // 设置初始位置
+            canvasState.x = 0;
+            canvasState.y = 0;
+            canvasState.scale = 1;
             updateCanvasTransform();
             
             // 添加事件监听
@@ -694,6 +1188,11 @@
             setupCanvasControls();
             setupMinimap();
             updateCoordinates();
+            
+            // 延迟执行自适应，确保所有节点都已渲染
+            setTimeout(() => {
+                fitToScreen();
+            }, 500);
         }
         
         // 设置画板事件
@@ -702,68 +1201,32 @@
             const canvas = document.getElementById('workflow-canvas');
             const container = document.getElementById('workflow-container');
             
-            // 检查是否可以开始拖拽
-            function canStartPanning(target) {
-                // 直接检查是否点击在不允许拖拽的元素上
-                const onNode = target.closest('.workflow-node');
-                const onControl = target.closest('.canvas-controls, .minimap, .coordinates-display');
-                const onSidebar = target.closest('#sidebar');
-                const onPropertiesPanel = target.closest('#propertiesPanel');
-                const onButton = target.tagName === 'BUTTON' || target.closest('button');
-                const onInput = target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA';
+            // 检查是否点击在空白区域
+            function isClickOnEmpty(target) {
+                return target === viewport || target === canvas || target === container || 
+                       target.classList.contains('workflow-canvas') || 
+                       target.classList.contains('workflow-container') ||
+                       target.classList.contains('workflow-viewport');
+            }
+            
+            // 鼠标按下 - 开始拖拽
+            viewport.addEventListener('mousedown', function(e) {
+                // 只在空白区域才能拖拽画板，且不是节点，且不是控制按钮
+                const isOnNode = e.target.closest('.workflow-node');
+                const isOnControl = e.target.closest('.canvas-controls') || e.target.closest('.minimap') || e.target.closest('.coordinates-display');
                 
-                // 只要不在这些元素上，就可以拖拽
-                return !onNode && !onControl && !onSidebar && !onPropertiesPanel && !onButton && !onInput;
-            }
-            
-            // 鼠标按下事件 - 绑定到viewport
-            if (viewport) {
-                viewport.addEventListener('mousedown', function(e) {
-                    if (e.button === 0) { // 只处理左键
-                        const canPan = canStartPanning(e.target);
-                        
-                        // 临时显示调试信息
-                        if (canPan) {
-                            // 显示绿色点表示可以拖拽
-                            const indicator = document.createElement('div');
-                            indicator.style.position = 'fixed';
-                            indicator.style.left = e.clientX + 'px';
-                            indicator.style.top = e.clientY + 'px';
-                            indicator.style.width = '10px';
-                            indicator.style.height = '10px';
-                            indicator.style.backgroundColor = 'green';
-                            indicator.style.borderRadius = '50%';
-                            indicator.style.zIndex = '9999';
-                            indicator.style.pointerEvents = 'none';
-                            document.body.appendChild(indicator);
-                            setTimeout(() => indicator.remove(), 1000);
-                            
-                            canvasState.isPanning = true;
-                            canvasState.lastPanPoint = { x: e.clientX, y: e.clientY };
-                            document.body.style.cursor = 'grabbing';
-                            viewport.style.cursor = 'grabbing';
-                            e.preventDefault();
-                            e.stopPropagation();
-                        } else {
-                            // 显示红色点表示不可以拖拽
-                            const indicator = document.createElement('div');
-                            indicator.style.position = 'fixed';
-                            indicator.style.left = e.clientX + 'px';
-                            indicator.style.top = e.clientY + 'px';
-                            indicator.style.width = '10px';
-                            indicator.style.height = '10px';
-                            indicator.style.backgroundColor = 'red';
-                            indicator.style.borderRadius = '50%';
-                            indicator.style.zIndex = '9999';
-                            indicator.style.pointerEvents = 'none';
-                            document.body.appendChild(indicator);
-                            setTimeout(() => indicator.remove(), 1000);
-                        }
+                if (isClickOnEmpty(e.target) && !isOnNode && !isOnControl) {
+                    if (e.button === 0) { // 左键
+                        canvasState.isPanning = true;
+                        canvasState.lastPanPoint = { x: e.clientX, y: e.clientY };
+                        viewport.style.cursor = 'grabbing';
+                        e.preventDefault();
+                        e.stopPropagation();
                     }
-                }, { passive: false });
-            }
+                }
+            });
             
-            // 鼠标移动事件 - 绑定到document
+            // 鼠标移动 - 拖拽过程
             document.addEventListener('mousemove', function(e) {
                 if (canvasState.isPanning) {
                     const deltaX = (e.clientX - canvasState.lastPanPoint.x) * canvasState.panSensitivity;
@@ -781,50 +1244,49 @@
                 }
             });
             
-            // 鼠标释放事件 - 绑定到document
+            // 鼠标释放 - 结束拖拽
             document.addEventListener('mouseup', function(e) {
                 if (canvasState.isPanning) {
                     canvasState.isPanning = false;
-                    document.body.style.cursor = '';
-                    if (viewport) {
-                        viewport.style.cursor = 'grab';
-                    }
+                    viewport.style.cursor = 'grab';
                 }
             });
             
-            // 鼠标离开窗口事件
+            // 鼠标离开窗口 - 结束拖拽
             document.addEventListener('mouseleave', function(e) {
-                if (e.target === document.documentElement && canvasState.isPanning) {
+                if (canvasState.isPanning) {
                     canvasState.isPanning = false;
-                    document.body.style.cursor = '';
+                    viewport.style.cursor = 'grab';
                 }
             });
             
-            // 鼠标滚轮事件 - 缩放
-            if (viewport) {
-                viewport.addEventListener('wheel', function(e) {
-                    e.preventDefault();
+            // 鼠标滚轮 - 缩放
+            viewport.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                
+                const rect = viewport.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Mac优化：更精细的缩放控制
+                const scaleFactor = 0.03; // 降低敏感度
+                const direction = e.deltaY > 0 ? -1 : 1;
+                const delta = 1 + (direction * scaleFactor);
+                
+                const newScale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, canvasState.scale * delta));
+                
+                if (newScale !== canvasState.scale) {
+                    // 以鼠标位置为中心缩放
+                    const scaleRatio = newScale / canvasState.scale;
+                    canvasState.x = mouseX - (mouseX - canvasState.x) * scaleRatio;
+                    canvasState.y = mouseY - (mouseY - canvasState.y) * scaleRatio;
+                    canvasState.scale = newScale;
                     
-                    const rect = viewport.getBoundingClientRect();
-                    const mouseX = e.clientX - rect.left;
-                    const mouseY = e.clientY - rect.top;
-                    
-                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                    const newScale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, canvasState.scale * delta));
-                    
-                    if (newScale !== canvasState.scale) {
-                        // 以鼠标位置为中心缩放
-                        const scaleRatio = newScale / canvasState.scale;
-                        canvasState.x = mouseX - (mouseX - canvasState.x) * scaleRatio;
-                        canvasState.y = mouseY - (mouseY - canvasState.y) * scaleRatio;
-                        canvasState.scale = newScale;
-                        
-                        updateCanvasTransform();
-                        updateCoordinates();
-                        updateMinimap();
-                    }
-                }, { passive: false });
-            }
+                    updateCanvasTransform();
+                    updateCoordinates();
+                    updateMinimap();
+                }
+            });
         }
         
         // 设置控制按钮
@@ -869,7 +1331,16 @@
         // 适应屏幕
         function fitToScreen() {
             const nodes = document.querySelectorAll('.workflow-node');
-            if (nodes.length === 0) return;
+            if (nodes.length === 0) {
+                // 没有节点时，居中显示
+                canvasState.x = 0;
+                canvasState.y = 0;
+                canvasState.scale = 1;
+                updateCanvasTransform();
+                updateCoordinates();
+                updateMinimap();
+                return;
+            }
             
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
             
@@ -877,7 +1348,7 @@
                 const x = parseInt(node.style.left) || 0;
                 const y = parseInt(node.style.top) || 0;
                 const width = parseInt(node.style.width) || 200;
-                const height = node.offsetHeight;
+                const height = node.offsetHeight || 80;
                 
                 minX = Math.min(minX, x);
                 minY = Math.min(minY, y);
@@ -885,8 +1356,9 @@
                 maxY = Math.max(maxY, y + height);
             });
             
-            const contentWidth = maxX - minX + 100; // 加上一些边距
-            const contentHeight = maxY - minY + 100;
+            const padding = 100; // 边距
+            const contentWidth = maxX - minX + padding * 2;
+            const contentHeight = maxY - minY + padding * 2;
             
             const viewport = workflowViewport.getBoundingClientRect();
             const scaleX = viewport.width / contentWidth;
@@ -894,8 +1366,13 @@
             const scale = Math.min(scaleX, scaleY, 1); // 不超过100%
             
             canvasState.scale = Math.max(canvasState.minScale, Math.min(canvasState.maxScale, scale));
-            canvasState.x = (viewport.width - contentWidth * canvasState.scale) / 2 - minX * canvasState.scale;
-            canvasState.y = (viewport.height - contentHeight * canvasState.scale) / 2 - minY * canvasState.scale;
+            
+            // 计算居中位置
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+            
+            canvasState.x = viewport.width / 2 - centerX * canvasState.scale;
+            canvasState.y = viewport.height / 2 - centerY * canvasState.scale;
             
             updateCanvasTransform();
             updateCoordinates();
@@ -904,13 +1381,8 @@
         
         // 重置视图
         function resetView() {
-            canvasState.x = -4000;
-            canvasState.y = -4000;
-            canvasState.scale = 1;
-            
-            updateCanvasTransform();
-            updateCoordinates();
-            updateMinimap();
+            // 重置到适应所有节点的视图
+            fitToScreen();
         }
         
         // 更新画板变换
@@ -1066,6 +1538,79 @@
             });
         }
 
+        // 设置连接点增强功能
+        function setupEndpointEnhancements() {
+            // 为每个节点存储独立的定时器
+            const nodeTimers = new Map();
+            
+            // 为所有节点添加悬停事件，显示连接点
+            document.addEventListener('mouseover', function(e) {
+                const node = e.target.closest('.workflow-node');
+                if (node && !node.classList.contains('node-comment') && !node.classList.contains('node-group')) {
+                    // 清除该节点的隐藏定时器
+                    if (nodeTimers.has(node)) {
+                        clearTimeout(nodeTimers.get(node));
+                        nodeTimers.delete(node);
+                    }
+                    
+                    // 显示连接点
+                    node.classList.add('show-endpoints');
+                    
+                    const endpoints = jsPlumbInstance.getEndpoints(node);
+                    if (endpoints) {
+                        endpoints.forEach(endpoint => {
+                            endpoint.addClass('endpoint-highlight');
+                        });
+                    }
+                }
+            });
+            
+            // 鼠标离开时延迟隐藏连接点
+            document.addEventListener('mouseout', function(e) {
+                const node = e.target.closest('.workflow-node');
+                if (node && !node.classList.contains('node-comment') && !node.classList.contains('node-group')) {
+                    // 为该节点设置延迟隐藏定时器
+                    const timer = setTimeout(() => {
+                        node.classList.remove('show-endpoints');
+                        
+                        const endpoints = jsPlumbInstance.getEndpoints(node);
+                        if (endpoints) {
+                            endpoints.forEach(endpoint => {
+                                endpoint.removeClass('endpoint-highlight');
+                            });
+                        }
+                        
+                        // 清理定时器引用
+                        nodeTimers.delete(node);
+                    }, 1000); // 1秒延迟
+                    
+                    nodeTimers.set(node, timer);
+                }
+            });
+            
+            // 连接开始时的视觉反馈
+            jsPlumbInstance.bind("connectionDrag", function(connection) {
+                document.body.classList.add('connecting-mode');
+                // 连接时显示所有节点的连接点
+                document.querySelectorAll('.workflow-node').forEach(node => {
+                    if (!node.classList.contains('node-comment') && !node.classList.contains('node-group')) {
+                        node.classList.add('show-endpoints');
+                    }
+                });
+            });
+            
+            // 连接结束时移除视觉反馈
+            jsPlumbInstance.bind("connectionDragStop", function(connection) {
+                document.body.classList.remove('connecting-mode');
+                // 延迟隐藏所有连接点
+                setTimeout(() => {
+                    document.querySelectorAll('.workflow-node').forEach(node => {
+                        node.classList.remove('show-endpoints');
+                    });
+                }, 1500);
+            });
+        }
+
         // 为节点添加连接点
         function addNodeEndpoints(node) {
             // 检查是否已经有连接点
@@ -1114,105 +1659,7 @@
             }
         }
 
-        // 事件监听器
-        document.addEventListener('DOMContentLoaded', function() {
-            initJsPlumb();
-
-            // 侧边栏切换
-            document.getElementById('toggleSidebar').addEventListener('click', function() {
-                const sidebar = document.getElementById('sidebar');
-                const icon = this.querySelector('i');
-                
-                if (sidebar.classList.contains('sidebar-expanded')) {
-                    sidebar.classList.remove('sidebar-expanded');
-                    sidebar.classList.add('sidebar-collapsed');
-                    icon.classList.remove('fa-chevron-left');
-                    icon.classList.add('fa-chevron-right');
-                } else {
-                    sidebar.classList.remove('sidebar-collapsed');
-                    sidebar.classList.add('sidebar-expanded');
-                    icon.classList.remove('fa-chevron-right');
-                    icon.classList.add('fa-chevron-left');
-                }
-            });
-
-            // 拖拽功能
-            setupDragAndDrop();
-
-            // 节点点击事件（使用事件委托和防抖）
-            document.addEventListener('click', function(e) {
-                // 如果正在拖拽画板，不处理点击事件
-                if (canvasState.isPanning) {
-                    return;
-                }
-                
-                // 清除之前的定时器
-                if (clickTimer) {
-                    clearTimeout(clickTimer);
-                }
-                
-                // 延迟处理点击事件，避免与拖拽冲突
-                clickTimer = setTimeout(() => {
-                    // 如果正在拖拽或连线，忽略点击
-                    if (isDragging || isConnecting || canvasState.isPanning) {
-                        return;
-                    }
-                    
-                    const workflowNode = e.target.closest('.workflow-node');
-                    if (workflowNode) {
-                        selectNode(workflowNode);
-                    } else {
-                        // 点击空白处取消选择
-                        clearSelection();
-                    }
-                    
-                    // 点击其他地方隐藏右键菜单
-                    hideContextMenu();
-                }, 50);
-            });
-
-            // 右键菜单事件
-            document.addEventListener('contextmenu', function(e) {
-                const workflowNode = e.target.closest('.workflow-node');
-                if (workflowNode && !isDragging && !isConnecting && !canvasState.isPanning) {
-                    e.preventDefault();
-                    selectNode(workflowNode);
-                    showContextMenu(e.clientX, e.clientY, workflowNode);
-                }
-            });
-
-            // 右键菜单项点击事件
-            document.getElementById('contextMenu').addEventListener('click', function(e) {
-                const action = e.target.closest('.context-menu-item')?.dataset.action;
-                if (action && selectedNode) {
-                    handleContextMenuAction(action, selectedNode);
-                }
-                hideContextMenu();
-            });
-
-            // 调试功能
-            document.getElementById('debugBtn').addEventListener('click', function() {
-                document.getElementById('debugModal').classList.remove('hidden');
-            });
-
-            document.getElementById('closeDebug').addEventListener('click', function() {
-                document.getElementById('debugModal').classList.add('hidden');
-            });
-
-            document.getElementById('startDebug').addEventListener('click', function() {
-                startDebugMode();
-            });
-
-            // 保存功能
-            document.getElementById('saveBtn').addEventListener('click', function() {
-                saveWorkflow();
-            });
-
-            // 发布功能
-            document.getElementById('publishBtn').addEventListener('click', function() {
-                publishWorkflow();
-            });
-        });
+        // 第一个事件监听器已合并到页面初始化部分
 
         // 设置拖拽功能
         function setupDragAndDrop() {
@@ -1247,7 +1694,12 @@
                 // 转换到画板坐标系
                 const x = (mouseX - canvasState.x) / canvasState.scale;
                 const y = (mouseY - canvasState.y) / canvasState.scale;
-                createNode(data, x, y);
+                
+                // 确保新节点在合理位置（非负坐标）
+                const finalX = Math.max(50, x);
+                const finalY = Math.max(50, y);
+                
+                createNode(data, finalX, finalY);
             });
         }
 
@@ -1394,6 +1846,7 @@
             }
 
             return `
+                <div class="connection-hint">拖拽圆点连接到其他节点</div>
                 <div class="flex items-center mb-2">
                     <i class="${iconClass} mr-2"></i>
                     <span class="font-semibold text-sm">${nodeName}</span>
@@ -1855,6 +2308,904 @@
             
             return 'default';
         }
+
+        // ============= 模板商店功能 =============
+        
+        // 工作流模板定义
+        const workflowTemplates = {
+            'internet-attack-block': {
+                name: '互联网攻击自动化阻断流程',
+                description: '发生外到内真实攻击告警，实体分析后确认是否封堵',
+                nodes: [
+                    { id: 'trigger-1', type: 'trigger', subtype: 'alert', title: '互联网攻击告警', x: 100, y: 200, icon: 'exclamation-triangle', color: 'red' },
+                    { id: 'ai-analysis-1', type: 'ai', subtype: 'investigate', title: '威胁分析Agent', x: 400, y: 200, icon: 'search', color: 'blue' },
+                    { id: 'condition-1', type: 'logic', subtype: 'condition', title: '威胁等级判断', x: 700, y: 200, icon: 'question', color: 'gray' },
+                    { id: 'auto-block-1', type: 'soar', subtype: 'playbook', title: '自动封堵Playbook', x: 1000, y: 100, icon: 'shield-alt', color: 'green' },
+                    { id: 'human-confirm-1', type: 'human', subtype: 'confirm', title: '人工确认封堵', x: 1000, y: 300, icon: 'user-check', color: 'red' },
+                    { id: 'report-1', type: 'ai', subtype: 'custom', title: 'AI生成处置报告', x: 1300, y: 200, icon: 'file-alt', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-1', target: 'ai-analysis-1' },
+                    { source: 'ai-analysis-1', target: 'condition-1' },
+                    { source: 'condition-1', target: 'auto-block-1' },
+                    { source: 'condition-1', target: 'human-confirm-1' },
+                    { source: 'auto-block-1', target: 'report-1' },
+                    { source: 'human-confirm-1', target: 'report-1' }
+                ]
+            },
+            'security-incident-response': {
+                name: '重大安全事件应急响应流程',
+                description: '触发重要的安全事件后，自动化调查、分析、确认与响应流程',
+                nodes: [
+                    { id: 'trigger-2', type: 'trigger', subtype: 'alert', title: '重大安全事件触发', x: 100, y: 200, icon: 'fire', color: 'red' },
+                    { id: 'agent-notify-2', type: 'agent', subtype: 'contact', title: '联络员Agent通知', x: 400, y: 200, icon: 'user-tie', color: 'purple' },
+                    { id: 'investigate-2', type: 'ai', subtype: 'investigate', title: '调查溯源Agent', x: 700, y: 100, icon: 'search', color: 'blue' },
+                    { id: 'human-task-2', type: 'human', subtype: 'confirm', title: '管理员确认处置', x: 700, y: 300, icon: 'user-shield', color: 'red' },
+                    { id: 'disposal-2', type: 'ai', subtype: 'disposal', title: '实体处置Agent', x: 1000, y: 200, icon: 'shield-alt', color: 'green' },
+                    { id: 'soar-2', type: 'soar', subtype: 'playbook', title: 'SOAR处置引擎', x: 1300, y: 200, icon: 'cogs', color: 'orange' },
+                    { id: 'ticket-2', type: 'soar', subtype: 'ticket', title: '创建处置工单', x: 1000, y: 350, icon: 'ticket-alt', color: 'orange' },
+                    { id: 'report-2', type: 'ai', subtype: 'custom', title: 'AI闭环报告', x: 1600, y: 200, icon: 'file-alt', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-2', target: 'agent-notify-2' },
+                    { source: 'agent-notify-2', target: 'investigate-2' },
+                    { source: 'agent-notify-2', target: 'human-task-2' },
+                    { source: 'investigate-2', target: 'disposal-2' },
+                    { source: 'human-task-2', target: 'disposal-2' },
+                    { source: 'disposal-2', target: 'soar-2' },
+                    { source: 'disposal-2', target: 'ticket-2' },
+                    { source: 'soar-2', target: 'report-2' }
+                ]
+            },
+            'phishing-notification': {
+                name: '钓鱼事件通知与闭环流程',
+                description: '用户点击钓鱼邮件，确认为真后，推送终端用户提醒并获得回复',
+                nodes: [
+                    { id: 'trigger-3', type: 'trigger', subtype: 'event', title: '钓鱼事件触发', x: 100, y: 200, icon: 'fish', color: 'yellow' },
+                    { id: 'ai-verify-3', type: 'ai', subtype: 'investigate', title: 'AI验证钓鱼真实性', x: 400, y: 200, icon: 'search', color: 'blue' },
+                    { id: 'condition-3', type: 'logic', subtype: 'condition', title: '钓鱼确认判断', x: 700, y: 200, icon: 'question', color: 'gray' },
+                    { id: 'user-notify-3', type: 'agent', subtype: 'contact', title: '用户安全提醒', x: 1000, y: 200, icon: 'bell', color: 'purple' },
+                    { id: 'training-3', type: 'soar', subtype: 'playbook', title: '安全意识培训', x: 1300, y: 100, icon: 'graduation-cap', color: 'orange' },
+                    { id: 'isolation-3', type: 'soar', subtype: 'playbook', title: '邮箱隔离处置', x: 1300, y: 300, icon: 'lock', color: 'orange' },
+                    { id: 'report-3', type: 'ai', subtype: 'custom', title: '钓鱼事件报告', x: 1600, y: 200, icon: 'file-alt', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-3', target: 'ai-verify-3' },
+                    { source: 'ai-verify-3', target: 'condition-3' },
+                    { source: 'condition-3', target: 'user-notify-3' },
+                    { source: 'user-notify-3', target: 'training-3' },
+                    { source: 'user-notify-3', target: 'isolation-3' },
+                    { source: 'training-3', target: 'report-3' },
+                    { source: 'isolation-3', target: 'report-3' }
+                ]
+            },
+            'executive-security-incident': {
+                name: '高管安全事件专项流程',
+                description: '高管用户的安全事件，推送管理员确认后再自动化推送通知确认',
+                nodes: [
+                    { id: 'trigger-4', type: 'trigger', subtype: 'alert', title: '高管安全事件', x: 100, y: 200, icon: 'crown', color: 'purple' },
+                    { id: 'classify-4', type: 'ai', subtype: 'investigate', title: 'AI事件分级', x: 400, y: 200, icon: 'layer-group', color: 'blue' },
+                    { id: 'admin-approval-4', type: 'human', subtype: 'confirm', title: '管理员预审批', x: 700, y: 200, icon: 'user-shield', color: 'red' },
+                    { id: 'executive-notify-4', type: 'agent', subtype: 'contact', title: '高管通知确认', x: 1000, y: 200, icon: 'user-tie', color: 'purple' },
+                    { id: 'escalate-4', type: 'soar', subtype: 'playbook', title: '事件升级流程', x: 1300, y: 100, icon: 'arrow-up', color: 'orange' },
+                    { id: 'response-4', type: 'soar', subtype: 'playbook', title: '高优先级响应', x: 1300, y: 300, icon: 'fire-alt', color: 'orange' },
+                    { id: 'report-4', type: 'ai', subtype: 'custom', title: '高管事件报告', x: 1600, y: 200, icon: 'file-alt', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-4', target: 'classify-4' },
+                    { source: 'classify-4', target: 'admin-approval-4' },
+                    { source: 'admin-approval-4', target: 'executive-notify-4' },
+                    { source: 'executive-notify-4', target: 'escalate-4' },
+                    { source: 'executive-notify-4', target: 'response-4' },
+                    { source: 'escalate-4', target: 'report-4' },
+                    { source: 'response-4', target: 'report-4' }
+                ]
+            },
+            'core-asset-exposure': {
+                name: '核心资产发现新的互联网暴露',
+                description: '对于设定的核心资产，发现了新的关键暴露面',
+                nodes: [
+                    { id: 'trigger-5', type: 'trigger', subtype: 'event', title: '新暴露面发现', x: 100, y: 200, icon: 'globe', color: 'cyan' },
+                    { id: 'asset-classify-5', type: 'ai', subtype: 'investigate', title: '资产重要性分析', x: 400, y: 200, icon: 'server', color: 'blue' },
+                    { id: 'risk-assess-5', type: 'ai', subtype: 'investigate', title: '风险评估Agent', x: 700, y: 200, icon: 'exclamation-triangle', color: 'blue' },
+                    { id: 'owner-notify-5', type: 'agent', subtype: 'contact', title: '资产负责人通知', x: 1000, y: 100, icon: 'user', color: 'purple' },
+                    { id: 'auto-scan-5', type: 'soar', subtype: 'playbook', title: '自动安全扫描', x: 1000, y: 300, icon: 'search', color: 'orange' },
+                    { id: 'remediate-5', type: 'soar', subtype: 'playbook', title: '暴露面收敛', x: 1300, y: 200, icon: 'shield-alt', color: 'orange' },
+                    { id: 'report-5', type: 'ai', subtype: 'custom', title: '暴露面分析报告', x: 1600, y: 200, icon: 'chart-bar', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-5', target: 'asset-classify-5' },
+                    { source: 'asset-classify-5', target: 'risk-assess-5' },
+                    { source: 'risk-assess-5', target: 'owner-notify-5' },
+                    { source: 'risk-assess-5', target: 'auto-scan-5' },
+                    { source: 'owner-notify-5', target: 'remediate-5' },
+                    { source: 'auto-scan-5', target: 'remediate-5' },
+                    { source: 'remediate-5', target: 'report-5' }
+                ]
+            },
+            'agent-coverage-monitoring': {
+                name: 'Agent覆盖率监控与补齐流程',
+                description: '检测到新的新的安全事件但主机未安装Agent',
+                nodes: [
+                    { id: 'trigger-6', type: 'trigger', subtype: 'alert', title: '无Agent主机告警', x: 100, y: 200, icon: 'exclamation-triangle', color: 'green' },
+                    { id: 'host-identify-6', type: 'ai', subtype: 'investigate', title: '主机身份识别', x: 400, y: 200, icon: 'desktop', color: 'blue' },
+                    { id: 'coverage-check-6', type: 'ai', subtype: 'investigate', title: 'Agent覆盖率检查', x: 700, y: 200, icon: 'chart-line', color: 'blue' },
+                    { id: 'admin-notify-6', type: 'agent', subtype: 'contact', title: '管理员通知', x: 1000, y: 100, icon: 'user-cog', color: 'purple' },
+                    { id: 'auto-deploy-6', type: 'soar', subtype: 'playbook', title: '自动部署Agent', x: 1000, y: 300, icon: 'download', color: 'orange' },
+                    { id: 'verify-6', type: 'ai', subtype: 'investigate', title: '部署结果验证', x: 1300, y: 200, icon: 'check-circle', color: 'blue' },
+                    { id: 'report-6', type: 'ai', subtype: 'custom', title: '覆盖率报告', x: 1600, y: 200, icon: 'chart-pie', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-6', target: 'host-identify-6' },
+                    { source: 'host-identify-6', target: 'coverage-check-6' },
+                    { source: 'coverage-check-6', target: 'admin-notify-6' },
+                    { source: 'coverage-check-6', target: 'auto-deploy-6' },
+                    { source: 'admin-notify-6', target: 'verify-6' },
+                    { source: 'auto-deploy-6', target: 'verify-6' },
+                    { source: 'verify-6', target: 'report-6' }
+                ]
+            },
+            'high-risk-vulnerability': {
+                name: '高可利用漏洞确认与修复流程',
+                description: '检测到高可利用漏洞，推送人工确认后进行流程化修复',
+                nodes: [
+                    { id: 'trigger-7', type: 'trigger', subtype: 'alert', title: '高危漏洞发现', x: 100, y: 200, icon: 'bug', color: 'red' },
+                    { id: 'vuln-analysis-7', type: 'ai', subtype: 'investigate', title: '漏洞影响分析', x: 400, y: 200, icon: 'search', color: 'blue' },
+                    { id: 'exploit-check-7', type: 'ai', subtype: 'investigate', title: '可利用性评估', x: 700, y: 200, icon: 'shield-alt', color: 'blue' },
+                    { id: 'security-confirm-7', type: 'human', subtype: 'confirm', title: '安全团队确认', x: 1000, y: 100, icon: 'user-check', color: 'red' },
+                    { id: 'emergency-patch-7', type: 'soar', subtype: 'playbook', title: '紧急修复流程', x: 1000, y: 300, icon: 'tools', color: 'orange' },
+                    { id: 'ticket-create-7', type: 'soar', subtype: 'ticket', title: '创建修复工单', x: 1300, y: 200, icon: 'ticket-alt', color: 'orange' },
+                    { id: 'verify-patch-7', type: 'ai', subtype: 'investigate', title: '修复结果验证', x: 1600, y: 200, icon: 'check-double', color: 'blue' },
+                    { id: 'report-7', type: 'ai', subtype: 'custom', title: '漏洞修复报告', x: 1900, y: 200, icon: 'file-medical', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-7', target: 'vuln-analysis-7' },
+                    { source: 'vuln-analysis-7', target: 'exploit-check-7' },
+                    { source: 'exploit-check-7', target: 'security-confirm-7' },
+                    { source: 'exploit-check-7', target: 'emergency-patch-7' },
+                    { source: 'security-confirm-7', target: 'ticket-create-7' },
+                    { source: 'emergency-patch-7', target: 'ticket-create-7' },
+                    { source: 'ticket-create-7', target: 'verify-patch-7' },
+                    { source: 'verify-patch-7', target: 'report-7' }
+                ]
+            },
+            'vulnerability-lifecycle': {
+                name: '漏洞生命周期管理流程',
+                description: '完整的漏洞管理流程，包含责任人推送等',
+                nodes: [
+                    { id: 'trigger-8', type: 'trigger', subtype: 'event', title: '漏洞扫描发现', x: 100, y: 200, icon: 'search', color: 'indigo' },
+                    { id: 'classify-8', type: 'ai', subtype: 'investigate', title: '漏洞分类分级', x: 400, y: 200, icon: 'layer-group', color: 'blue' },
+                    { id: 'assign-8', type: 'ai', subtype: 'investigate', title: '责任人分配', x: 700, y: 200, icon: 'user-tag', color: 'blue' },
+                    { id: 'owner-notify-8', type: 'agent', subtype: 'contact', title: '责任人通知', x: 1000, y: 100, icon: 'bell', color: 'purple' },
+                    { id: 'sla-monitor-8', type: 'soar', subtype: 'playbook', title: 'SLA监控提醒', x: 1000, y: 300, icon: 'clock', color: 'orange' },
+                    { id: 'patch-track-8', type: 'soar', subtype: 'ticket', title: '修复进度跟踪', x: 1300, y: 200, icon: 'tasks', color: 'orange' },
+                    { id: 'verify-close-8', type: 'ai', subtype: 'investigate', title: '修复验证闭环', x: 1600, y: 200, icon: 'check-circle', color: 'blue' },
+                    { id: 'report-8', type: 'ai', subtype: 'custom', title: '漏洞管理报告', x: 1900, y: 200, icon: 'chart-line', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-8', target: 'classify-8' },
+                    { source: 'classify-8', target: 'assign-8' },
+                    { source: 'assign-8', target: 'owner-notify-8' },
+                    { source: 'assign-8', target: 'sla-monitor-8' },
+                    { source: 'owner-notify-8', target: 'patch-track-8' },
+                    { source: 'sla-monitor-8', target: 'patch-track-8' },
+                    { source: 'patch-track-8', target: 'verify-close-8' },
+                    { source: 'verify-close-8', target: 'report-8' }
+                ]
+            },
+            'internet-exposure-closure': {
+                name: '互联网暴露资产端口闭环流程',
+                description: '新增互联网暴露端口或服务',
+                nodes: [
+                    { id: 'trigger-9', type: 'trigger', subtype: 'event', title: '新暴露端口发现', x: 100, y: 200, icon: 'globe', color: 'teal' },
+                    { id: 'port-analyze-9', type: 'ai', subtype: 'investigate', title: '端口服务分析', x: 400, y: 200, icon: 'network-wired', color: 'blue' },
+                    { id: 'business-check-9', type: 'ai', subtype: 'investigate', title: '业务合理性检查', x: 700, y: 200, icon: 'balance-scale', color: 'blue' },
+                    { id: 'owner-confirm-9', type: 'human', subtype: 'confirm', title: '负责人确认', x: 1000, y: 100, icon: 'user-check', color: 'red' },
+                    { id: 'auto-close-9', type: 'soar', subtype: 'playbook', title: '自动端口关闭', x: 1000, y: 300, icon: 'lock', color: 'orange' },
+                    { id: 'verify-9', type: 'ai', subtype: 'investigate', title: '关闭结果验证', x: 1300, y: 200, icon: 'check-circle', color: 'blue' },
+                    { id: 'report-9', type: 'ai', subtype: 'custom', title: '暴露面收敛报告', x: 1600, y: 200, icon: 'file-alt', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-9', target: 'port-analyze-9' },
+                    { source: 'port-analyze-9', target: 'business-check-9' },
+                    { source: 'business-check-9', target: 'owner-confirm-9' },
+                    { source: 'business-check-9', target: 'auto-close-9' },
+                    { source: 'owner-confirm-9', target: 'verify-9' },
+                    { source: 'auto-close-9', target: 'verify-9' },
+                    { source: 'verify-9', target: 'report-9' }
+                ]
+            },
+            'weak-password-response': {
+                name: '弱口令风险自动响应流程',
+                description: '探测到重要弱口令并生成安全事件',
+                nodes: [
+                    { id: 'trigger-10', type: 'trigger', subtype: 'alert', title: '弱口令发现', x: 100, y: 200, icon: 'key', color: 'amber' },
+                    { id: 'account-analyze-10', type: 'ai', subtype: 'investigate', title: '账户重要性分析', x: 400, y: 200, icon: 'user-shield', color: 'blue' },
+                    { id: 'risk-level-10', type: 'ai', subtype: 'investigate', title: '风险等级评估', x: 700, y: 200, icon: 'exclamation-triangle', color: 'blue' },
+                    { id: 'user-notify-10', type: 'agent', subtype: 'contact', title: '用户强制修改通知', x: 1000, y: 100, icon: 'bell', color: 'purple' },
+                    { id: 'auto-disable-10', type: 'soar', subtype: 'playbook', title: '高危账户自动禁用', x: 1000, y: 300, icon: 'ban', color: 'orange' },
+                    { id: 'password-policy-10', type: 'soar', subtype: 'playbook', title: '密码策略强化', x: 1300, y: 200, icon: 'shield-alt', color: 'orange' },
+                    { id: 'compliance-10', type: 'ai', subtype: 'custom', title: '合规性检查报告', x: 1600, y: 200, icon: 'clipboard-check', color: 'blue' }
+                ],
+                connections: [
+                    { source: 'trigger-10', target: 'account-analyze-10' },
+                    { source: 'account-analyze-10', target: 'risk-level-10' },
+                    { source: 'risk-level-10', target: 'user-notify-10' },
+                    { source: 'risk-level-10', target: 'auto-disable-10' },
+                    { source: 'user-notify-10', target: 'password-policy-10' },
+                    { source: 'auto-disable-10', target: 'password-policy-10' },
+                    { source: 'password-policy-10', target: 'compliance-10' }
+                ]
+            }
+        };
+
+        // 模板商店相关函数已移除，现在使用页面切换方式
+
+        // 加载模板
+        function loadTemplate(templateId) {
+            const template = workflowTemplates[templateId];
+            if (!template) {
+                alert('模板不存在！');
+                return;
+            }
+
+            console.log(`开始加载模板: ${template.name}`);
+            
+            // 清空现有工作流
+            clearWorkflow();
+            
+            // 创建新节点
+            template.nodes.forEach(nodeData => {
+                createTemplateNode(nodeData);
+            });
+
+            // 等待节点创建完成后再创建连接
+            setTimeout(() => {
+                console.log('开始创建连接...');
+                template.connections.forEach((conn, index) => {
+                    console.log(`创建连接 ${index + 1}: ${conn.source} -> ${conn.target}`);
+                    connectNodes(conn.source, conn.target);
+                });
+                
+                // 更新计数
+                updateNodeCount();
+                updateConnectionCount();
+                
+                // 自动适应屏幕到所有节点
+                setTimeout(() => {
+                    console.log('自动适应屏幕...');
+                    fitToScreen();
+                }, 300);
+            }, 800);
+        }
+
+        // 清空工作流
+        function clearWorkflow() {
+            // 清除所有连接
+            jsPlumbInstance.deleteEveryConnection();
+            
+            // 清除所有节点
+            const nodes = document.querySelectorAll('.workflow-node');
+            nodes.forEach(node => {
+                jsPlumbInstance.remove(node);
+            });
+            
+            // 清除选中状态
+            selectedNode = null;
+            document.getElementById('propertiesPanel').classList.add('hidden');
+        }
+
+        // 创建模板节点
+        function createTemplateNode(nodeData) {
+            console.log(`创建模板节点: ${nodeData.id} - ${nodeData.title}`);
+            
+            const nodeId = nodeData.id;
+            const nodeClass = `node-${nodeData.type}`;
+            const iconClass = `fas fa-${nodeData.icon}`;
+            const colorClass = getColorClass(nodeData.color);
+
+            const nodeHtml = `
+                <div id="${nodeId}" class="workflow-node draggable-node ${nodeClass} bg-white rounded-lg shadow-md p-4 absolute" 
+                     style="left: ${nodeData.x}px; top: ${nodeData.y}px; width: 200px;">
+                    <div class="flex items-center mb-2">
+                        <i class="${iconClass} ${colorClass} mr-2"></i>
+                        <span class="font-semibold text-sm">${nodeData.title}</span>
+                    </div>
+                    <div class="text-xs text-gray-500">${getNodeTypeLabel(nodeData.type, nodeData.subtype)}</div>
+                </div>
+            `;
+
+            const container = document.getElementById('workflow-container');
+            if (!container) {
+                console.error('找不到工作流容器元素');
+                return;
+            }
+            
+            container.insertAdjacentHTML('beforeend', nodeHtml);
+            
+            const node = document.getElementById(nodeId);
+            if (!node) {
+                console.error(`创建的节点 ${nodeId} 未找到`);
+                return;
+            }
+            
+            console.log(`节点 ${nodeId} 创建成功`);
+            
+            // 确保jsPlumb实例存在
+            if (!jsPlumbInstance) {
+                console.error('jsPlumb实例不存在，尝试重新初始化');
+                initJsPlumb();
+            }
+            
+            // 使节点可拖拽
+            if (jsPlumbInstance) {
+                jsPlumbInstance.draggable(node);
+                console.log(`节点 ${nodeId} 设置为可拖拽`);
+                
+                // 添加连接点
+                setTimeout(() => {
+                    addEndpoints(node);
+                    console.log(`节点 ${nodeId} 连接点添加完成`);
+                }, 50);
+            } else {
+                console.error(`无法设置节点 ${nodeId} 为可拖拽：jsPlumb实例不存在`);
+            }
+            
+            // 添加事件监听器
+            setupNodeEvents(node);
+        }
+
+        // 获取颜色类
+        function getColorClass(color) {
+            const colorMap = {
+                'red': 'text-red-500',
+                'blue': 'text-blue-500',
+                'green': 'text-green-500',
+                'yellow': 'text-yellow-500',
+                'purple': 'text-purple-500',
+                'orange': 'text-orange-500',
+                'gray': 'text-gray-500',
+                'cyan': 'text-cyan-500',
+                'indigo': 'text-indigo-500',
+                'teal': 'text-teal-500',
+                'amber': 'text-amber-500'
+            };
+            return colorMap[color] || 'text-gray-500';
+        }
+
+        // 获取节点类型标签
+        function getNodeTypeLabel(type, subtype) {
+            const labels = {
+                'trigger': { 'alert': '告警触发器', 'event': '事件触发器', 'webhook': 'Webhook触发器' },
+                'ai': { 'investigate': '调查分析', 'disposal': '处置决策', 'custom': '自定义AI' },
+                'agent': { 'contact': '联络通知' },
+                'soar': { 'playbook': 'SOAR剧本', 'ticket': '工单系统' },
+                'human': { 'confirm': '人工确认' },
+                'logic': { 'condition': '条件判断' }
+            };
+            return labels[type]?.[subtype] || `${type}-${subtype}`;
+        }
+
+        // 连接两个节点
+        function connectNodes(sourceId, targetId) {
+            const sourceNode = document.getElementById(sourceId);
+            const targetNode = document.getElementById(targetId);
+            
+            console.log(`尝试连接节点: ${sourceId} -> ${targetId}`);
+            console.log('源节点存在:', !!sourceNode);
+            console.log('目标节点存在:', !!targetNode);
+            console.log('jsPlumb实例存在:', !!jsPlumbInstance);
+            
+            if (sourceNode && targetNode && jsPlumbInstance) {
+                try {
+                    const connection = jsPlumbInstance.connect({
+                        source: sourceId,
+                        target: targetId,
+                        anchor: ["Right", "Left"],
+                        endpoint: "Dot",
+                        paintStyle: { stroke: "#64748b", strokeWidth: 2 },
+                        hoverPaintStyle: { stroke: "#1e40af", strokeWidth: 3 },
+                        connector: ["Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5 }],
+                        overlays: [["Arrow", { location: 1, width: 20, length: 20 }]]
+                    });
+                    
+                    if (connection) {
+                        console.log(`成功创建连接: ${sourceId} -> ${targetId}`);
+                    } else {
+                        console.error(`连接创建失败: ${sourceId} -> ${targetId}`);
+                    }
+                } catch (error) {
+                    console.error(`连接创建异常: ${sourceId} -> ${targetId}`, error);
+                }
+            } else {
+                console.error(`连接创建条件不满足: 源节点=${!!sourceNode}, 目标节点=${!!targetNode}, jsPlumb=${!!jsPlumbInstance}`);
+            }
+        }
+
+        // ============= 缺失函数补充 =============
+        
+        // 为节点添加连接点
+        function addEndpoints(node) {
+            if (!jsPlumbInstance || !node) return;
+            
+            // 添加输出端点（右侧，绿色）
+            jsPlumbInstance.addEndpoint(node, {
+                endpoint: "Dot",
+                anchor: "Right",
+                isSource: true,
+                paintStyle: { fill: "#10b981", stroke: "#059669", strokeWidth: 2, radius: 6 },
+                hoverPaintStyle: { fill: "#059669", stroke: "#047857", strokeWidth: 3, radius: 8 },
+                connectorStyle: { stroke: "#64748b", strokeWidth: 2 },
+                connectorHoverStyle: { stroke: "#1e40af", strokeWidth: 3 },
+                connector: ["Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5 }],
+                overlays: [["Arrow", { location: 1, width: 20, length: 20 }]]
+            });
+            
+            // 添加输入端点（左侧，红色）
+            jsPlumbInstance.addEndpoint(node, {
+                endpoint: "Dot",
+                anchor: "Left",
+                isTarget: true,
+                paintStyle: { fill: "#ef4444", stroke: "#dc2626", strokeWidth: 2, radius: 6 },
+                hoverPaintStyle: { fill: "#dc2626", stroke: "#b91c1c", strokeWidth: 3, radius: 8 }
+            });
+        }
+
+        // 为节点设置事件监听器
+        function setupNodeEvents(node) {
+            if (!node) return;
+            
+            // 点击选中节点
+            node.addEventListener('click', function(e) {
+                if (isDragging || isConnecting) return;
+                
+                e.stopPropagation();
+                
+                // 清除之前选中的节点
+                document.querySelectorAll('.workflow-node').forEach(n => {
+                    n.classList.remove('ring-2', 'ring-blue-500');
+                });
+                
+                // 选中当前节点
+                this.classList.add('ring-2', 'ring-blue-500');
+                selectedNode = this;
+                
+                // 显示属性面板
+                showNodeProperties(this);
+            });
+            
+            // 右键菜单
+            node.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                selectedNode = this;
+                showContextMenu(e.pageX, e.pageY, this);
+            });
+            
+            // 双击编辑
+            node.addEventListener('dblclick', function(e) {
+                e.stopPropagation();
+                showNodeProperties(this);
+            });
+        }
+
+        // 画布缩放功能
+        function zoomIn() {
+            if (canvasState.scale < canvasState.maxScale) {
+                canvasState.scale += 0.1;
+                updateCanvasTransform();
+                updateCoordinatesDisplay();
+            }
+        }
+
+        function zoomOut() {
+            if (canvasState.scale > canvasState.minScale) {
+                canvasState.scale -= 0.1;
+                updateCanvasTransform();
+                updateCoordinatesDisplay();
+            }
+        }
+
+        // 更新画布变换
+        function updateCanvasTransform() {
+            if (!workflowContainer) return;
+            
+            workflowContainer.style.transform = `translate(${canvasState.x}px, ${canvasState.y}px) scale(${canvasState.scale})`;
+            updateCoordinatesDisplay();
+            updateMinimapViewport();
+        }
+
+        // 更新坐标显示
+        function updateCoordinatesDisplay() {
+            const coordX = document.getElementById('coordX');
+            const coordY = document.getElementById('coordY');
+            const coordScale = document.getElementById('coordScale');
+            
+            if (coordX) coordX.textContent = Math.round(canvasState.x);
+            if (coordY) coordY.textContent = Math.round(canvasState.y);
+            if (coordScale) coordScale.textContent = Math.round(canvasState.scale * 100) + '%';
+        }
+
+        // 更新小地图视口
+        function updateMinimapViewport() {
+            const viewport = document.getElementById('minimapViewport');
+            if (!viewport) return;
+            
+            // 简单的小地图视口更新
+            const viewportWidth = 200 * canvasState.scale;
+            const viewportHeight = 150 * canvasState.scale;
+            
+            viewport.style.width = Math.max(20, viewportWidth) + 'px';
+            viewport.style.height = Math.max(15, viewportHeight) + 'px';
+            viewport.style.left = Math.max(0, -canvasState.x / 50) + 'px';
+            viewport.style.top = Math.max(0, -canvasState.y / 50) + 'px';
+        }
+
+        // 更新小地图节点
+        function updateMinimapNodes() {
+            // 简单实现，可以后续扩展
+            console.log('小地图节点已更新');
+        }
+
+        // 更新节点计数
+        function updateNodeCount() {
+            const nodeCountElement = document.getElementById('nodeCount');
+            if (nodeCountElement) {
+                const nodeCount = document.querySelectorAll('.workflow-node').length;
+                nodeCountElement.textContent = nodeCount;
+            }
+        }
+
+        // 更新连接计数
+        function updateConnectionCount() {
+            const connectionCountElement = document.getElementById('connectionCount');
+            if (connectionCountElement && jsPlumbInstance) {
+                try {
+                    const connectionCount = jsPlumbInstance.getConnections().length;
+                    connectionCountElement.textContent = connectionCount;
+                } catch (error) {
+                    console.log('连接计数获取失败，使用默认值0');
+                    connectionCountElement.textContent = '0';
+                }
+            }
+        }
+
+        // 显示节点属性（占位符函数）
+        function showNodeProperties(node) {
+            console.log('显示节点属性:', node);
+            // 这里可以后续实现属性面板功能
+        }
+
+        // 显示右键菜单（占位符函数）
+        function showContextMenu(x, y, node) {
+            console.log('显示右键菜单:', x, y, node);
+            // 这里可以后续实现右键菜单功能
+        }
+
+        // 隐藏右键菜单（占位符函数）
+        function hideContextMenu() {
+            console.log('隐藏右键菜单');
+            // 这里可以后续实现右键菜单功能
+        }
+
+        // 处理右键菜单操作（占位符函数）
+        function handleContextMenuAction(action, node) {
+            console.log('处理右键菜单操作:', action, node);
+            // 这里可以后续实现右键菜单功能
+        }
+
+        // ============= 页面切换功能 =============
+        
+        // 显示模板商店页面
+        function showTemplatePage() {
+            document.getElementById('templateStorePage').classList.remove('hidden');
+            document.getElementById('workflowEditorPage').classList.add('hidden');
+            document.body.className = 'bg-gray-50';
+            console.log('已切换到模板商店页面');
+        }
+
+        // 显示工作流编辑器页面
+        function showEditorPage() {
+            document.getElementById('templateStorePage').classList.add('hidden');
+            document.getElementById('workflowEditorPage').classList.remove('hidden');
+            document.body.className = 'bg-gray-50 h-screen overflow-hidden';
+            console.log('已切换到工作流编辑器页面');
+            
+            // 确保jsPlumb和画布已初始化
+            setTimeout(() => {
+                if (!jsPlumbInstance) {
+                    console.log('重新初始化jsPlumb...');
+                    initJsPlumb();
+                }
+                
+                // 重新绑定画布事件
+                if (typeof initInfiniteCanvas === 'function') {
+                    console.log('重新初始化画布...');
+                    initInfiniteCanvas();
+                }
+                
+                // 如果有节点，自动适应屏幕
+                const nodes = document.querySelectorAll('.workflow-node');
+                if (nodes.length > 0) {
+                    setTimeout(() => {
+                        fitToScreen();
+                        console.log('编辑器页面自动适应到现有节点');
+                    }, 200);
+                }
+            }, 100);
+        }
+
+        // 更新导航状态
+        function updateNavigation(activeBtn) {
+            // 清除所有按钮的激活状态
+            document.querySelectorAll('#homeBtn, #editorBtn, #monitorBtn').forEach(btn => {
+                if (btn) {
+                    btn.className = 'px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors';
+                }
+            });
+            
+            // 激活当前按钮
+            if (activeBtn) {
+                activeBtn.className = 'px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-lg';
+            }
+        }
+
+        // ============= 页面初始化 =============
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面开始初始化...');
+            
+            // 默认显示模板商店页面
+            showTemplatePage();
+            
+            // 模板商店现在作为独立页面存在
+            
+            // 初始化jsPlumb
+            try {
+                initJsPlumb();
+                console.log('jsPlumb初始化成功');
+            } catch (error) {
+                console.error('jsPlumb初始化失败:', error);
+            }
+            
+            // 初始化无限画板
+            try {
+                initInfiniteCanvas();
+                console.log('无限画板初始化成功');
+            } catch (error) {
+                console.error('无限画板初始化失败:', error);
+            }
+            
+            // 如果当前在编辑器页面，则自动适应屏幕
+            const editorPage = document.getElementById('editor-page');
+            if (editorPage && !editorPage.classList.contains('hidden')) {
+                setTimeout(() => {
+                    try {
+                        fitToScreen();
+                        console.log('编辑器页面自动适应屏幕完成');
+                    } catch (error) {
+                        console.error('自动适应屏幕失败:', error);
+                    }
+                }, 500);
+            }
+
+            // 绑定导航按钮事件
+            const homeBtn = document.getElementById('homeBtn');
+            const editorBtn = document.getElementById('editorBtn');
+            const backToStoreBtn = document.getElementById('backToStoreBtn');
+            
+            if (homeBtn) {
+                homeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showTemplatePage();
+                    updateNavigation(this);
+                });
+                console.log('工作流商店按钮事件绑定成功');
+            }
+            
+            if (editorBtn) {
+                editorBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showEditorPage();
+                    updateNavigation(this);
+                });
+                console.log('流程编辑器按钮事件绑定成功');
+            }
+            
+            if (backToStoreBtn) {
+                backToStoreBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showTemplatePage();
+                    updateNavigation(document.getElementById('homeBtn'));
+                });
+                console.log('返回按钮事件绑定成功');
+            }
+            // 绑定模板卡片点击事件
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const templateId = this.getAttribute('data-template');
+                    console.log('选择模板:', templateId);
+                    
+                    // 切换到编辑器页面
+                    showEditorPage();
+                    updateNavigation(document.getElementById('editorBtn'));
+                    
+                    // 延迟加载模板，确保页面切换完成
+                    setTimeout(() => {
+                        if (typeof loadTemplate === 'function') {
+                            loadTemplate(templateId);
+                        } else {
+                            console.log('模板加载功能暂未实现，已切换到编辑器页面');
+                        }
+                    }, 300);
+                });
+            });
+            console.log('模板卡片点击事件绑定成功');
+            
+            // 其他按钮事件绑定
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function() {
+                    console.log('保存按钮被点击');
+                    if (typeof saveWorkflow === 'function') {
+                        saveWorkflow();
+                    } else {
+                        console.log('保存功能暂未实现');
+                    }
+                });
+            }
+            
+            const debugBtn = document.getElementById('debugBtn');
+            if (debugBtn) {
+                debugBtn.addEventListener('click', () => {
+                    const debugModal = document.getElementById('debugModal');
+                    if (debugModal) {
+                        debugModal.classList.remove('hidden');
+                    }
+                });
+            }
+            
+            const publishBtn = document.getElementById('publishBtn');
+            if (publishBtn) {
+                publishBtn.addEventListener('click', function() {
+                    console.log('发布按钮被点击');
+                    if (typeof publishWorkflow === 'function') {
+                        publishWorkflow();
+                    } else {
+                        console.log('发布功能暂未实现');
+                    }
+                });
+            }
+            
+            const closeDebug = document.getElementById('closeDebug');
+            if (closeDebug) {
+                closeDebug.addEventListener('click', () => {
+                    const debugModal = document.getElementById('debugModal');
+                    if (debugModal) {
+                        debugModal.classList.add('hidden');
+                    }
+                });
+            }
+            
+            const startDebug = document.getElementById('startDebug');
+            if (startDebug) {
+                startDebug.addEventListener('click', function() {
+                    console.log('开始调试按钮被点击');
+                    if (typeof startDebugMode === 'function') {
+                        startDebugMode();
+                    } else {
+                        console.log('调试功能暂未实现');
+                    }
+                });
+            }
+            
+            // 原有的模板卡片点击事件已在上面统一处理
+            
+            // 拖拽功能初始化
+            setupDragAndDrop();
+
+            // 侧边栏切换
+            document.getElementById('toggleSidebar').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                const icon = this.querySelector('i');
+                
+                if (sidebar.classList.contains('sidebar-expanded')) {
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                    icon.className = 'fas fa-chevron-right';
+                } else {
+                    sidebar.classList.remove('sidebar-collapsed');
+                    sidebar.classList.add('sidebar-expanded');
+                    icon.className = 'fas fa-chevron-left';
+                }
+            });
+
+            // 节点点击事件（使用事件委托和防抖）
+            document.addEventListener('click', function(e) {
+                // 如果正在拖拽画板，不处理点击事件
+                if (canvasState && canvasState.isPanning) {
+                    return;
+                }
+                
+                // 清除之前的定时器
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                }
+                
+                // 延迟处理点击事件，避免与拖拽冲突
+                clickTimer = setTimeout(() => {
+                    // 如果正在拖拽或连线，忽略点击
+                    if (isDragging || isConnecting || (canvasState && canvasState.isPanning)) {
+                        return;
+                    }
+                    
+                    const workflowNode = e.target.closest('.workflow-node');
+                    if (workflowNode) {
+                        if (typeof selectNode === 'function') {
+                            selectNode(workflowNode);
+                        }
+                    } else {
+                        // 点击空白处取消选择
+                        if (typeof clearSelection === 'function') {
+                            clearSelection();
+                        }
+                    }
+                    
+                    // 点击其他地方隐藏右键菜单
+                    if (typeof hideContextMenu === 'function') {
+                        hideContextMenu();
+                    }
+                }, 50);
+            });
+
+            // 画布控制按钮事件
+            document.getElementById('zoomIn').addEventListener('click', zoomIn);
+            document.getElementById('zoomOut').addEventListener('click', zoomOut);
+            document.getElementById('zoomFit').addEventListener('click', fitToScreen);
+            document.getElementById('resetView').addEventListener('click', () => {
+                canvasState.x = 0;
+                canvasState.y = 0;
+                canvasState.scale = 1;
+                updateCanvasTransform();
+                setTimeout(() => {
+                    fitToScreen();
+                }, 100);
+            });
+
+            // 右键菜单事件
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#contextMenu')) {
+                    hideContextMenu();
+                }
+            });
+
+            document.getElementById('contextMenu').addEventListener('click', function(e) {
+                const action = e.target.dataset.action || e.target.parentElement.dataset.action;
+                if (action && selectedNode) {
+                    handleContextMenuAction(action, selectedNode);
+                }
+                hideContextMenu();
+            });
+
+            // 初始化节点计数
+            try {
+                updateNodeCount();
+                updateConnectionCount();
+                console.log('节点和连接计数更新完成');
+            } catch (error) {
+                console.error('节点计数更新失败:', error);
+            }
+
+            // 最终状态检查
+            setTimeout(() => {
+                console.log('🎉 页面初始化完成，默认显示模板商店页面');
+            }, 100);
+        });
     </script>
 </body>
 </html> 

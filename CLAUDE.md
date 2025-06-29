@@ -10,8 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 项目是一组静态HTML原型，演示XDR-AI安全运营系统的不同模块：
 
-- `index.html` - 主页面和演示展示
-- `home.html` - 带侧边栏菜单系统的导航中心
+- `index.html` - 带侧边栏菜单系统的主导航中心
+- `demo.html` - 演示展示页面，展示所有模块概览
 - `ciso-security-dashboard.html` - 高管级安全仪表板
 - `ciso-onboarding-guide.html` - AI引导的90秒配置向导
 - `workflow-editor-prototype.html` - 可视化工作流编排平台
@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 系统架构
 
-系统遵循三层架构（如`index.html`中的Mermaid图所示）：
+系统遵循三层架构（如`demo.html`中的Mermaid图所示）：
 
 1. **战略规划层** - CISO界面和目标设定
 2. **运营执行层** - 工作流编排和IM协调
@@ -54,7 +54,7 @@ open http://localhost:8000
 ## 核心功能与组件
 
 ### 1. 多模块导航系统
-- `home.html`中的集中导航，带可折叠侧边栏
+- `index.html`中的集中导航，带可折叠侧边栏
 - 嵌入式演示的模态预览系统
 - 跨模块iframe集成
 
@@ -74,11 +74,11 @@ open http://localhost:8000
 
 ## 文件关系
 
-- `index.html` 作为主要演示入口点
-- `home.html` 作为导航外壳，嵌入其他模块
+- `index.html` 作为主导航外壳，嵌入其他模块
+- `demo.html` 作为演示入口点，展示所有模块概览
 - 所有其他HTML文件都是独立模块，可以：
-  - 通过iframe嵌入`home.html`
-  - 从`index.html`通过模态框直接打开
+  - 通过iframe嵌入`index.html`
+  - 从`demo.html`通过模态框直接打开
   - 作为独立应用程序访问
 
 ## 代码规范
