@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CISO安全助手 - 高管决策支持系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#64748b',
+                        accent: '#3b82f6',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        success: '#10b981',
+                        bot: '#f1f5f9',
+                        user: '#3b82f6',
+                        executive: '#7c3aed'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'typing': 'typing 2s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes typing {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        .chat-bubble {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .typing-indicator {
+            animation: typing 2s ease-in-out infinite;
+        }
+        .executive-alert {
+            border-left: 4px solid #7c3aed;
+            background: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%);
+        }
+        .command-btn {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .command-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .high-priority {
+            background: linear-gradient(135deg, #fecaca, #ef4444);
+        }
+        .medium-priority {
+            background: linear-gradient(135deg, #fed7aa, #f97316);
+        }
+        .business-impact {
+            background: linear-gradient(135deg, #ddd6fe, #8b5cf6);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-50">
+        <div class="px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-crown text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-900">CISO安全助手</h1>
+                        <p class="text-xs text-purple-500 flex items-center">
+                            <span class="w-2 h-2 bg-purple-500 rounded-full mr-1 animate-pulse"></span>
+                            高管决策支持 - 24/7风险监控
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-clock mr-1"></i>
+                        2025-06-21 11:39:01
+                    </div>
+                    <div class="flex items-center space-x-2 bg-purple-50 px-3 py-1 rounded-full">
+                        <i class="fas fa-shield-alt text-purple-600 text-sm"></i>
+                        <span class="text-xs text-purple-700 font-medium">CISO模式</span>
+                    </div>
+                    <button class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 聊天主体区域 -->
+    <div class="pt-20 pb-24 px-4 max-w-5xl mx-auto">
+        <div id="chatContainer" class="space-y-6">
+            <!-- 欢迎消息 -->
+            <div class="flex items-start space-x-3 chat-bubble">
+                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-crown text-white text-sm"></i>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-4 max-w-md">
+                    <p class="text-sm text-gray-700">王总您好！我是您的CISO安全助手，专为高管决策设计。</p>
+                    <p class="text-xs text-gray-500 mt-2">正在为您监控企业级安全风险，需要您决策的事件将及时推送...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部输入区域 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex items-center space-x-3">
+                <div class="flex-1 relative">
+                    <input type="text" id="messageInput" 
+                           placeholder="您可以询问风险状况或选择上方的决策选项..."
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           disabled>
+                </div>
+                <button class="p-3 bg-purple-500 text-white rounded-full hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-2 text-center">请使用决策按钮进行高管级操作，或等待重要安全事件推送</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // CISO级安全事件数据
+        const executiveEvents = [
+            {
+                id: 'EXEC-01',
+                title: '客户数据泄露风险事件',
+                severity: '高危',
+                businessImpact: '客户信息安全、公司声誉',
+                affectedScope: '约15万客户信息',
+                timeline: '需要尽快决策处理方案',
+                description: '电商平台数据库遭遇攻击，客户姓名、手机号、部分支付信息可能泄露',
+                recommendations: ['立即启动应急处置流程', '安排技术团队深入调查', '准备客户通知方案'],
+                timestamp: '2025-06-21 11:39:01'
+            },
+            {
+                id: 'EXEC-02', 
+                title: '核心业务系统异常中断',
+                severity: '高危',
+                businessImpact: '订单处理中断、用户无法正常使用',
+                affectedScope: '影响全部在线用户',
+                timeline: '建议30分钟内决定应对方案',
+                description: '主要交易系统出现性能异常，疑似遭受DDoS攻击，系统响应缓慢',
+                recommendations: ['启动备用系统', '联系技术团队紧急处理', '通知客服部门做好解释工作'],
+                timestamp: '2025-06-21 11:45:22'
+            },
+            {
+                id: 'EXEC-03',
+                title: '外部攻击持续预警',
+                severity: '中危',
+                businessImpact: '系统安全、数据完整性',
+                affectedScope: '部分业务模块',
+                timeline: '建议今日内制定防护策略',
+                description: '监测到针对公司网站的持续性扫描攻击，暂未发现数据泄露，但攻击强度在增加',
+                recommendations: ['加强安全监控', '联系网络安全厂商', '评估当前防护措施'],
+                timestamp: '2025-06-21 11:52:45'
+            }
+        ];
+
+        let currentEventIndex = 0;
+        let processedEvents = new Set();
+        let chatContainer = document.getElementById('chatContainer');
+        let operationStats = { 
+            emergency: 0, 
+            team: 0, 
+            communication: 0, 
+            expert: 0, 
+            report: 0 
+        };
+
+        // 添加消息到聊天窗口
+        function addMessage(content, isBot = true, delay = 1000) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `flex items-start space-x-3 chat-bubble ${isBot ? '' : 'flex-row-reverse space-x-reverse'}`;
+                    
+                    if (isBot) {
+                        messageDiv.innerHTML = `
+                            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-crown text-white text-sm"></i>
+                            </div>
+                            <div class="bg-white rounded-lg shadow-sm max-w-4xl">
+                                ${content}
+                            </div>
+                        `;
+                    } else {
+                        messageDiv.innerHTML = `
+                            <div class="w-8 h-8 bg-executive rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-user-tie text-white text-sm"></i>
+                            </div>
+                            <div class="bg-executive text-white rounded-lg shadow-sm p-4 max-w-md">
+                                ${content}
+                            </div>
+                        `;
+                    }
+                    
+                    chatContainer.appendChild(messageDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    resolve();
+                }, delay);
+            });
+        }
+
+        // 显示打字指示器
+        function showTypingIndicator(duration = 2000) {
+            return new Promise((resolve) => {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'flex items-start space-x-3 typing-message';
+                typingDiv.innerHTML = `
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-crown text-white text-sm"></i>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                        <div class="flex space-x-1">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full typing-indicator"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full typing-indicator" style="animation-delay: 0.2s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full typing-indicator" style="animation-delay: 0.4s"></div>
+                        </div>
+                    </div>
+                `;
+                
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                setTimeout(() => {
+                    typingDiv.remove();
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // 创建CISO级安全事件消息
+        function createExecutiveEventMessage(event) {
+            return `
+                <div class="p-5 executive-alert rounded-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                                <i class="fas fa-crown mr-1"></i>高管决策通知
+                            </span>
+                            <span class="text-xs text-gray-600">${event.timestamp}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-exclamation-triangle text-purple-600"></i>
+                            <span class="text-sm font-bold text-purple-700">${event.severity}</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-lg font-bold text-gray-900 mb-3">${event.title}</h3>
+                    
+                    <div class="bg-white/80 rounded-lg p-4 mb-4 border-l-4 border-purple-500">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <div><strong>业务影响：</strong><span class="text-purple-700">${event.businessImpact}</span></div>
+                            <div><strong>影响范围：</strong><span class="text-orange-600">${event.affectedScope}</span></div>
+                            <div><strong>处理时限：</strong><span class="text-red-600 font-medium">${event.timeline}</span></div>
+                            <div><strong>威胁等级：</strong><span class="text-red-600 font-medium">${event.severity}</span></div>
+                            <div class="md:col-span-2"><strong>事件描述：</strong>${event.description}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                        <h4 class="font-medium text-blue-800 mb-2">
+                            <i class="fas fa-lightbulb mr-1"></i>决策建议：
+                        </h4>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            ${event.recommendations.map(rec => `<li>• ${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <p class="text-sm font-medium text-gray-700 mb-3">请选择您的处理方式：</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button onclick="handleExecutiveCommand('${event.id}', 'emergency')" 
+                                    class="command-btn bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600">
+                                <i class="fas fa-shield-alt mr-1"></i>紧急处置
+                            </button>
+                            <button onclick="handleExecutiveCommand('${event.id}', 'team')" 
+                                    class="command-btn bg-orange-500 text-white px-3 py-2 rounded text-sm hover:bg-orange-600">
+                                <i class="fas fa-users mr-1"></i>团队响应
+                            </button>
+                            <button onclick="handleExecutiveCommand('${event.id}', 'communication')" 
+                                    class="command-btn bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600">
+                                <i class="fas fa-bullhorn mr-1"></i>通知决策
+                            </button>
+                            <button onclick="handleExecutiveCommand('${event.id}', 'expert')" 
+                                    class="command-btn bg-purple-500 text-white px-3 py-2 rounded text-sm hover:bg-purple-600">
+                                <i class="fas fa-user-tie mr-1"></i>专家支持
+                            </button>
+                            <button onclick="handleExecutiveCommand('${event.id}', 'report')" 
+                                    class="command-btn bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600">
+                                <i class="fas fa-file-alt mr-1"></i>情况汇报
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>事件编号: ${event.id}</span>
+                        <span>CISO决策支持系统 v2.0</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 处理CISO级指令
+        async function handleExecutiveCommand(eventId, action) {
+            const event = executiveEvents.find(e => e.id === eventId);
+            if (!event) return;
+
+            // 禁用相关按钮
+            const buttons = document.querySelectorAll(`button[onclick*="${eventId}"]`);
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+
+            // 用户决策消息
+            const actionTexts = {
+                'emergency': '紧急处置',
+                'team': '团队响应', 
+                'communication': '通知决策',
+                'expert': '专家支持',
+                'report': '情况汇报'
+            };
+
+            await addMessage(`<p class="text-sm">${actionTexts[action]} - ${eventId}</p>`, false, 500);
+            await showTypingIndicator(2000);
+
+            // Bot执行反馈
+            let response = '';
+            switch(action) {
+                case 'emergency':
+                    response = createEmergencyResponse(event);
+                    break;
+                case 'team':
+                    response = createTeamResponse(event);
+                    break;
+                case 'communication':
+                    response = createCommunicationResponse(event);
+                    break;
+                case 'expert':
+                    response = createExpertResponse(event);
+                    break;
+                case 'report':
+                    response = createReportResponse(event);
+                    break;
+            }
+
+            await addMessage(response);
+            operationStats[action]++;
+            
+            checkExecutiveDemoComplete();
+        }
+
+        // 紧急处置响应
+        function createEmergencyResponse(event) {
+            return `
+                <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-shield-alt text-red-500 mr-2"></i>
+                        <h4 class="font-semibold text-red-800">紧急处置已启动 - ${event.id}</h4>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-white rounded p-3">
+                            <h5 class="font-medium text-gray-800 mb-2">已执行的紧急措施：</h5>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>立即阻断可疑连接和威胁源</span>
+                                </div>
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>隔离受影响的系统模块</span>
+                                </div>
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>启动数据备份和恢复程序</span>
+                                </div>
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>通知相关技术人员到位</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-100 rounded p-3 border-l-4 border-blue-500">
+                            <p class="text-sm text-blue-800">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                紧急处置措施已生效，系统正在恢复中，预计1-2小时内完成
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 团队响应
+        function createTeamResponse(event) {
+            return `
+                <div class="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-users text-orange-500 mr-2"></i>
+                        <h4 class="font-semibold text-orange-800">团队响应安排 - ${event.id}</h4>
+                    </div>
+                    <div class="bg-white rounded p-3 mb-3">
+                        <h5 class="font-medium text-gray-800 mb-2">人员安排：</h5>
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <strong>技术组：</strong>
+                                <span class="text-gray-600 ml-2">安全工程师、系统管理员负责技术处置</span>
+                            </div>
+                            <div>
+                                <strong>协调组：</strong>
+                                <span class="text-gray-600 ml-2">项目经理负责进度跟踪和沟通协调</span>
+                            </div>
+                            <div>
+                                <strong>支持组：</strong>
+                                <span class="text-gray-600 ml-2">客服、运营部门配合处理用户问题</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-green-100 rounded p-2 border-l-4 border-green-500">
+                        <p class="text-sm text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            相关人员已安排到位，正在按计划执行处置工作
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 通知决策响应  
+        function createCommunicationResponse(event) {
+            return `
+                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-bullhorn text-blue-500 mr-2"></i>
+                        <h4 class="font-semibold text-blue-800">通知方案制定 - ${event.id}</h4>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-white rounded p-3">
+                            <h5 class="font-medium text-gray-800 mb-2">通知安排：</h5>
+                            <div class="space-y-2 text-sm">
+                                <div><strong>内部通知：</strong>已通知各部门负责人，配合事件处理</div>
+                                <div><strong>客户通知：</strong>根据影响程度决定是否主动告知客户</div>
+                                <div><strong>合作伙伴：</strong>通知相关的供应商和业务伙伴</div>
+                                <div><strong>上级汇报：</strong>向公司管理层汇报事件处理情况</div>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-100 rounded p-2 border-l-4 border-yellow-500">
+                            <p class="text-sm text-yellow-800">
+                                <i class="fas fa-clock mr-1"></i>
+                                通知方案已制定，将根据事态发展及时调整沟通策略
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 专家支持响应
+        function createExpertResponse(event) {
+            return `
+                <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-user-tie text-purple-500 mr-2"></i>
+                        <h4 class="font-semibold text-purple-800">专家支持安排 - ${event.id}</h4>
+                    </div>
+                    <div class="bg-white rounded p-3 mb-3">
+                        <h5 class="font-medium text-gray-800 mb-2">专家资源：</h5>
+                        <div class="space-y-2 text-sm">
+                            <div><strong>技术专家：</strong>联系网络安全厂商的技术专家提供支持</div>
+                            <div><strong>法律顾问：</strong>咨询法律专家关于合规和责任问题</div>
+                            <div><strong>行业专家：</strong>联系同行业有经验的安全专家分享经验</div>
+                            <div><strong>应急支援：</strong>如需要可申请政府或行业组织的应急支援</div>
+                        </div>
+                    </div>
+                    <div class="bg-green-100 rounded p-2 border-l-4 border-green-500">
+                        <p class="text-sm text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            专家联系方式已整理，将根据事件发展情况及时获取专业支持
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 情况汇报响应
+        function createReportResponse(event) {
+            return `
+                <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-file-alt text-green-500 mr-2"></i>
+                        <h4 class="font-semibold text-green-800">情况汇报安排 - ${event.id}</h4>
+                    </div>
+                    <div class="bg-white rounded p-3 mb-3">
+                        <h5 class="font-medium text-gray-800 mb-2">汇报安排：</h5>
+                        <div class="space-y-2 text-sm">
+                            <div><strong>内部汇报：</strong>向公司领导层汇报事件处理进展</div>
+                            <div><strong>技术总结：</strong>整理技术处置过程和结果</div>
+                            <div><strong>影响评估：</strong>评估对业务和客户的实际影响</div>
+                            <div><strong>改进建议：</strong>提出后续的安全改进措施建议</div>
+                        </div>
+                    </div>
+                    <div class="bg-blue-100 rounded p-2 border-l-4 border-blue-500">
+                        <p class="text-sm text-blue-800">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            汇报材料正在准备中，将及时向相关方通报事件处理情况
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 检查演示完成
+        async function checkExecutiveDemoComplete() {
+            const total = Object.values(operationStats).reduce((sum, val) => sum + val, 0);
+            
+            if (total === 5) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                await showTypingIndicator(1500);
+                await addMessage(`
+                    <div class="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-crown text-purple-500 mr-2"></i>
+                            <h4 class="font-semibold text-purple-800">CISO决策演示完成</h4>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                            <div class="bg-white rounded p-2">
+                                <span class="font-medium text-gray-600">紧急处置：</span>
+                                <span class="text-red-600 font-bold">${operationStats.emergency} 次</span>
+                            </div>
+                            <div class="bg-white rounded p-2">
+                                <span class="font-medium text-gray-600">团队响应：</span>
+                                <span class="text-orange-600 font-bold">${operationStats.team} 次</span>
+                            </div>
+                            <div class="bg-white rounded p-2">
+                                <span class="font-medium text-gray-600">通知决策：</span>
+                                <span class="text-blue-600 font-bold">${operationStats.communication} 次</span>
+                            </div>
+                            <div class="bg-white rounded p-2">
+                                <span class="font-medium text-gray-600">专家支持：</span>
+                                <span class="text-purple-600 font-bold">${operationStats.expert} 次</span>
+                            </div>
+                            <div class="bg-white rounded p-2 col-span-2">
+                                <span class="font-medium text-gray-600">情况汇报：</span>
+                                <span class="text-green-600 font-bold">${operationStats.report} 次</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded border-l-4 border-purple-500">
+                            <p class="text-sm text-purple-800">
+                                <i class="fas fa-trophy mr-1"></i>
+                                <strong>演示完成！</strong>您已体验完整的CISO级安全事件决策支持流程。
+                            </p>
+                            <p class="text-xs text-purple-700 mt-1">
+                                演示目标达成：体验CISO级安全事件管理流程，从紧急处置到团队协调的全方位决策支持。
+                            </p>
+                        </div>
+                    </div>
+                `);
+            }
+        }
+
+        // 自动推送CISO级事件
+        async function startExecutiveAlerts() {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            for (let i = 0; i < executiveEvents.length; i++) {
+                await showTypingIndicator(2500);
+                const eventMessage = createExecutiveEventMessage(executiveEvents[i]);
+                await addMessage(eventMessage);
+                
+                if (i < executiveEvents.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                }
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            await showTypingIndicator(1500);
+            await addMessage(`
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-center text-gray-700">
+                        <i class="fas fa-crown mr-2"></i>
+                        <span class="text-sm">已推送 <strong>${executiveEvents.length} 项</strong>需要您决策的重要安全事件。</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">演示目标：体验每类处理方式至少一次，感受CISO级安全事件管理流程</p>
+                </div>
+            `);
+        }
+
+        // 页面加载后开始演示
+        document.addEventListener('DOMContentLoaded', function() {
+            startExecutiveAlerts();
+        });
+    </script>
+</body>
+</html> 

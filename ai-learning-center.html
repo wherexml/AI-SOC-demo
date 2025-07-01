@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI学习中心 - XDR智能运营系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#64748b',
+                        accent: '#3b82f6',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        ai: '#8b5cf6',
+                        learning: '#06b6d4'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-subtle': 'bounceSubtle 0.6s ease-in-out',
+                        'glow': 'glow 2s ease-in-out infinite alternate'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bounceSubtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+            to { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .learning-badge {
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        }
+        .knowledge-item:hover .teach-ai-btn {
+            opacity: 1;
+        }
+        .teach-ai-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .floating-toolbar {
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+            animation: fadeInScale 0.2s ease-out;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        @keyframes fadeInScale {
+            from { 
+                opacity: 0; 
+                transform: scale(0.8) translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+        .selectable-text {
+            user-select: text;
+            cursor: text;
+        }
+        .selectable-text::selection {
+            background: rgba(139, 92, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 页面标题区域 -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-ai to-learning rounded-xl flex items-center justify-center">
+                        <i class="fas fa-brain text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">AI学习中心</h1>
+                        <p class="text-sm text-gray-600">让AI学习您的业务知识，提供个性化安全分析</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-database mr-1"></i>
+                        已学习知识项: <span class="font-bold text-ai">156</span>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-lightbulb mr-1"></i>
+                        今日新增: <span class="font-bold text-learning">8</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="max-w-7xl mx-auto px-6 py-6">
+        <!-- 导航标签页 -->
+        <div class="mb-6">
+            <nav class="flex space-x-8">
+                <button class="tab-btn active" data-tab="assets">
+                    <i class="fas fa-server mr-2"></i>
+                    资产学习中心
+                </button>
+                <button class="tab-btn" data-tab="judgment">
+                    <i class="fas fa-gavel mr-2"></i>
+                    研判知识库
+                </button>
+                <button class="tab-btn" data-tab="context">
+                    <i class="fas fa-hand-pointer mr-2"></i>
+                    在场学习
+                </button>
+                <button class="tab-btn" data-tab="analytics">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    学习统计
+                </button>
+            </nav>
+        </div>
+
+        <!-- 资产学习中心 -->
+        <div id="assets-tab" class="tab-content">
+            <div class="space-y-6">
+                <!-- 资产知识列表 -->
+                <div>
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <i class="fas fa-list-ul text-ai mr-2"></i>
+                                    资产知识列表
+                                </h3>
+                                <button onclick="addAssetKnowledge()" class="bg-ai text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    新增资产知识
+                                </button>
+                            </div>
+                            <div class="mt-4 flex space-x-4">
+                                <input type="text" id="asset-search" placeholder="搜索IP、标签或业务归属..." 
+                                       oninput="searchAssetKnowledge()"
+                                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai focus:border-transparent">
+                                <select id="asset-filter" onchange="filterAssetKnowledge()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                                    <option value="">全部类型</option>
+                                    <option value="服务器">服务器</option>
+                                    <option value="网络设备">网络设备</option>
+                                    <option value="安全设备">安全设备</option>
+                                    <option value="业务系统">业务系统</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">实体</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产标签</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">业务归属</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学习来源</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="asset-knowledge-list">
+                                    <!-- 动态生成的资产知识条目 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI智能建议 -->
+                <div>
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">
+                                        <i class="fas fa-robot text-ai mr-2"></i>
+                                        AI智能建议
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">基于流量分析和行为模式的智能发现</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-ai rounded-full animate-pulse"></div>
+                                    <span class="text-xs text-ai font-medium">实时分析中</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6" id="ai-suggestions">
+                            <!-- AI建议内容 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 研判知识库 -->
+        <div id="judgment-tab" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <!-- AI模式识别库 -->
+                <div class="bg-white rounded-lg shadow-sm border card-hover">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <i class="fas fa-brain text-ai mr-2"></i>
+                                    AI模式识别库
+                                </h3>
+                                <p class="text-sm text-gray-600 mt-1">AI自动学习的行为模式和良性特征</p>
+                            </div>
+                            <button onclick="addTrustedFeature()" class="bg-ai text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-robot mr-2"></i>
+                                教AI学习
+                            </button>
+                        </div>
+                        <!-- AI学习统计条 -->
+                        <div class="mt-4 grid grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-ai">87%</div>
+                                <div class="text-xs text-gray-500">学习准确率</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-success">156</div>
+                                <div class="text-xs text-gray-500">已识别模式</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-warning">23</div>
+                                <div class="text-xs text-gray-500">待确认模式</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4" id="trusted-features-list">
+                            <!-- AI模式识别列表 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI智能规则引擎 -->
+                <div class="bg-white rounded-lg shadow-sm border card-hover">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <i class="fas fa-atom text-ai mr-2"></i>
+                                    AI智能规则引擎
+                                </h3>
+                                <p class="text-sm text-gray-600 mt-1">基于机器学习的自适应威胁检测规则</p>
+                            </div>
+                            <button onclick="addCustomRule()" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all">
+                                <i class="fas fa-magic mr-2"></i>
+                                AI生成规则
+                            </button>
+                        </div>
+                        <!-- 规则学习状态 -->
+                        <div class="mt-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">活跃规则:</span>
+                                        <span class="font-bold text-ai">12条</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">AI优化:</span>
+                                        <span class="font-bold text-success">+18%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs text-green-600">实时学习中</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4" id="custom-rules-list">
+                            <!-- AI智能规则列表 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 在场学习 -->
+        <div id="context-tab" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 学习演示区域 -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                <i class="fas fa-mouse-pointer text-learning mr-2"></i>
+                                在场学习演示
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">在分析界面直接划选文本或点击IP地址，即可教AI学习</p>
+                        </div>
+                        <div class="p-6">
+                            <!-- 模拟告警详情 -->
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <h4 class="font-medium text-gray-800 mb-3">模拟告警详情：</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-600">攻击源IP:</span>
+                                        <span class="knowledge-item font-mono text-blue-600 cursor-pointer hover:bg-blue-50 px-2 py-1 rounded relative group">
+                                            192.168.10.50
+                                            <button onclick="teachAI('ip', '192.168.10.50')" class="teach-ai-btn absolute -top-2 -right-2 w-6 h-6 bg-ai text-white rounded-full text-xs hover:bg-purple-700">
+                                                🧠
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-600">目标IP:</span>
+                                        <span class="knowledge-item font-mono text-blue-600 cursor-pointer hover:bg-blue-50 px-2 py-1 rounded relative group">
+                                            10.10.10.10
+                                            <button onclick="teachAI('ip', '10.10.10.10')" class="teach-ai-btn absolute -top-2 -right-2 w-6 h-6 bg-ai text-white rounded-full text-xs hover:bg-purple-700">
+                                                🧠
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-gray-600 block mb-2">HTTP请求详情:</span>
+                                        <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 font-mono text-sm selectable-text hover:border-ai hover:bg-blue-50 transition-colors cursor-text" id="demo-payload">
+                                            <div class="text-xs text-gray-500 mb-2">
+                                                <i class="fas fa-mouse-pointer mr-1"></i>
+                                                试试划选下面的文本，特别是高亮的部分
+                                            </div>
+GET /admin/login HTTP/1.1
+Host: 10.10.10.10
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 <span class="bg-yellow-200 px-1 rounded border border-yellow-400 font-semibold cursor-pointer hover:bg-yellow-300 transition-colors">HealthChecker/1.0</span>
+Accept: text/html,application/xhtml+xml
+Connection: keep-alive
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 学习指导 -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h5 class="font-medium text-blue-800 mb-3">
+                                    <i class="fas fa-lightbulb mr-2"></i>
+                                    学习操作指南
+                                </h5>
+                                <div class="space-y-3">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                                        <div class="text-sm text-blue-700">
+                                            <strong>标记资产属性：</strong> 点击IP地址旁的 🧠 图标，可标记资产属性
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                                        <div class="text-sm text-blue-700">
+                                            <strong>划选文本学习：</strong> 用鼠标划选HTTP请求中的 <span class="bg-yellow-200 px-1 rounded font-mono">"HealthChecker/1.0"</span> 文本，会弹出浮动工具条
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                                        <div class="text-sm text-blue-700">
+                                            <strong>确认学习：</strong> 点击浮动工具条中的"标记为良性"按钮，AI会记住这个特征
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded p-2 mt-2">
+                                        <div class="text-xs text-blue-600">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            <strong>提示：</strong> 所有学习的知识都会立即生效，提升AI分析准确性
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习记录 -->
+                <div>
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                <i class="fas fa-history text-gray-600 mr-2"></i>
+                                最近学习记录
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4" id="recent-learning-list">
+                                <!-- 学习记录列表 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学习统计 -->
+        <div id="analytics-tab" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- 统计卡片 -->
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-ai/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-database text-ai text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-gray-900">156</h4>
+                            <p class="text-sm text-gray-600">总知识项</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-learning/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-server text-learning text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-gray-900">89</h4>
+                            <p class="text-sm text-gray-600">资产知识</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-shield text-success text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-gray-900">67</h4>
+                            <p class="text-sm text-gray-600">可信特征</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-to-r from-red-100 to-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-sync-alt text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-green-600">23次</h4>
+                            <p class="text-sm text-gray-600">AI纠正误判</p>
+                            <p class="text-xs text-green-500 mt-1">准确率提升+15%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI优化成果展示 -->
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow-sm border border-blue-200 p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-brain text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">AI优化成果</h3>
+                            <p class="text-sm text-gray-600">最新的AI学习和优化表现</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs text-green-600 font-medium">实时优化中</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white rounded-lg p-4 border border-blue-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-red-500 text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">纠正人工误判</div>
+                                <div class="text-xs text-gray-500">最近7天</div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-bold text-red-500">8次</div>
+                            <div class="text-xs text-gray-600">包含杜少的3次误判</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-green-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-500 text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">准确率提升</div>
+                                <div class="text-xs text-gray-500">对比上周</div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-bold text-green-500">+15%</div>
+                            <div class="text-xs text-gray-600">从87%提升至92%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-purple-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-lightbulb text-purple-500 text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">智能建议</div>
+                                <div class="text-xs text-gray-500">已被采纳</div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-bold text-purple-500">16条</div>
+                            <div class="text-xs text-gray-600">采纳率89%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学习趋势图 -->
+            <div class="bg-white rounded-lg shadow-sm border card-hover">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-chart-area text-ai mr-2"></i>
+                        学习趋势分析
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500">学习趋势图表区域</p>
+                            <p class="text-sm text-gray-400">可集成Chart.js等图表库显示数据</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动工具条（用于文本选择后显示） -->
+    <div id="floating-toolbar" class="fixed hidden floating-toolbar text-white px-4 py-2 rounded-lg" style="z-index: 9999;">
+        <div class="flex items-center space-x-2">
+            <div class="text-xs opacity-75 mr-2">选中: "<span id="selected-text-preview"></span>"</div>
+            <button class="hover:bg-white/20 px-3 py-1 rounded text-sm font-medium transition-colors" onclick="markAsGood()">
+                <i class="fas fa-check mr-1"></i>标记为良性
+            </button>
+            <button class="hover:bg-white/20 px-3 py-1 rounded text-sm font-medium transition-colors" onclick="markAsThreat()">
+                <i class="fas fa-exclamation-triangle mr-1"></i>定义为威胁
+            </button>
+            <button class="hover:bg-white/20 px-3 py-1 rounded text-sm font-medium transition-colors" onclick="globalSearch()">
+                <i class="fas fa-search mr-1"></i>全局搜索
+            </button>
+        </div>
+    </div>
+
+    <!-- 学习弹窗模态框 -->
+    <div id="learning-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-brain text-ai mr-2"></i>
+                        教AI学习
+                    </h3>
+                    <button class="text-gray-400 hover:text-gray-600" onclick="closeLearningModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6" id="learning-modal-content">
+                <!-- 动态内容 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 标签页切换功能
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // 更新按钮状态
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // 显示对应内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(tabId + '-tab').classList.remove('hidden');
+            });
+        });
+
+        // 初始化数据
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAssetKnowledge();
+            initializeTrustedFeatures();
+            initializeAISuggestions();
+            initializeRecentLearning();
+            initializeCustomRules();
+            setupTextSelection();
+        });
+
+        // 资产知识数据存储
+        let assetKnowledgeData = [
+            {
+                id: 1,
+                entity: '192.168.50.98',
+                tags: ['漏扫服务器', '安全设备'],
+                business: '安全运维部',
+                source: 'AI智能识别',
+                time: '2025-06-29 11:30'
+            },
+            {
+                id: 2,
+                entity: '10.20.100.5',
+                tags: ['代理服务器', '网络设备'],
+                business: '网络运维部',
+                source: 'AI智能识别',
+                time: '2025-06-29 11:25'
+            },
+            {
+                id: 3,
+                entity: '172.16.88.12',
+                tags: ['代理服务器', '负载均衡'],
+                business: '应用运维部',
+                source: 'AI智能识别',
+                time: '2025-06-29 11:20'
+            },
+            {
+                id: 4,
+                entity: '192.168.1.100',
+                tags: ['Web服务器', '生产环境'],
+                business: '电商平台',
+                source: '由张工手动添加',
+                time: '2025-06-29 14:30'
+            },
+            {
+                id: 5,
+                entity: '10.10.10.10', 
+                tags: ['自动化运维平台'],
+                business: '运维部',
+                source: '从事件INC-123学习',
+                time: '2025-06-29 16:45'
+            },
+            {
+                id: 6,
+                entity: '172.16.0.50',
+                tags: ['数据库服务器', '核心系统'],
+                business: '研发部-核心交易组',
+                source: '由李经理手动添加',
+                time: '2025-06-28 09:20'
+            }
+        ];
+
+        // 初始化资产知识列表
+        function initializeAssetKnowledge() {
+            renderAssetKnowledgeList();
+        }
+
+        // 渲染资产知识列表
+        function renderAssetKnowledgeList(filteredData = null) {
+            const data = filteredData || assetKnowledgeData;
+            const tbody = document.getElementById('asset-knowledge-list');
+            
+            tbody.innerHTML = data.map(item => `
+                <tr class="hover:bg-gray-50" data-id="${item.id}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="font-mono text-sm text-blue-600">${item.entity}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex flex-wrap gap-1">
+                            ${item.tags.map(tag => `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-ai/10 text-ai">${tag}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.business}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.source}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="editAssetKnowledge(${item.id})" class="text-ai hover:text-purple-700 mr-3">编辑</button>
+                        <button onclick="deleteAssetKnowledge(${item.id})" class="text-red-600 hover:text-red-800">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 添加资产知识
+        function addAssetKnowledge() {
+            showAssetKnowledgeModal();
+        }
+
+        // 编辑资产知识
+        function editAssetKnowledge(id) {
+            const asset = assetKnowledgeData.find(item => item.id === id);
+            if (asset) {
+                showAssetKnowledgeModal(asset);
+            }
+        }
+
+        // 删除资产知识
+        function deleteAssetKnowledge(id) {
+            if (confirm('确定要删除这条资产知识吗？')) {
+                assetKnowledgeData = assetKnowledgeData.filter(item => item.id !== id);
+                renderAssetKnowledgeList();
+                showNotification('资产知识已删除', 'success');
+                updateStatistics();
+            }
+        }
+
+        // 显示资产知识编辑模态框
+        function showAssetKnowledgeModal(asset = null) {
+            const modal = document.getElementById('learning-modal');
+            const content = document.getElementById('learning-modal-content');
+            
+            const isEdit = asset !== null;
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">资产实体</label>
+                        <input type="text" id="asset-entity" value="${asset ? asset.entity : ''}" 
+                               placeholder="192.168.1.100 或 server-name" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">资产标签</label>
+                        <input type="text" id="asset-tags" value="${asset ? asset.tags.join(', ') : ''}" 
+                               placeholder="Web服务器, 生产环境" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                        <p class="text-xs text-gray-500 mt-1">多个标签用逗号分隔</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">业务归属</label>
+                        <input type="text" id="asset-business" value="${asset ? asset.business : ''}" 
+                               placeholder="电商平台" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="saveAssetKnowledge(${asset ? asset.id : 'null'})" 
+                                class="flex-1 bg-ai text-white py-2 rounded-lg hover:bg-purple-700">
+                            ${isEdit ? '保存修改' : '添加资产知识'}
+                        </button>
+                        <button onclick="closeLearningModal()" 
+                                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            取消
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 保存资产知识
+        function saveAssetKnowledge(id) {
+            const entity = document.getElementById('asset-entity').value.trim();
+            const tags = document.getElementById('asset-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            const business = document.getElementById('asset-business').value.trim();
+            
+            if (!entity) {
+                showNotification('请填写资产实体', 'error');
+                return;
+            }
+            
+            const assetData = {
+                entity,
+                tags,
+                business,
+                source: id ? '用户修改' : '用户手动添加',
+                time: new Date().toLocaleString('zh-CN')
+            };
+            
+            if (id) {
+                // 编辑现有资产
+                const index = assetKnowledgeData.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    assetKnowledgeData[index] = { ...assetKnowledgeData[index], ...assetData };
+                }
+                showNotification('资产知识已更新', 'success');
+            } else {
+                // 添加新资产
+                const newAsset = {
+                    id: Date.now(),
+                    ...assetData
+                };
+                assetKnowledgeData.push(newAsset);
+                showNotification('资产知识已添加', 'success');
+            }
+            
+            renderAssetKnowledgeList();
+            closeLearningModal();
+            updateStatistics();
+        }
+
+        // 搜索资产知识
+        function searchAssetKnowledge() {
+            const searchTerm = document.getElementById('asset-search').value.toLowerCase();
+            const filterType = document.getElementById('asset-filter').value;
+            
+            let filteredData = assetKnowledgeData;
+            
+            // 按搜索词筛选
+            if (searchTerm) {
+                filteredData = filteredData.filter(item => 
+                    item.entity.toLowerCase().includes(searchTerm) ||
+                    item.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+                    item.business.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // 按类型筛选
+            if (filterType) {
+                filteredData = filteredData.filter(item => 
+                    item.tags.some(tag => tag.includes(filterType))
+                );
+            }
+            
+            renderAssetKnowledgeList(filteredData);
+        }
+
+        // 筛选资产知识
+        function filterAssetKnowledge() {
+            searchAssetKnowledge(); // 复用搜索逻辑
+        }
+
+
+
+        // AI模式识别数据存储
+        let trustedFeatures = [
+            {
+                id: 1,
+                type: 'AI纠错优化',
+                content: '纠正杜少对"192.168.50.98"的误判',
+                confidence: '98%',
+                source: 'AI智能纠错',
+                learningMethod: '行为模式对比',
+                marker: 'AI纠正 + 系统自动验证',
+                time: '2025-06-29 19:15',
+                relatedEvents: 23,
+                effectiveness: '+35%',
+                correctionType: '漏扫服务器识别'
+            },
+            {
+                id: 2,
+                type: 'AI纠错优化',
+                content: '纠正杜少对"Python-requests"的威胁判断',
+                confidence: '94%',
+                source: 'AI智能纠错',
+                learningMethod: '上下文语义分析',
+                marker: 'AI纠正 + 专家确认',
+                time: '2025-06-29 17:45',
+                relatedEvents: 67,
+                effectiveness: '+28%',
+                correctionType: '良性工具识别'
+            },
+            {
+                id: 3,
+                type: 'GPT研判优化',
+                content: 'SQL注入上下文语义分析',
+                confidence: '96%',
+                source: 'GPT模型调优',
+                learningMethod: '深度语义理解',
+                marker: 'AI自主学习 + 安全专家验证',
+                time: '2025-06-29 18:22',
+                relatedEvents: 127,
+                effectiveness: '+42%'
+            },
+            {
+                id: 4,
+                type: '良性模式',
+                content: 'HealthChecker/1.0',
+                confidence: '92%',
+                source: 'AI自动识别',
+                learningMethod: '行为分析',
+                marker: 'AI + 李经理确认',
+                time: '2025-06-29 16:45',
+                relatedEvents: 45,
+                effectiveness: '+23%'
+            },
+            {
+                id: 5,
+                type: '运维模式',
+                content: 'SELECT * FROM monitor_logs',
+                confidence: '87%',
+                source: 'AI关联学习',
+                learningMethod: '上下文分析',
+                marker: 'AI + 张工确认',
+                time: '2025-06-29 10:30',
+                relatedEvents: 12,
+                effectiveness: '+18%'
+            },
+            {
+                id: 6,
+                type: '内部域名',
+                content: 'internal-api.company.com',
+                confidence: '95%',
+                source: 'AI自动发现',
+                learningMethod: '流量模式',
+                marker: 'AI + 王工确认',
+                time: '2025-06-28 15:20',
+                relatedEvents: 78,
+                effectiveness: '+31%'
+            }
+        ];
+
+        // 添加可信特征
+        function addTrustedFeature() {
+            showTrustedFeatureModal();
+        }
+
+        // 显示可信特征模态框
+        function showTrustedFeatureModal(feature = null) {
+            const modal = document.getElementById('learning-modal');
+            const content = document.getElementById('learning-modal-content');
+            
+            const isEdit = feature !== null;
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">AI学习类型</label>
+                        <select id="feature-type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                            <option value="良性模式" ${feature && feature.type === '良性模式' ? 'selected' : ''}>良性模式识别</option>
+                            <option value="运维模式" ${feature && feature.type === '运维模式' ? 'selected' : ''}>运维行为模式</option>
+                            <option value="内部域名" ${feature && feature.type === '内部域名' ? 'selected' : ''}>内部域名模式</option>
+                            <option value="GPT研判优化" ${feature && feature.type === 'GPT研判优化' ? 'selected' : ''}>GPT研判优化</option>
+                            <option value="业务特征" ${feature && feature.type === '业务特征' ? 'selected' : ''}>业务特征模式</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模式特征</label>
+                        <input type="text" id="feature-content" value="${feature ? feature.content : ''}" 
+                               placeholder="HealthChecker/1.0 或 SQL注入上下文语义分析" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">学习来源</label>
+                        <select id="feature-scope" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                            <option value="AI自动识别" ${feature && feature.source === 'AI自动识别' ? 'selected' : ''}>AI自动识别</option>
+                            <option value="AI关联学习" ${feature && feature.source === 'AI关联学习' ? 'selected' : ''}>AI关联学习</option>
+                            <option value="GPT模型调优" ${feature && feature.source === 'GPT模型调优' ? 'selected' : ''}>GPT模型调优</option>
+                            <option value="AI自动发现" ${feature && feature.source === 'AI自动发现' ? 'selected' : ''}>AI自动发现</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="saveTrustedFeature(${feature ? feature.id : 'null'})" 
+                                class="flex-1 bg-ai text-white py-2 rounded-lg hover:bg-purple-700">
+                            ${isEdit ? '保存修改' : '添加AI学习模式'}
+                        </button>
+                        <button onclick="closeLearningModal()" 
+                                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            取消
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 保存AI学习模式
+        function saveTrustedFeature(id) {
+            const type = document.getElementById('feature-type').value;
+            const content = document.getElementById('feature-content').value.trim();
+            const source = document.getElementById('feature-scope').value;
+            
+            if (!content) {
+                showNotification('请填写模式特征', 'error');
+                return;
+            }
+            
+            const featureData = {
+                type,
+                content,
+                source,
+                confidence: '95%',
+                learningMethod: type === 'GPT研判优化' ? '深度语义理解' : '行为分析',
+                marker: 'AI + 当前用户确认',
+                time: new Date().toLocaleString('zh-CN'),
+                relatedEvents: Math.floor(Math.random() * 100) + 10,
+                effectiveness: '+' + (Math.floor(Math.random() * 30) + 15) + '%'
+            };
+            
+            if (id) {
+                // 编辑现有模式
+                const index = trustedFeatures.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    trustedFeatures[index] = { ...trustedFeatures[index], ...featureData };
+                }
+                showNotification('AI学习模式已更新', 'success');
+            } else {
+                // 添加新模式
+                const newFeature = {
+                    id: Date.now(),
+                    ...featureData
+                };
+                trustedFeatures.push(newFeature);
+                showNotification('AI学习模式已添加', 'success');
+            }
+            
+            initializeTrustedFeatures();
+            closeLearningModal();
+            updateStatistics();
+        }
+
+        // 删除AI学习模式
+        function deleteTrustedFeature(id) {
+            if (confirm('确定要删除这个AI学习模式吗？')) {
+                trustedFeatures = trustedFeatures.filter(item => item.id !== id);
+                initializeTrustedFeatures();
+                showNotification('AI学习模式已删除', 'success');
+                updateStatistics();
+            }
+        }
+
+        // 初始化AI模式识别库
+        function initializeTrustedFeatures() {
+            const container = document.getElementById('trusted-features-list');
+            container.innerHTML = trustedFeatures.map(feature => {
+                const isCorrection = feature.type === 'AI纠错优化';
+                const bgClass = isCorrection ? 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200' : 'bg-gradient-to-r from-white to-purple-50 border-gray-200';
+                const iconClass = isCorrection ? 'fa-sync-alt' : 'fa-brain';
+                const iconColor = isCorrection ? 'text-orange-500' : 'text-ai';
+                const typeColor = isCorrection ? 'bg-orange-100 text-orange-700' : 'bg-ai/10 text-ai';
+                
+                return `
+                <div class="border rounded-lg p-4 hover:shadow-md transition-all duration-200 ${bgClass} ${isCorrection ? 'shadow-sm' : ''}">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${typeColor}">
+                                <i class="fas ${iconClass} mr-1 ${iconColor}"></i>
+                                ${feature.type}
+                                ${isCorrection ? '<span class="ml-1 text-xs">🔥</span>' : ''}
+                            </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                置信度: ${feature.confidence}
+                            </span>
+                            ${isCorrection ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700"><i class="fas fa-star mr-1"></i>AI纠错</span>' : ''}
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs text-gray-500">${feature.time}</span>
+                            <button onclick="showTrustedFeatureModal(${JSON.stringify(feature).replace(/"/g, '&quot;')})" class="text-ai hover:text-purple-700 text-xs">优化</button>
+                            <button onclick="deleteTrustedFeature(${feature.id})" class="text-red-600 hover:text-red-800 text-xs">删除</button>
+                        </div>
+                    </div>
+                    <div class="font-mono text-sm text-gray-800 mb-3 bg-white p-2 rounded border">${feature.content}</div>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-gray-500">学习方式:</span>
+                            <span class="text-gray-700 font-medium">${feature.learningMethod}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">关联事件:</span>
+                            <span class="text-blue-600 font-medium">${feature.relatedEvents} 个</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">数据源:</span>
+                            <span class="text-gray-700">${feature.source}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">效果提升:</span>
+                            <span class="text-green-600 font-bold">${feature.effectiveness}</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <span class="text-xs text-gray-500">${feature.marker}</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+
+
+        // 初始化最近学习记录
+        function initializeRecentLearning() {
+            const container = document.getElementById('recent-learning-list');
+            container.innerHTML = learningRecords.map(record => `
+                <div class="flex items-start space-x-3 p-3 border ${record.highlight ? 'border-orange-200 bg-orange-50' : 'border-gray-200'} rounded-lg hover:bg-gray-50 ${record.highlight ? 'shadow-md' : ''}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full ${record.highlight ? 'bg-orange-100' : 'bg-gray-100'}">
+                        <i class="fas ${record.icon} ${record.color}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-800 flex items-center">
+                            ${record.type}
+                            ${record.highlight ? '<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700"><i class="fas fa-star mr-1"></i>重要</span>' : ''}
+                        </div>
+                        <div class="text-sm text-gray-600">${record.content}</div>
+                        <div class="text-xs text-gray-500 mt-1">${record.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 初始化AI智能规则引擎
+        function initializeCustomRules() {
+            const rules = [
+                {
+                    name: '内网扫描智能识别',
+                    condition: '来源IP在192.168.1.0/24且目标端口为22',
+                    action: '动态风险评估',
+                    status: '学习中',
+                    confidence: '94%',
+                    aiGenerated: true,
+                    performance: '+32%',
+                    adaptations: 5,
+                    lastOptimized: '2小时前'
+                },
+                {
+                    name: '业务健康检查优化',
+                    condition: 'User-Agent匹配健康检查模式',
+                    action: 'AI上下文分析',
+                    status: '已优化',
+                    confidence: '97%',
+                    aiGenerated: false,
+                    performance: '+45%',
+                    adaptations: 12,
+                    lastOptimized: '30分钟前'
+                },
+                {
+                    name: '供应链流量模式',
+                    condition: 'API调用频率异常检测',
+                    action: 'AI行为基线对比',
+                    status: '自适应',
+                    confidence: '89%',
+                    aiGenerated: true,
+                    performance: '+28%',
+                    adaptations: 8,
+                    lastOptimized: '1小时前'
+                }
+            ];
+
+            const container = document.getElementById('custom-rules-list');
+            container.innerHTML = rules.map(rule => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-gradient-to-r from-white to-blue-50">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <h4 class="font-medium text-gray-800">${rule.name}</h4>
+                            ${rule.aiGenerated ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-ai text-white"><i class="fas fa-robot mr-1"></i>AI生成</span>' : ''}
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${rule.status === '学习中' ? 'bg-yellow-100 text-yellow-700' : rule.status === '已优化' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}">
+                                ${rule.status}
+                            </span>
+                            <span class="text-xs text-gray-500">置信度: ${rule.confidence}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-3">
+                        <div class="text-sm">
+                            <span class="text-gray-500">条件:</span>
+                            <span class="text-gray-700">${rule.condition}</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="text-gray-500">动作:</span>
+                            <span class="text-gray-700">${rule.action}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-sm bg-white/50 rounded p-2">
+                        <div class="text-center">
+                            <div class="text-green-600 font-bold">${rule.performance}</div>
+                            <div class="text-xs text-gray-500">性能提升</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-blue-600 font-bold">${rule.adaptations}</div>
+                            <div class="text-xs text-gray-500">自适应次数</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-gray-600 font-bold">${rule.lastOptimized}</div>
+                            <div class="text-xs text-gray-500">最近优化</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+
+
+        // 设置文本选择功能
+        function setupTextSelection() {
+            document.addEventListener('mouseup', function(e) {
+                // 等待一个短暂延迟以确保选择已完成
+                setTimeout(() => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+                    
+                    if (selectedText.length > 0) {
+                        const range = selection.getRangeAt(0);
+                        const rect = range.getBoundingClientRect();
+                        
+                        const toolbar = document.getElementById('floating-toolbar');
+                        
+                        // 改进定位计算，考虑页面滚动
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                        
+                        toolbar.style.left = (rect.left + scrollLeft) + 'px';
+                        toolbar.style.top = (rect.top + scrollTop - 60) + 'px';
+                        toolbar.classList.remove('hidden');
+                        
+                        // 存储选中的文本
+                        toolbar.dataset.selectedText = selectedText;
+                        
+                        // 更新预览文本
+                        const preview = document.getElementById('selected-text-preview');
+                        if (preview) {
+                            preview.textContent = selectedText.length > 20 ? selectedText.substring(0, 20) + '...' : selectedText;
+                        }
+                        
+                        console.log('文本已选择:', selectedText); // 调试信息
+                        
+                        // 显示成功提示
+                        if (selectedText.includes('HealthChecker')) {
+                            showNotification('文本选择成功！请点击"标记为良性"按钮', 'success');
+                        }
+                    } else {
+                        // 如果没有选中文本，隐藏工具条
+                        document.getElementById('floating-toolbar').classList.add('hidden');
+                    }
+                }, 10);
+            });
+
+            // 点击其他地方时隐藏工具条
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#floating-toolbar')) {
+                    const selection = window.getSelection();
+                    if (selection.toString().trim().length === 0) {
+                        document.getElementById('floating-toolbar').classList.add('hidden');
+                    }
+                }
+            });
+
+            // 键盘操作支持
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('floating-toolbar').classList.add('hidden');
+                    window.getSelection().removeAllRanges();
+                }
+            });
+        }
+
+        // 标记为良性
+        function markAsGood() {
+            const toolbar = document.getElementById('floating-toolbar');
+            const selectedText = toolbar.dataset.selectedText;
+            
+            showLearningModal('good', selectedText);
+            toolbar.classList.add('hidden');
+        }
+
+        // 标记为威胁
+        function markAsThreat() {
+            const toolbar = document.getElementById('floating-toolbar');
+            const selectedText = toolbar.dataset.selectedText;
+            
+            showLearningModal('threat', selectedText);
+            toolbar.classList.add('hidden');
+        }
+
+        // 全局搜索
+        function globalSearch() {
+            const toolbar = document.getElementById('floating-toolbar');
+            const selectedText = toolbar.dataset.selectedText;
+            
+            showNotification(`搜索 "${selectedText}" 的相关信息...`, 'info');
+            toolbar.classList.add('hidden');
+        }
+
+        // 显示学习模态框
+        function showLearningModal(type, text) {
+            const modal = document.getElementById('learning-modal');
+            const content = document.getElementById('learning-modal-content');
+            
+            if (type === 'good') {
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">特征内容</label>
+                            <input type="text" value="${text}" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">AI学习类型</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>良性模式识别</option>
+                                <option>运维行为模式</option>
+                                <option>内部域名模式</option>
+                                <option>GPT研判优化</option>
+                                <option>业务特征模式</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">忽略范围</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>全局忽略</option>
+                                <option>仅在Web攻击告警中忽略</option>
+                                <option>仅在SQL注入告警中忽略</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                            <textarea placeholder="内部业务健康检查探针" class="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 resize-none"></textarea>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="confirmLearning('good')" class="flex-1 bg-success text-white py-2 rounded-lg hover:bg-green-700">
+                                确认，不再告警
+                            </button>
+                            <button onclick="closeLearningModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                取消
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 关闭学习模态框
+        function closeLearningModal() {
+            document.getElementById('learning-modal').classList.add('hidden');
+        }
+
+        // 确认学习
+        function confirmLearning(type) {
+            showNotification('学习成功！AI已记住这个特征', 'success');
+            closeLearningModal();
+            
+            // 刷新相关数据
+            setTimeout(() => {
+                initializeTrustedFeatures();
+                initializeRecentLearning();
+            }, 500);
+        }
+
+        // 教AI功能 - 点击IP地址时调用
+        function teachAI(type, value) {
+            if (type === 'ip') {
+                showIPLearningModal(value);
+            }
+        }
+
+        // 显示IP学习模态框
+        function showIPLearningModal(ip) {
+            const modal = document.getElementById('learning-modal');
+            const content = document.getElementById('learning-modal-content');
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-ai/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-brain text-ai text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800">教AI学习资产信息</h4>
+                        <p class="text-sm text-gray-600">为 <code class="bg-gray-100 px-2 py-1 rounded">${ip}</code> 添加资产属性</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">资产标签</label>
+                        <input type="text" id="ip-tags" placeholder="例如: 自动化运维平台, 内部工具" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                        <p class="text-xs text-gray-500 mt-1">多个标签用逗号分隔</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">业务归属</label>
+                        <input type="text" id="ip-business" placeholder="例如: 运维部" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">补充说明</label>
+                        <textarea id="ip-description" placeholder="例如: Ansible自动化平台，会有大量SSH登录，属正常行为" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai h-20 resize-none"></textarea>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="saveIPLearning('${ip}')" 
+                                class="flex-1 bg-ai text-white py-2 rounded-lg hover:bg-purple-700">
+                            <i class="fas fa-brain mr-2"></i>好的，AI记住了
+                        </button>
+                        <button onclick="closeLearningModal()" 
+                                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            取消
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 保存IP学习
+        function saveIPLearning(ip) {
+            const tags = document.getElementById('ip-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            const business = document.getElementById('ip-business').value.trim();
+            const description = document.getElementById('ip-description').value.trim();
+            
+            if (tags.length === 0) {
+                showNotification('请至少添加一个资产标签', 'error');
+                return;
+            }
+            
+            // 添加到资产知识库
+            const newAsset = {
+                id: Date.now(),
+                entity: ip,
+                tags: tags,
+                business: business || '未知',
+                source: '在场学习获得',
+                time: new Date().toLocaleString('zh-CN'),
+                description: description
+            };
+            
+            assetKnowledgeData.push(newAsset);
+            
+            // 添加到学习记录
+            addLearningRecord('资产标记', `${ip} → ${tags.join(', ')}`);
+            
+            showNotification('学习成功！AI已记住这个资产', 'success');
+            closeLearningModal();
+            renderAssetKnowledgeList();
+            updateStatistics();
+        }
+
+        // 学习记录数据存储
+        let learningRecords = [
+            {
+                id: 1,
+                type: 'AI纠错',
+                content: '纠正杜少对192.168.50.98的误判 → 改为"漏扫服务器"',
+                time: '2分钟前',
+                icon: 'fa-exclamation-triangle',
+                color: 'text-orange-500',
+                highlight: true
+            },
+            {
+                id: 2,
+                type: 'AI优化',
+                content: 'GPT模型调优 → SQL注入检测准确率提升12%',
+                time: '8分钟前',
+                icon: 'fa-brain',
+                color: 'text-purple-500'
+            },
+            {
+                id: 3,
+                type: 'AI纠错',
+                content: '纠正杜少对"Python-requests"的威胁判断',
+                time: '1小时前',
+                icon: 'fa-sync-alt',
+                color: 'text-red-500',
+                highlight: true
+            },
+            {
+                id: 4,
+                type: '智能发现',
+                content: 'AI识别出代理服务器10.20.100.5的行为特征',
+                time: '2小时前',
+                icon: 'fa-search',
+                color: 'text-blue-500'
+            },
+            {
+                id: 5,
+                type: 'AI纠错',
+                content: '纠正杜少对内网扫描的误报判断 → 降低15%误报',
+                time: '3小时前',
+                icon: 'fa-check-circle',
+                color: 'text-green-500',
+                highlight: true
+            },
+            {
+                id: 6,
+                type: '特征学习',
+                content: 'HealthChecker/1.0 → 标记为良性特征',
+                time: '昨天',
+                icon: 'fa-check-shield',
+                color: 'text-success'
+            }
+        ];
+
+        // 添加学习记录
+        function addLearningRecord(type, content) {
+            const icons = {
+                '资产标记': 'fa-server',
+                '特征标记': 'fa-check-shield',
+                'GPT调优': 'fa-brain',
+                '规则定义': 'fa-code-branch'
+            };
+            
+            const colors = {
+                '资产标记': 'text-ai',
+                '特征标记': 'text-success',
+                'GPT调优': 'text-ai',
+                '规则定义': 'text-warning'
+            };
+            
+            const newRecord = {
+                id: Date.now(),
+                type,
+                content,
+                time: '刚刚',
+                icon: icons[type] || 'fa-lightbulb',
+                color: colors[type] || 'text-gray-600'
+            };
+            
+            learningRecords.unshift(newRecord); // 添加到开头
+            if (learningRecords.length > 10) {
+                learningRecords = learningRecords.slice(0, 10); // 只保留最近10条
+            }
+            
+            // 重新渲染学习记录
+            const container = document.getElementById('recent-learning-list');
+            container.innerHTML = learningRecords.map(record => `
+                <div class="flex items-start space-x-3 p-3 border ${record.highlight ? 'border-orange-200 bg-orange-50' : 'border-gray-200'} rounded-lg hover:bg-gray-50 ${record.highlight ? 'shadow-md' : ''}">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full ${record.highlight ? 'bg-orange-100' : 'bg-gray-100'}">
+                        <i class="fas ${record.icon} ${record.color}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-800 flex items-center">
+                            ${record.type}
+                            ${record.highlight ? '<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700"><i class="fas fa-star mr-1"></i>重要</span>' : ''}
+                        </div>
+                        <div class="text-sm text-gray-600">${record.content}</div>
+                        <div class="text-xs text-gray-500 mt-1">${record.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新统计数据
+        function updateStatistics() {
+            // 更新总知识项
+            const totalKnowledge = assetKnowledgeData.length + trustedFeatures.length;
+            
+            // 更新页面头部统计
+            const statElements = document.querySelectorAll('.text-2xl.font-bold');
+            if (statElements.length >= 4) {
+                statElements[0].textContent = totalKnowledge;
+                statElements[1].textContent = assetKnowledgeData.length;
+                statElements[2].textContent = trustedFeatures.length;
+                // 第4个保持为准确率不变
+            }
+        }
+
+        // 初始化AI智能建议
+        function initializeAISuggestions() {
+            const suggestions = [
+                {
+                    type: 'network-discovery',
+                    title: 'AI发现新的网段模式',
+                    description: '基于流量分析，发现172.20.0.0/16可能是数据库专用网段',
+                    confidence: '89%',
+                    action: '添加为已知网段',
+                    icon: 'fa-network-wired',
+                    color: 'text-blue-500',
+                    priority: 'high',
+                    detailInfo: {
+                        networkRange: '172.20.0.0/16',
+                        analysis: '该网段流量模式显示典型的数据库访问特征',
+                        suggestedTags: ['数据库网段', '高敏感度'],
+                        riskLevel: '高'
+                    }
+                },
+                {
+                    type: 'asset-discovery',
+                    title: '发现新的代理服务器',
+                    description: '192.168.100.88 表现出代理服务器行为特征，需要用户确认',
+                    confidence: '92%',
+                    action: '确认并标记',
+                    icon: 'fa-server',
+                    color: 'text-green-500',
+                    priority: 'high',
+                    detailInfo: {
+                        assetIP: '192.168.100.88',
+                        behaviorPattern: '大量转发请求，端口8080开放',
+                        suggestedTags: ['代理服务器', '网络设备'],
+                        department: '网络运维部'
+                    }
+                },
+                {
+                    type: 'asset-discovery',
+                    title: '识别疑似漏扫设备',
+                    description: '10.50.30.15 具有漏洞扫描器行为特征，建议确认归属',
+                    confidence: '87%',
+                    action: '确认设备类型',
+                    icon: 'fa-search',
+                    color: 'text-purple-500',
+                    priority: 'medium',
+                    detailInfo: {
+                        assetIP: '10.50.30.15',
+                        behaviorPattern: '对多个端口进行扫描，User-Agent包含安全工具特征',
+                        suggestedTags: ['漏扫服务器', '安全设备'],
+                        scanPorts: '22, 80, 443, 3389, 8080'
+                    }
+                }
+            ];
+
+            const container = document.getElementById('ai-suggestions');
+            container.innerHTML = suggestions.map(suggestion => {
+                const bgClass = suggestion.priority === 'high' ? 'bg-gradient-to-r from-white to-purple-50' : 
+                               suggestion.priority === 'medium' ? 'bg-gradient-to-r from-white to-blue-50' : 
+                               'bg-gradient-to-r from-white to-gray-50';
+                
+                const iconBgClass = suggestion.priority === 'high' ? 'bg-purple-100' : 
+                                   suggestion.priority === 'medium' ? 'bg-blue-100' : 
+                                   'bg-gray-100';
+                
+                const priorityBadgeClass = suggestion.priority === 'high' ? 'bg-red-100 text-red-700' : 
+                                          suggestion.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 
+                                          'bg-gray-100 text-gray-700';
+                
+                const priorityText = suggestion.priority === 'high' ? '高优先级' : 
+                                    suggestion.priority === 'medium' ? '中优先级' : 
+                                    '低优先级';
+                
+                return `
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all duration-300 ${bgClass} hover:scale-105">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center ${iconBgClass}">
+                                <i class="fas ${suggestion.icon} ${suggestion.color} text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-gray-900">${suggestion.title}</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${priorityBadgeClass}">
+                                            ${priorityText}
+                                        </span>
+                                        <span class="text-xs bg-ai text-white px-2 py-1 rounded-full">置信度: ${suggestion.confidence}</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-4 leading-relaxed">${suggestion.description}</p>
+                                <div class="flex items-center justify-between">
+                                    <button onclick="applySuggestion('${suggestion.type}', '${suggestion.title}')" class="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:from-purple-600 hover:to-blue-600 transition-all transform hover:scale-105">
+                                        <i class="fas fa-robot"></i>
+                                        <span>${suggestion.action}</span>
+                                    </button>
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="showSuggestionDetail(${JSON.stringify(suggestion).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800 text-sm px-3 py-1 rounded bg-blue-50 hover:bg-blue-100 transition-colors border border-blue-200">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            详情
+                                        </button>
+                                        <button onclick="ignoreSuggestion('${suggestion.type}')" class="text-gray-500 hover:text-red-600 text-sm px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-times mr-1"></i>
+                                            忽略
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 添加自定义规则
+        function addCustomRule() {
+            showNotification('自定义规则功能开发中，敬请期待！', 'info');
+        }
+
+        // 显示建议详情
+        function showSuggestionDetail(suggestion) {
+            const modal = document.getElementById('learning-modal');
+            const content = document.getElementById('learning-modal-content');
+            
+            let detailHTML = '';
+            
+            if (suggestion.type === 'network-discovery') {
+                detailHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-network-wired text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">${suggestion.title}</h3>
+                                <p class="text-sm text-gray-600">置信度: ${suggestion.confidence}</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">网段分析详情</h4>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <span class="text-gray-600">网段范围：</span>
+                                    <span class="font-mono text-blue-600">${suggestion.detailInfo.networkRange}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">风险等级：</span>
+                                    <span class="text-red-600 font-medium">${suggestion.detailInfo.riskLevel}</span>
+                                </div>
+                                <div class="col-span-2">
+                                    <span class="text-gray-600">分析结果：</span>
+                                    <p class="text-gray-800 mt-1">${suggestion.detailInfo.analysis}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <span class="text-gray-600">建议标签：</span>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        ${suggestion.detailInfo.suggestedTags.map(tag => 
+                                            `<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">${tag}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (suggestion.type === 'asset-discovery') {
+                detailHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas ${suggestion.icon} ${suggestion.color}"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">${suggestion.title}</h3>
+                                <p class="text-sm text-gray-600">置信度: ${suggestion.confidence}</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">资产分析详情</h4>
+                            <div class="grid grid-cols-1 gap-3 text-sm">
+                                <div>
+                                    <span class="text-gray-600">资产IP：</span>
+                                    <span class="font-mono text-blue-600">${suggestion.detailInfo.assetIP}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">行为模式：</span>
+                                    <p class="text-gray-800 mt-1">${suggestion.detailInfo.behaviorPattern}</p>
+                                </div>
+                                ${suggestion.detailInfo.scanPorts ? `
+                                <div>
+                                    <span class="text-gray-600">扫描端口：</span>
+                                    <span class="font-mono text-gray-800">${suggestion.detailInfo.scanPorts}</span>
+                                </div>
+                                ` : ''}
+                                <div>
+                                    <span class="text-gray-600">建议归属：</span>
+                                    <span class="text-gray-800">${suggestion.detailInfo.department || '待确认'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">建议标签：</span>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        ${suggestion.detailInfo.suggestedTags.map(tag => 
+                                            `<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-700">${tag}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = detailHTML + `
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="applySuggestion('${suggestion.type}', '${suggestion.title}')" 
+                            class="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 rounded-lg hover:from-purple-600 hover:to-blue-600">
+                        ${suggestion.action}
+                    </button>
+                    <button onclick="closeLearningModal()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        关闭
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 应用建议
+        function applySuggestion(type, title) {
+            if (type === 'network-discovery') {
+                showNotification('已将网段信息添加到资产知识库', 'success');
+                // 这里可以添加实际的网段添加逻辑
+            } else if (type === 'asset-discovery') {
+                showNotification('已确认资产类型并添加到知识库', 'success');
+                // 这里可以添加实际的资产添加逻辑
+            }
+            closeLearningModal();
+        }
+
+        // 忽略建议
+        function ignoreSuggestion(type) {
+            showNotification('已忽略该建议', 'info');
+            // 这里可以添加从建议列表中移除的逻辑
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // CSS 样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .tab-btn {
+                padding: 0.75rem 1.5rem;
+                border-radius: 0.5rem;
+                color: #6b7280;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            }
+            .tab-btn:hover {
+                color: #8b5cf6;
+                background: #f3f4f6;
+            }
+            .tab-btn.active {
+                color: #8b5cf6;
+                background: #f3f0ff;
+                border: 1px solid #e0e7ff;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

@@ -15,7 +15,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `ciso-security-dashboard.html` - 高管级安全仪表板
 - `ciso-onboarding-guide.html` - AI引导的90秒配置向导
 - `workflow-editor-prototype.html` - 可视化工作流编排平台
-- `im-security-alert-prototype.html` - 基于IM的安全告警系统
+- `im-security-alert-prototype.html` - 基于IM的安全告警系统（技术分析师视角）
+- `im-security-ciso-prototype.html` - 基于IM的安全决策支持系统（CISO高管视角）
+- `ai-learning-center.html` - AI学习中心，提供客户自定义AI能力训练
 - `ai-report-prototype.html` - AI驱动的报表生成系统
 
 ## 系统架构
@@ -62,6 +64,11 @@ open http://localhost:8000
 - **CISO仪表板**: 高管KPI监控，实时指标
 - **IM联络员**: 基于聊天的安全事件管理
 - **工作流编辑器**: 拖拽式安全流程自动化
+- **AI学习中心**: 提供客户自定义AI能力训练
+  - 资产学习中心: 资产知识管理、网段定义
+  - 研判知识库: 可信特征库、自定义研判规则
+  - 在场学习机制: 划选文本即时教AI，交互式教学
+  - 学习统计: 知识项统计、学习趋势分析
 - **AI报表**: 基于自然语言查询的报表生成
 - **配置向导**: 带行业模板的交互式配置向导
 
