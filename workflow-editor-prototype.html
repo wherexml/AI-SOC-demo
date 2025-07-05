@@ -432,6 +432,29 @@
             content: " 🤖";
             font-size: 14px;
         }
+        
+        /* 锚点标签样式优化 */
+        .node-agent .absolute {
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 2px 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            white-space: nowrap;
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        /* 连接标签背景优化 */
+        .connection-label {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #d1d5db !important;
+            color: #374151 !important;
+            font-weight: 500 !important;
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
 <body class="bg-gray-50 h-screen overflow-hidden">
@@ -3271,22 +3294,64 @@
             // 清空现有工作流
             clearWorkflow();
             
-            // 创建新节点
-            template.nodes.forEach(nodeData => {
-                createTemplateNode(nodeData);
+            // 使用Promise来确保所有节点和端点都创建完成
+            const nodeCreationPromises = template.nodes.map(nodeData => {
+                return createTemplateNodeAsync(nodeData);
             });
-
-            // 等待节点创建完成后再创建连接
+            
+            // 等待所有节点创建完成
+            Promise.all(nodeCreationPromises).then(() => {
+                console.log('✅ 所有节点创建完成，开始创建连接...');
+                console.log('当前所有节点:', document.querySelectorAll('.workflow-node').length);
+                
+                // 统计所有节点的端点数量
+                try {
+                    let totalEndpoints = 0;
+                    document.querySelectorAll('.workflow-node').forEach(node => {
+                        const nodeEndpoints = jsPlumbInstance.getEndpoints(node.id);
+                        if (nodeEndpoints && Array.isArray(nodeEndpoints)) {
+                            totalEndpoints += nodeEndpoints.length;
+                        }
+                    });
+                    console.log('jsPlumb端点总数:', totalEndpoints);
+                } catch (error) {
+                    console.log('端点数量统计失败:', error.message);
+                }
+                
+                // 额外等待一点时间确保端点完全创建
             setTimeout(() => {
-                console.log('开始创建连接...');
+                    console.log('🔗 开始批量创建连接...');
+                    
                 template.connections.forEach((conn, index) => {
-                    if (conn.sourceAnchor) {
-                        console.log(`创建连接 ${index + 1}: ${conn.source} -> ${conn.target} (锚点: ${conn.sourceAnchor})`);
-                        connectNodes(conn.source, conn.target, conn.sourceAnchor);
-                    } else {
+                        if (conn.sourceAnchor) {
+                            console.log(`创建连接 ${index + 1}: ${conn.source} -> ${conn.target} (锚点: ${conn.sourceAnchor})`);
+                            
+                            // 检查源端点是否存在
+                            const sourceEndpointId = conn.source + "-" + conn.sourceAnchor;
+                            const targetEndpointId = conn.target + "-target";
+                            console.log(`查找端点: 源=${sourceEndpointId}, 目标=${targetEndpointId}`);
+                            
+                            // 验证端点存在
+                            try {
+                                const sourceEndpoint = jsPlumbInstance.getEndpoint(sourceEndpointId);
+                                const targetEndpoint = jsPlumbInstance.getEndpoint(targetEndpointId);
+                                console.log(`端点验证: 源端点=${!!sourceEndpoint}, 目标端点=${!!targetEndpoint}`);
+                                
+                                if (!sourceEndpoint) {
+                                    console.log(`⚠️ 警告: 源端点 ${sourceEndpointId} 不存在`);
+                                }
+                                if (!targetEndpoint) {
+                                    console.log(`⚠️ 警告: 目标端点 ${targetEndpointId} 不存在`);
+                                }
+                            } catch (endpointError) {
+                                console.log(`端点验证失败: ${endpointError.message}`);
+                            }
+                            
+                            connectNodes(conn.source, conn.target, conn.sourceAnchor);
+                        } else {
                     console.log(`创建连接 ${index + 1}: ${conn.source} -> ${conn.target}`);
                     connectNodes(conn.source, conn.target);
-                    }
+                        }
                 });
                 
                 // 更新计数
@@ -3295,10 +3360,18 @@
                 
                 // 自动适应屏幕到所有节点
                 setTimeout(() => {
-                    console.log('自动适应屏幕...');
+                        console.log('📐 自动适应屏幕...');
                     fitToScreen();
+                        
+                        // 最终验证
+                        setTimeout(() => {
+                            console.log('🎯 最终连接验证:', jsPlumbInstance.getConnections().length, '条连接');
+                        }, 200);
                 }, 300);
-            }, 800);
+                }, 200);
+            }).catch(error => {
+                console.error('节点创建失败:', error);
+            });
         }
 
         // 清空工作流
@@ -3317,7 +3390,89 @@
             document.getElementById('propertiesPanel').classList.add('hidden');
         }
 
-        // 创建模板节点
+        // 创建模板节点（异步版本）
+        function createTemplateNodeAsync(nodeData) {
+            return new Promise((resolve, reject) => {
+                console.log(`创建模板节点: ${nodeData.id} - ${nodeData.title}`);
+                
+                const nodeId = nodeData.id;
+                const nodeClass = `node-${nodeData.type}`;
+                const iconClass = `fas fa-${nodeData.icon}`;
+                const colorClass = getColorClass(nodeData.color);
+
+                const nodeHtml = `
+                    <div id="${nodeId}" class="workflow-node draggable-node ${nodeClass} bg-white rounded-lg shadow-md p-4 absolute" 
+                         style="left: ${nodeData.x}px; top: ${nodeData.y}px; width: 200px;">
+                        <div class="flex items-center mb-2">
+                            <i class="${iconClass} ${colorClass} mr-2"></i>
+                            <span class="font-semibold text-sm">${nodeData.title}</span>
+                        </div>
+                        <div class="text-xs text-gray-500">${getNodeTypeLabel(nodeData.type, nodeData.subtype)}</div>
+                    </div>
+                `;
+
+                const container = document.getElementById('workflow-container');
+                if (!container) {
+                    console.error('找不到工作流容器元素');
+                    reject(new Error('找不到工作流容器元素'));
+                    return;
+                }
+                
+                container.insertAdjacentHTML('beforeend', nodeHtml);
+                
+                const node = document.getElementById(nodeId);
+                if (!node) {
+                    console.error(`创建的节点 ${nodeId} 未找到`);
+                    reject(new Error(`创建的节点 ${nodeId} 未找到`));
+                    return;
+                }
+                
+                console.log(`节点 ${nodeId} HTML创建成功`);
+                
+                // 确保jsPlumb实例存在
+                if (!jsPlumbInstance) {
+                    console.error('jsPlumb实例不存在，尝试重新初始化');
+                    initJsPlumb();
+                }
+                
+                // 使节点可拖拽
+                if (jsPlumbInstance) {
+                    jsPlumbInstance.draggable(node);
+                    console.log(`节点 ${nodeId} 设置为可拖拽`);
+                    
+                    // 添加连接点，确保完成后再resolve
+                    setTimeout(() => {
+                        try {
+                            addEndpoints(node);
+                            console.log(`✅ 节点 ${nodeId} 端点添加完成`);
+                            
+                            // 添加事件监听器
+                            setupNodeEvents(node);
+                            
+                            // 验证端点是否正确创建
+                            const expectedEndpoints = node.classList.contains('node-agent') ? 5 : 2; // Agent节点5个端点，其他节点2个端点
+                            try {
+                                const actualEndpoints = jsPlumbInstance.getEndpoints(nodeId);
+                                const endpointCount = actualEndpoints && Array.isArray(actualEndpoints) ? actualEndpoints.length : 0;
+                                console.log(`节点 ${nodeId} 端点验证: 期望${expectedEndpoints}个, 实际${endpointCount}个`);
+                            } catch (endpointError) {
+                                console.log(`节点 ${nodeId} 端点验证失败:`, endpointError.message);
+                            }
+                            
+                            resolve(nodeId);
+                        } catch (error) {
+                            console.error(`节点 ${nodeId} 端点创建失败:`, error);
+                            reject(error);
+                        }
+                    }, 100); // 增加延迟时间确保端点创建完成
+                } else {
+                    console.error(`无法设置节点 ${nodeId} 为可拖拽：jsPlumb实例不存在`);
+                    reject(new Error(`jsPlumb实例不存在`));
+                }
+            });
+        }
+
+        // 创建模板节点（同步版本，保留兼容性）
         function createTemplateNode(nodeData) {
             console.log(`创建模板节点: ${nodeData.id} - ${nodeData.title}`);
             
@@ -3424,32 +3579,40 @@
                     
                     // 如果指定了源锚点，使用特定锚点连接
                     if (sourceAnchor && sourceNode.classList.contains('node-agent')) {
+                        // 获取锚点颜色
+                        const anchorColors = {
+                            'get_details': '#3b82f6',      // 蓝色
+                            'containment_approved': '#f59e0b', // 橙色  
+                            'marked_as_done': '#10b981',   // 绿色
+                            're_investigate': '#8b5cf6'    // 紫色
+                        };
+                        const anchorColor = anchorColors[sourceAnchor] || '#8b5cf6';
+                        
                         connectionConfig = {
-                            source: sourceId,
-                            target: targetId,
-                            sourceEndpoint: sourceId + "-" + sourceAnchor,
-                            targetEndpoint: targetId + "-target",
-                            endpoint: "Dot",
-                            paintStyle: { stroke: "#8b5cf6", strokeWidth: 2 },
-                            hoverPaintStyle: { stroke: "#7c3aed", strokeWidth: 3 },
+                            uuids: [sourceId + "-" + sourceAnchor, targetId + "-target"],
+                            paintStyle: { stroke: anchorColor, strokeWidth: 2 },
+                            hoverPaintStyle: { stroke: anchorColor, strokeWidth: 3 },
                             connector: ["Bezier", { curviness: 80 }],
                             overlays: [
-                                ["Arrow", { location: 1, width: 20, length: 20 }],
+                                ["Arrow", { 
+                                    location: 1, 
+                                    width: 15, 
+                                    length: 15,
+                                    paintStyle: { fill: anchorColor }
+                                }],
                                 ["Label", {
                                     label: getAnchorLabel(sourceAnchor),
-                                    location: 0.7,
-                                    cssClass: "connection-label text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded shadow-sm",
-                                    id: "label-" + sourceAnchor
+                                    location: 0.6,
+                                    cssClass: `connection-label text-xs px-2 py-1 rounded shadow-sm text-white`,
+                                    id: "label-" + sourceAnchor,
+                                    paintStyle: { fill: anchorColor }
                                 }]
                             ]
                         };
                     } else {
                         // 标准连接
                         connectionConfig = {
-                        source: sourceId,
-                        target: targetId,
-                        anchor: ["Right", "Left"],
-                        endpoint: "Dot",
+                            uuids: [sourceId + "-source", targetId + "-target"],
                         paintStyle: { stroke: "#64748b", strokeWidth: 2 },
                         hoverPaintStyle: { stroke: "#1e40af", strokeWidth: 3 },
                             connector: ["Bezier", { curviness: 80 }],
@@ -3460,9 +3623,28 @@
                     const connection = jsPlumbInstance.connect(connectionConfig);
                     
                     if (connection) {
-                        console.log(`成功创建连接: ${sourceId} -> ${targetId}`, sourceAnchor ? `(锚点: ${sourceAnchor})` : '');
+                        console.log(`✅ 成功创建连接: ${sourceId} -> ${targetId}`, sourceAnchor ? `(锚点: ${sourceAnchor})` : '');
+                        
+                        // 更新连接计数
+                        updateConnectionCount();
+                        return true;
                     } else {
-                        console.error(`连接创建失败: ${sourceId} -> ${targetId}`);
+                        console.error(`❌ 连接创建失败: ${sourceId} -> ${targetId}`);
+                        
+                        // 如果是锚点连接失败，尝试等待一会再重试
+                        if (sourceAnchor) {
+                            console.log(`🔄 将在200ms后重试锚点连接: ${sourceId} -> ${targetId} (${sourceAnchor})`);
+                            setTimeout(() => {
+                                const retryConnection = jsPlumbInstance.connect(connectionConfig);
+                                if (retryConnection) {
+                                    console.log(`✅ 重试成功: ${sourceId} -> ${targetId} (${sourceAnchor})`);
+                                    updateConnectionCount();
+                                } else {
+                                    console.error(`❌ 重试失败: ${sourceId} -> ${targetId} (${sourceAnchor})`);
+                                }
+                            }, 200);
+                        }
+                        return false;
                     }
                 } catch (error) {
                     console.error(`连接创建异常: ${sourceId} -> ${targetId}`, error);
@@ -3482,6 +3664,123 @@
             };
             return labels[anchorName] || anchorName;
         }
+        
+        // 调试功能：检查Agent节点的锚点
+        function debugAgentAnchors(nodeId = 'agent-demo') {
+            const node = document.getElementById(nodeId);
+            if (!node) {
+                console.log(`节点 ${nodeId} 不存在`);
+                return;
+            }
+            
+            console.log(`=== 调试节点 ${nodeId} 的锚点 ===`);
+            console.log('节点类型:', node.className);
+            console.log('是否为Agent节点:', node.classList.contains('node-agent'));
+            
+            const expectedAnchors = ['get_details', 'containment_approved', 'marked_as_done', 're_investigate'];
+            expectedAnchors.forEach(anchor => {
+                const endpointId = nodeId + '-' + anchor;
+                const endpoint = jsPlumbInstance.getEndpoint(endpointId);
+                console.log(`锚点 ${anchor} (${endpointId}):`, endpoint ? '✅ 存在' : '❌ 不存在');
+            });
+            
+            const targetEndpointId = nodeId + '-target';
+            const targetEndpoint = jsPlumbInstance.getEndpoint(targetEndpointId);
+            console.log(`目标端点 (${targetEndpointId}):`, targetEndpoint ? '✅ 存在' : '❌ 不存在');
+            
+            console.log('所有连接:', jsPlumbInstance.getConnections());
+            console.log('========================');
+        }
+        
+        // 全局调试函数，在浏览器控制台中使用
+        window.debugWorkflow = function() {
+            console.log('=== 工作流调试信息 ===');
+            console.log('所有节点:', document.querySelectorAll('.workflow-node').length);
+            console.log('所有端点:', jsPlumbInstance.getEndpoints().length);
+            console.log('所有连接:', jsPlumbInstance.getConnections().length);
+            
+            // 检查演示联络员Agent
+            debugAgentAnchors('agent-demo');
+            
+            console.log('===================');
+        };
+        
+        // 全局模板测试函数
+        window.testDemoTemplate = function() {
+            console.log('🧪 开始测试演示联络员Agent模板...');
+            loadTemplate('demo-agent-contact');
+        };
+        
+        // 状态检查函数
+        window.checkStatus = function() {
+            console.log('=== 系统状态检查 ===');
+            console.log('jsPlumb实例:', !!jsPlumbInstance);
+            console.log('工作流容器:', !!document.getElementById('workflow-container'));
+            console.log('当前节点数量:', document.querySelectorAll('.workflow-node').length);
+            
+            if (jsPlumbInstance) {
+                try {
+                    const allConnections = jsPlumbInstance.getConnections();
+                    console.log('当前连接数量:', allConnections.length);
+                    
+                    // 统计端点数量
+                    let totalEndpoints = 0;
+                    document.querySelectorAll('.workflow-node').forEach(node => {
+                        const endpoints = jsPlumbInstance.getEndpoints(node.id);
+                        if (endpoints) {
+                            totalEndpoints += endpoints.length;
+                            console.log(`节点 ${node.id}: ${endpoints.length} 个端点`);
+                        }
+                    });
+                    console.log('总端点数量:', totalEndpoints);
+                } catch (error) {
+                    console.log('状态检查失败:', error.message);
+                }
+            }
+            console.log('==================');
+        };
+        
+        // 验证连接创建状态
+        window.verifyConnections = function() {
+            console.log('=== 连接验证 ===');
+            
+            if (!jsPlumbInstance) {
+                console.log('❌ jsPlumb实例不存在');
+                return;
+            }
+            
+            try {
+                const connections = jsPlumbInstance.getConnections();
+                console.log(`总连接数: ${connections.length}`);
+                
+                connections.forEach((conn, index) => {
+                    console.log(`连接 ${index + 1}:`, {
+                        source: conn.sourceId,
+                        target: conn.targetId,
+                        sourceEndpoint: conn.endpoints && conn.endpoints[0] ? conn.endpoints[0].uuid : 'N/A',
+                        targetEndpoint: conn.endpoints && conn.endpoints[1] ? conn.endpoints[1].uuid : 'N/A'
+                    });
+                });
+            } catch (error) {
+                console.log('❌ 获取连接失败:', error.message);
+                return;
+            }
+            
+            // 检查演示模板的预期连接
+            const expectedConnections = [
+                { source: 'trigger-demo', target: 'agent-demo' },
+                { source: 'agent-demo', target: 'detail-demo', anchor: 'get_details' },
+                { source: 'agent-demo', target: 'contain-demo', anchor: 'containment_approved' },
+                { source: 'agent-demo', target: 'complete-demo', anchor: 'marked_as_done' },
+                { source: 'agent-demo', target: 'investigate-demo', anchor: 're_investigate' }
+            ];
+            
+            console.log('预期连接数:', expectedConnections.length);
+            console.log('实际连接数:', connections.length);
+            console.log('连接完整性:', connections.length >= expectedConnections.length ? '✅ 通过' : '❌ 缺失');
+            
+            console.log('================');
+        };
 
         // ============= 缺失函数补充 =============
         
@@ -3489,8 +3788,60 @@
         function addEndpoints(node) {
             if (!jsPlumbInstance || !node) return;
             
-            // 添加输出端点（右侧，绿色）
+            // 添加输入端点（左侧，红色） - 所有节点都需要
+            const targetEndpoint = jsPlumbInstance.addEndpoint(node, {
+                uuid: node.id + "-target",
+                endpoint: "Dot",
+                anchor: "Left",
+                isTarget: true,
+                paintStyle: { fill: "#ef4444", stroke: "#dc2626", strokeWidth: 2, radius: 6 },
+                hoverPaintStyle: { fill: "#dc2626", stroke: "#b91c1c", strokeWidth: 3, radius: 8 }
+            });
+            
+            // 根据节点类型添加不同的输出端点
+            if (node.classList.contains('node-agent')) {
+                // 联络员Agent节点：添加多个特定的输出锚点
+                const agentAnchors = [
+                    { id: 'get_details', label: '详情', color: '#3b82f6', position: [1, 0.2] },      // 蓝色，右上
+                    { id: 'containment_approved', label: '遏制', color: '#f59e0b', position: [1, 0.4] }, // 橙色，右中上
+                    { id: 'marked_as_done', label: '完成', color: '#10b981', position: [1, 0.6] },    // 绿色，右中下
+                    { id: 're_investigate', label: '调查', color: '#8b5cf6', position: [1, 0.8] }     // 紫色，右下
+                ];
+                
+                agentAnchors.forEach(anchor => {
+                    const sourceEndpoint = jsPlumbInstance.addEndpoint(node, {
+                        uuid: node.id + "-" + anchor.id,
+                        endpoint: "Dot",
+                        anchor: anchor.position,
+                        isSource: true,
+                        paintStyle: { fill: anchor.color, stroke: anchor.color, strokeWidth: 2, radius: 5 },
+                        hoverPaintStyle: { fill: anchor.color, stroke: anchor.color, strokeWidth: 3, radius: 7 },
+                        connectorStyle: { stroke: anchor.color, strokeWidth: 2 },
+                        connectorHoverStyle: { stroke: anchor.color, strokeWidth: 3 },
+                        connector: ["Bezier", { curviness: 80 }],
+                        overlays: [["Arrow", { location: 1, width: 15, length: 15 }]]
+                    });
+                    
+                    // 添加锚点标签（可视化显示在节点上）
+                    const labelElement = document.createElement('div');
+                    labelElement.className = 'absolute text-xs bg-white border rounded px-1 py-0.5 shadow-sm text-gray-700 pointer-events-none z-10';
+                    labelElement.style.fontSize = '10px';
+                    labelElement.style.right = '-25px';
+                    labelElement.style.top = `${anchor.position[1] * 100 - 10}%`;
+                    labelElement.textContent = anchor.label;
+                    labelElement.style.transform = 'translateY(-50%)';
+                    
+                    // 将标签添加到节点
+                    node.style.position = 'relative';
+                    node.appendChild(labelElement);
+                    
+                    console.log(`为Agent节点 ${node.id} 添加锚点: ${anchor.id} (${anchor.label})`);
+                });
+                
+            } else {
+                // 其他节点：添加标准输出端点（右侧，绿色）
             jsPlumbInstance.addEndpoint(node, {
+                    uuid: node.id + "-source",
                 endpoint: "Dot",
                 anchor: "Right",
                 isSource: true,
@@ -3498,18 +3849,12 @@
                 hoverPaintStyle: { fill: "#059669", stroke: "#047857", strokeWidth: 3, radius: 8 },
                 connectorStyle: { stroke: "#64748b", strokeWidth: 2 },
                 connectorHoverStyle: { stroke: "#1e40af", strokeWidth: 3 },
-                connector: ["Bezier", { curviness: 80 }],
+                    connector: ["Bezier", { curviness: 80 }],
                 overlays: [["Arrow", { location: 1, width: 20, length: 20 }]]
             });
+            }
             
-            // 添加输入端点（左侧，红色）
-            jsPlumbInstance.addEndpoint(node, {
-                endpoint: "Dot",
-                anchor: "Left",
-                isTarget: true,
-                paintStyle: { fill: "#ef4444", stroke: "#dc2626", strokeWidth: 2, radius: 6 },
-                hoverPaintStyle: { fill: "#dc2626", stroke: "#b91c1c", strokeWidth: 3, radius: 8 }
-            });
+            console.log(`为节点 ${node.id} 添加端点完成`);
         }
 
         // 为节点设置事件监听器

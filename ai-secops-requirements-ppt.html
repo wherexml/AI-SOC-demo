@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI安全运营2.0 - 需求讲解PPT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#64748b',
+                        accent: '#3b82f6',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        success: '#10b981'
+                    },
+                    animation: {
+                        'slide-in': 'slideIn 0.6s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.4s ease-out'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .slide {
+            display: none;
+        }
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .slide-content {
+            min-height: calc(100vh - 120px);
+        }
+        .nav-dot {
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">AI安全运营2.0</h1>
+                        <p class="text-sm text-gray-600">需求讲解 & 产品演示</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-600">
+                        <span id="slideCounter">1 / 10</span>
+                    </div>
+                    <button onclick="toggleFullscreen()" class="p-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="pt-20 pb-20">
+        <!-- 幻灯片内容 -->
+        <div id="slideContainer" class="max-w-6xl mx-auto">
+            
+            <!-- 幻灯片1: 封面 -->
+            <div class="slide active">
+                <div class="slide-content flex items-center justify-center text-center p-8">
+                    <div class="max-w-4xl">
+                        <div class="mb-8">
+                            <div class="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-robot text-white text-3xl"></i>
+                            </div>
+                            <h1 class="text-5xl font-bold text-gray-900 mb-4">AI安全运营2.0</h1>
+                            <h2 class="text-2xl text-gray-600 mb-8">用户需求与产品设计</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-8 mb-8">
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <div class="text-blue-600 text-4xl mb-4">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2">目标用户</h3>
+                                <p class="text-gray-600">KA客户安全负责人<br>安全运营团队</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <div class="text-green-600 text-4xl mb-4">
+                                    <i class="fas fa-target"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2">核心目标</h3>
+                                <p class="text-gray-600">从0到1构建智能化<br>安全运营体系</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6">
+                            <h3 class="text-xl font-semibold mb-2">产品愿景</h3>
+                            <p class="text-lg">让安全运营从"人工救火"转向"智能防护"，实现7x24小时自动化运营</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片2: 产品Hills -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">版本迭代Hills</h1>
+                        <p class="text-lg text-gray-600">四个核心用户价值主张</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-blue-500">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-blue-600 font-bold">H1</span>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">从0到1构建体系</h3>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Who:</strong> 非科班出身的泛KA客户安全负责人</p>
+                                <p><strong>What:</strong> 轻松地从0到1地构建专业、透明且高度自动化的安全运营体系</p>
+                                <p><strong>Wow:</strong> 从零碎无系统状态进化为流程化和系统化体系</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-green-500">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-green-600 font-bold">H2</span>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">穿透数据迷雾</h3>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Who:</strong> 被海量分散安全数据困扰的专业安全负责人</p>
+                                <p><strong>What:</strong> 实时、精准地诊断组织各环节的能力短板与关键风险</p>
+                                <p><strong>Wow:</strong> 几天的数据分析工作变成1分钟的可视化洞察</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-purple-500">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-purple-600 font-bold">H3</span>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">专家经验固化</h3>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Who:</strong> 为安全运营体系稳定性、效率担忧的专业安全负责人</p>
+                                <p><strong>What:</strong> 将顶尖专家的知识、经验固化成7x24小时自动化运营引擎</p>
+                                <p><strong>Wow:</strong> 以10倍效率支撑业务增长，解放人才创造性工作</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-orange-500">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-orange-600 font-bold">H4</span>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">移动化智能助手</h3>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Who:</strong> 身兼多职、渴望成长的安全运营人员</p>
+                                <p><strong>What:</strong> 借助智能伙伴平台，自动化处理海量重复性工作</p>
+                                <p><strong>Wow:</strong> 从"每天登陆分析"转变为"手机回复审核"，省掉90%时间投入</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片3: 目标用户画像 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">目标用户画像</h1>
+                        <p class="text-lg text-gray-600">不同角色的用户需求与痛点分析</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-6">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-user-tie text-blue-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-semibold text-gray-900">决策者 (Buyer) - "王总"</h3>
+                                    <p class="text-gray-600">安全负责人/CISO，可能非技术背景</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-red-600 mb-2">痛点</h4>
+                                    <ul class="text-sm space-y-1 text-gray-700">
+                                        <li>• 缺乏体系化的运营思路</li>
+                                        <li>• 无法看清全局风险和团队表现</li>
+                                        <li>• 向上汇报缺少数据支撑</li>
+                                        <li>• 时间宝贵，不想陷入技术细节</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-blue-600 mb-2">核心需求</h4>
+                                    <div class="bg-blue-50 p-3 rounded-lg">
+                                        <p class="text-sm text-blue-800 italic">"我不想学习你的产品，我希望你的产品能快速告诉我该做什么，并帮我自动做好。"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-6">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-user-cog text-green-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-semibold text-gray-900">管理者 (Power User) - "李经理"</h3>
+                                    <p class="text-gray-600">安全运营经理，资深专家</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-red-600 mb-2">痛点</h4>
+                                    <ul class="text-sm space-y-1 text-gray-700">
+                                        <li>• 团队能力参差不齐</li>
+                                        <li>• SOP难以标准化落地</li>
+                                        <li>• 经验难以规模化复制</li>
+                                        <li>• 缺少好用的编排工具</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-green-600 mb-2">核心需求</h4>
+                                    <div class="bg-green-50 p-3 rounded-lg">
+                                        <p class="text-sm text-green-800 italic">"我需要一个足够灵活又不失简单的画布，把我的响应思路画出来，让它自动运行。"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-6">
+                                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-user text-purple-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-semibold text-gray-900">执行者 (End User) - "小张"</h3>
+                                    <p class="text-gray-600">一线安全分析师，运维人员</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-red-600 mb-2">痛点</h4>
+                                    <ul class="text-sm space-y-1 text-gray-700">
+                                        <li>• 告警太多，重复操作</li>
+                                        <li>• 多个工具间反复横跳</li>
+                                        <li>• 疲于奔命，响应不及时</li>
+                                        <li>• 需要随时随地响应威胁</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-purple-600 mb-2">核心需求</h4>
+                                    <div class="bg-purple-50 p-3 rounded-lg">
+                                        <p class="text-sm text-purple-800 italic">"别用复杂的界面烦我，在我的手机上告诉我最关键的信息，给我最直接的选项。"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片4: 核心功能架构 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">核心功能架构</h1>
+                        <p class="text-lg text-gray-600">从战略到执行的智能驾驶舱</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center">
+                            <div class="text-3xl mb-3">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">定目标</h3>
+                            <p class="text-sm opacity-90">CISO设定核心KPI<br>如"MTTR<30分钟"</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 text-center">
+                            <div class="text-3xl mb-3">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">定流程</h3>
+                            <p class="text-sm opacity-90">Workflow编排<br>自动化SOP</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 text-center">
+                            <div class="text-3xl mb-3">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">看结果</h3>
+                            <p class="text-sm opacity-90">实时Dashboard<br>目标监控</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 text-center">
+                            <div class="text-3xl mb-3">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">管异常</h3>
+                            <p class="text-sm opacity-90">待办决策中心<br>人工审批</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">价值实现路径</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center p-4 bg-blue-50 rounded-lg">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-4">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">安全战略能落地</h4>
+                                    <p class="text-sm text-gray-600">让CISO的目标不再是墙上的口号，而是能驱动实际工作的指令</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center p-4 bg-green-50 rounded-lg">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold mr-4">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">运营过程自动化</h4>
+                                    <p class="text-sm text-gray-600">把团队从重复劳动中解放出来，保证工作质量的标准化</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center p-4 bg-purple-50 rounded-lg">
+                                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-4">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">工作结果可衡量</h4>
+                                    <p class="text-sm text-gray-600">用数据清晰地展示安全工作的成效，向管理层证明价值</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center p-4 bg-orange-50 rounded-lg">
+                                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold mr-4">4</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">差距改进有方向</h4>
+                                    <p class="text-sm text-gray-600">通过监控差距，精准知道应该优化哪个流程或调整哪个目标</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片5: AI Workflow核心设计 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">AI Workflow 核心设计</h1>
+                        <p class="text-lg text-gray-600">智能编排引擎的技术架构</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-play-circle text-blue-600 mr-3"></i>
+                                    触发器节点
+                                </h3>
+                                <ul class="space-y-2 text-sm text-gray-700">
+                                    <li>• 告警触发器 - 特定条件告警触发</li>
+                                    <li>• 事件触发器 - P0级事件自动触发</li>
+                                    <li>• 资产触发器 - 新增风险资产</li>
+                                    <li>• 漏洞触发器 - 高危漏洞发现</li>
+                                    <li>• 定时触发器 - 周期性检查</li>
+                                    <li>• Webhook触发器 - 外部系统联动</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-brain text-purple-600 mr-3"></i>
+                                    AI Agent分析节点
+                                </h3>
+                                <ul class="space-y-2 text-sm text-gray-700">
+                                    <li>• <strong>调查溯源Agent</strong> - 生成完整调查报告</li>
+                                    <li>• <strong>实体处置Agent</strong> - 智能决策是否处置</li>
+                                    <li>• <strong>AI总结Agent</strong> - 输出闭环报告</li>
+                                    <li>• <strong>自定义Agent</strong> - 自定义Prompt能力</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-comments text-green-600 mr-3"></i>
+                                    联络员Agent
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="bg-green-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-green-800 mb-1">全渠道触达</h4>
+                                        <p class="text-xs text-green-700">企微/钉钉/邮件/短信/电话</p>
+                                    </div>
+                                    <div class="bg-blue-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-blue-800 mb-1">动态定位</h4>
+                                        <p class="text-xs text-blue-700">智能查询责任人和相关干系人</p>
+                                    </div>
+                                    <div class="bg-purple-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-purple-800 mb-1">智能交互</h4>
+                                        <p class="text-xs text-purple-700">AI摘要+动态选项+自然语言追问</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-cog text-orange-600 mr-3"></i>
+                                    其他核心节点
+                                </h3>
+                                <ul class="space-y-2 text-sm text-gray-700">
+                                    <li>• <strong>SOAR引擎</strong> - 调用现有playbook</li>
+                                    <li>• <strong>人工节点</strong> - 人工确认执行</li>
+                                    <li>• <strong>逻辑控制</strong> - IF/ELSE/并行/延迟</li>
+                                    <li>• <strong>系统动作</strong> - 创建工单/更新状态</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6">
+                        <h3 class="text-xl font-semibold mb-2">设计理念</h3>
+                        <p class="text-sm opacity-90">Workflow是大脑，SOAR是武器库，工单是作战日志 - 实现智能编排与精确执行的完美结合</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片6: 产品Demo链接 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">产品Demo体验</h1>
+                        <p class="text-lg text-gray-600">点击下方链接体验各个原型功能</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-mobile-alt text-blue-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">IM联动事件推送</h3>
+                                <p class="text-sm text-gray-600 mt-2">体验企微/钉钉中的安全事件智能推送与一键处置</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg text-sm">
+                                    <strong>功能特点:</strong>
+                                    <ul class="mt-1 space-y-1 text-gray-600">
+                                        <li>• AI智能研判与事件分析</li>
+                                        <li>• 多种处置选项（详情/调查/遏制/完成）</li>
+                                        <li>• 90分钟SLA响应机制</li>
+                                    </ul>
+                                </div>
+                                <a href="im-security-alert-prototype.html" target="_blank" 
+                                   class="block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-external-link-alt mr-2"></i>
+                                    打开IM联动原型
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">CISO安全仪表盘</h3>
+                                <p class="text-sm text-gray-600 mt-2">为决策者设计的安全态势全景视图</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg text-sm">
+                                    <strong>功能特点:</strong>
+                                    <ul class="mt-1 space-y-1 text-gray-600">
+                                        <li>• 一句话安全态势总结</li>
+                                        <li>• 风险敞口与防御覆盖分析</li>
+                                        <li>• 核心安全能力成熟度评估</li>
+                                    </ul>
+                                </div>
+                                <a href="ciso-security-dashboard.html" target="_blank" 
+                                   class="block w-full bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-external-link-alt mr-2"></i>
+                                    打开CISO仪表盘
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-project-diagram text-purple-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">Workflow编辑器</h3>
+                                <p class="text-sm text-gray-600 mt-2">可视化的智能工作流编排工具</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg text-sm">
+                                    <strong>功能特点:</strong>
+                                    <ul class="mt-1 space-y-1 text-gray-600">
+                                        <li>• 拖拽式可视化编辑</li>
+                                        <li>• AI Agent节点集成</li>
+                                        <li>• 预置模板与自定义能力</li>
+                                    </ul>
+                                </div>
+                                <a href="workflow-editor-prototype.html" target="_blank" 
+                                   class="block w-full bg-purple-600 text-white text-center py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-external-link-alt mr-2"></i>
+                                    打开Workflow编辑器
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-graduation-cap text-orange-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">AI学习中心</h3>
+                                <p class="text-sm text-gray-600 mt-2">智能安全知识库与培训平台</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg text-sm">
+                                    <strong>功能特点:</strong>
+                                    <ul class="mt-1 space-y-1 text-gray-600">
+                                        <li>• AI驱动的个性化学习</li>
+                                        <li>• 安全知识图谱</li>
+                                        <li>• 实战案例库</li>
+                                    </ul>
+                                </div>
+                                <a href="ai-learning-center.html" target="_blank" 
+                                   class="block w-full bg-orange-600 text-white text-center py-3 rounded-lg hover:bg-orange-700 transition-colors">
+                                    <i class="fas fa-external-link-alt mr-2"></i>
+                                    打开AI学习中心
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6 text-center">
+                        <h3 class="text-xl font-semibold mb-2">完整产品入口</h3>
+                        <p class="mb-4">体验完整的产品功能集合</p>
+                        <a href="index.html" target="_blank" 
+                           class="inline-block bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-home mr-2"></i>
+                            打开产品主页
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片7: 用户旅程设计 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">核心用户旅程</h1>
+                        <p class="text-lg text-gray-600">三个标志性的用户体验流程</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- 旅程1 -->
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-blue-600 font-bold text-lg">1</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-900">"90秒上任" - 王总的首次启用之旅</h3>
+                                    <p class="text-sm text-gray-600">为决策者设计的零门槛启用体验</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                    <div class="text-blue-600 text-2xl mb-2"><i class="fas fa-handshake"></i></div>
+                                    <h4 class="font-semibold text-sm mb-1">建立联系</h4>
+                                    <p class="text-xs text-gray-600">AI向导问候与价值展示</p>
+                                </div>
+                                <div class="text-center p-3 bg-green-50 rounded-lg">
+                                    <div class="text-green-600 text-2xl mb-2"><i class="fas fa-industry"></i></div>
+                                    <h4 class="font-semibold text-sm mb-1">行业匹配</h4>
+                                    <p class="text-xs text-gray-600">选择行业获得最佳实践</p>
+                                </div>
+                                <div class="text-center p-3 bg-purple-50 rounded-lg">
+                                    <div class="text-purple-600 text-2xl mb-2"><i class="fas fa-bullseye"></i></div>
+                                    <h4 class="font-semibold text-sm mb-1">确认优先级</h4>
+                                    <p class="text-xs text-gray-600">识别关键安全事件类型</p>
+                                </div>
+                                <div class="text-center p-3 bg-orange-50 rounded-lg">
+                                    <div class="text-orange-600 text-2xl mb-2"><i class="fas fa-rocket"></i></div>
+                                    <h4 class="font-semibold text-sm mb-1">一键启用</h4>
+                                    <p class="text-xs text-gray-600">自动配置核心Workflow</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 旅程2 -->
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-green-600 font-bold text-lg">2</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-900">"流程固化" - 李经理的自定义之旅</h3>
+                                    <p class="text-sm text-gray-600">专家经验沉淀为自动化流程</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-5 gap-3">
+                                <div class="text-center p-3 bg-green-50 rounded-lg">
+                                    <div class="text-green-600 text-xl mb-2"><i class="fas fa-store"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">模板中心</h4>
+                                    <p class="text-xs text-gray-600">选择基础模板</p>
+                                </div>
+                                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                    <div class="text-blue-600 text-xl mb-2"><i class="fas fa-clone"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">克隆修改</h4>
+                                    <p class="text-xs text-gray-600">复制并自定义</p>
+                                </div>
+                                <div class="text-center p-3 bg-purple-50 rounded-lg">
+                                    <div class="text-purple-600 text-xl mb-2"><i class="fas fa-project-diagram"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">可视化编辑</h4>
+                                    <p class="text-xs text-gray-600">拖拽式流程图</p>
+                                </div>
+                                <div class="text-center p-3 bg-orange-50 rounded-lg">
+                                    <div class="text-orange-600 text-xl mb-2"><i class="fas fa-bug"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">调试测试</h4>
+                                    <p class="text-xs text-gray-600">模拟运行验证</p>
+                                </div>
+                                <div class="text-center p-3 bg-red-50 rounded-lg">
+                                    <div class="text-red-600 text-xl mb-2"><i class="fas fa-paper-plane"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">发布上线</h4>
+                                    <p class="text-xs text-gray-600">正式启用流程</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 旅程3 -->
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-purple-600 font-bold text-lg">3</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-900">"口袋里的SOC" - 小张的移动化之旅</h3>
+                                    <p class="text-sm text-gray-600">随时随地的安全事件响应</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-5 gap-3">
+                                <div class="text-center p-3 bg-purple-50 rounded-lg">
+                                    <div class="text-purple-600 text-xl mb-2"><i class="fas fa-mobile-alt"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">IM消息触达</h4>
+                                    <p class="text-xs text-gray-600">企微推送通知</p>
+                                </div>
+                                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                    <div class="text-blue-600 text-xl mb-2"><i class="fas fa-eye"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">摘要信息</h4>
+                                    <p class="text-xs text-gray-600">AI精炼关键信息</p>
+                                </div>
+                                <div class="text-center p-3 bg-green-50 rounded-lg">
+                                    <div class="text-green-600 text-xl mb-2"><i class="fas fa-mouse-pointer"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">动态按钮</h4>
+                                    <p class="text-xs text-gray-600">智能生成操作项</p>
+                                </div>
+                                <div class="text-center p-3 bg-orange-50 rounded-lg">
+                                    <div class="text-orange-600 text-xl mb-2"><i class="fas fa-hand-pointer"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">一键响应</h4>
+                                    <p class="text-xs text-gray-600">秒级处置决策</p>
+                                </div>
+                                <div class="text-center p-3 bg-red-50 rounded-lg">
+                                    <div class="text-red-600 text-xl mb-2"><i class="fas fa-check-circle"></i></div>
+                                    <h4 class="font-semibold text-xs mb-1">闭环确认</h4>
+                                    <p class="text-xs text-gray-600">自动化执行反馈</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片8: 关键指标设计 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">CISO关键指标设计</h1>
+                        <p class="text-lg text-gray-600">三大维度的安全态势衡量</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-shield-alt text-blue-600"></i>
+                                </div>
+                                风险敞口与防御覆盖
+                            </h3>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-800 mb-2">资产可见性</h4>
+                                    <p class="text-sm text-blue-700">XDR发现的全部资产 vs 探针覆盖 vs Agent安装覆盖率</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-800 mb-2">攻击路径暴露</h4>
+                                    <p class="text-sm text-blue-700">有多少条已知攻击路径可从外部访问核心资产</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-800 mb-2">两高一弱风险</h4>
+                                    <p class="text-sm text-blue-700">高危漏洞、高危端口、弱口令的实时统计与趋势</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-cogs text-green-600"></i>
+                                </div>
+                                核心安全能力成熟度
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-800 mb-2">自动化流程覆盖率</h4>
+                                    <p class="text-sm text-green-700">多少比例的告警/事件已能自动化处理，成功率如何</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-800 mb-2">专家依赖度</h4>
+                                    <p class="text-sm text-green-700">衡量运营体系对"英雄员工"的依赖程度</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-chart-line text-purple-600"></i>
+                                </div>
+                                真实运营效能与结果
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-800 mb-2">分层MTTR</h4>
+                                    <p class="text-sm text-purple-700">按风险等级分层的平均响应时间：高危30分钟、中危12小时</p>
+                                </div>
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-800 mb-2">告警信噪比</h4>
+                                    <p class="text-sm text-purple-700">真实威胁告警 / 总告警数，衡量运营效率</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl p-6">
+                            <h3 class="text-xl font-semibold mb-3">一句话总结设计理念</h3>
+                            <p class="text-lg italic">"让CISO在1分钟内看清安全态势全貌，30秒内找到关键问题，10秒内做出决策。"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片9: 技术风险与应对 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">风险分析与应对策略</h1>
+                        <p class="text-lg text-gray-600">关键风险识别与解决方案</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-red-500">
+                            <h3 class="text-xl font-semibold text-red-700 mb-4">商业价值风险</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-2">风险描述</h4>
+                                    <ul class="text-sm text-gray-700 space-y-1">
+                                        <li>• 功能价值迭代对竞争力提升效果不明确</li>
+                                        <li>• 产品差异化壁垒不足</li>
+                                        <li>• 与竞品workflow能力差距有限</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-blue-900 mb-2">应对策略</h4>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        <li>• 聚焦KA客户价值验证</li>
+                                        <li>• 与3-5家领航客户共创</li>
+                                        <li>• 建立可交付的价值指标</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-orange-500">
+                            <h3 class="text-xl font-semibold text-orange-700 mb-4">方案效果风险</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-2">核心挑战</h4>
+                                    <ul class="text-sm text-gray-700 space-y-1">
+                                        <li>• AI Agent技术成熟度不足</li>
+                                        <li>• Workflow易用性和黑盒问题</li>
+                                        <li>• 客户个性化需求vs标准化产品矛盾</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-green-900 mb-2">解决方案</h4>
+                                    <ul class="text-sm text-green-700 space-y-1">
+                                        <li>• 10个最高价值workflow模板</li>
+                                        <li>• 默认"人机共驾"模式</li>
+                                        <li>• AI自动填写配置向导</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-purple-500">
+                            <h3 class="text-xl font-semibold text-purple-700 mb-4">客户落地风险</h3>
+                            <div class="space-y-4">
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-800 mb-2">CISO价值访谈成功率问题</h4>
+                                    <p class="text-sm text-purple-700 mb-2"><strong>问题：</strong>CSM/销售可能无法有效引导CISO参与</p>
+                                    <p class="text-sm text-green-700"><strong>方案：</strong>CSM角色从"需求挖掘者"转变为"数据解读顾问"，带着AI初步诊断报告去沟通</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-800 mb-2">AI可靠性与责任边界</h4>
+                                    <p class="text-sm text-blue-700 mb-2"><strong>问题：</strong>AI错误决策导致业务中断的责任归属</p>
+                                    <p class="text-sm text-green-700"><strong>方案：</strong>高危操作默认人工审批，用户可选择开启"完全自动驾驶"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片10: 总结与下一步 -->
+            <div class="slide">
+                <div class="slide-content p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">总结与下一步</h1>
+                        <p class="text-lg text-gray-600">产品价值落地与开发计划</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6">
+                            <h3 class="text-2xl font-semibold mb-4">核心价值主张</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2">🎯 业务价值</h4>
+                                    <ul class="text-sm space-y-1 opacity-90">
+                                        <li>• 安全运营效率提升10倍</li>
+                                        <li>• 90%重复性工作自动化</li>
+                                        <li>• MTTR从小时级降至分钟级</li>
+                                        <li>• 7x24小时无人值守运营</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2">🔧 技术创新</h4>
+                                    <ul class="text-sm space-y-1 opacity-90">
+                                        <li>• AI Agent + SOAR深度融合</li>
+                                        <li>• 移动端智能安全助手</li>
+                                        <li>• 可视化Workflow编排</li>
+                                        <li>• 专家经验自动化固化</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4">📊 成功衡量指标</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-green-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-green-800">北极星指标</h4>
+                                        <p class="text-sm text-green-700">发布后3个月AI运营深度用户达到20个</p>
+                                    </div>
+                                    <div class="bg-blue-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-blue-800">运营指标</h4>
+                                        <p class="text-sm text-blue-700">平均每周Workflow运行次数>100次，成功率>95%</p>
+                                    </div>
+                                    <div class="bg-purple-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-purple-800">效果指标</h4>
+                                        <p class="text-sm text-purple-700">自动化闭环事件数提升2倍以上</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4">🚀 客户验证计划</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-orange-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-orange-800">目标客户</h4>
+                                        <p class="text-sm text-orange-700">8-10家KA客户，5位决策者+3-5位高阶用户</p>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-red-800">验证方法</h4>
+                                        <p class="text-sm text-red-700">60分钟深度访谈+高保真可交互原型</p>
+                                    </div>
+                                    <div class="bg-indigo-50 p-3 rounded-lg">
+                                        <h4 class="font-semibold text-indigo-800">成功标准</h4>
+                                        <p class="text-sm text-indigo-700">70%价值共鸣+50%付费意愿+80%共创成果</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">📋 开发优先级</h3>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                                    <h4 class="font-semibold text-red-800 mb-2">P0 - 核心功能</h4>
+                                    <ul class="text-sm text-red-700 space-y-1">
+                                        <li>• Workflow可视化编辑器</li>
+                                        <li>• 联络员Agent（企微集成）</li>
+                                        <li>• 预置模板库（10个）</li>
+                                        <li>• CISO Dashboard基础版</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                                    <h4 class="font-semibold text-orange-800 mb-2">P1 - 增强功能</h4>
+                                    <ul class="text-sm text-orange-700 space-y-1">
+                                        <li>• AI调查溯源Agent</li>
+                                        <li>• 实体处置Agent</li>
+                                        <li>• 调试测试模式</li>
+                                        <li>• 移动端优化</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                    <h4 class="font-semibold text-blue-800 mb-2">P2 - 未来迭代</h4>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        <li>• 自定义AI Agent</li>
+                                        <li>• 知识库RAG能力</li>
+                                        <li>• 高级分析报表</li>
+                                        <li>• 多租户支持</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl p-6 text-center">
+                            <h3 class="text-2xl font-semibold mb-3">🎉 让我们开始构建未来的安全运营！</h3>
+                            <p class="text-lg opacity-90">从"人工救火"到"智能防护"，让每一个安全团队都能拥有顶级专家的运营能力</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <!-- 导航点 -->
+            <div class="flex space-x-2">
+                <div class="nav-dot w-3 h-3 bg-blue-600 rounded-full cursor-pointer active" onclick="goToSlide(0)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(1)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(2)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(3)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(4)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(5)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(6)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(7)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(8)"></div>
+                <div class="nav-dot w-3 h-3 bg-gray-300 rounded-full cursor-pointer" onclick="goToSlide(9)"></div>
+            </div>
+            
+            <!-- 控制按钮 -->
+            <div class="flex items-center space-x-4">
+                <button onclick="previousSlide()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i class="fas fa-chevron-left mr-2"></i>上一页
+                </button>
+                <button onclick="nextSlide()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    下一页<i class="fas fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        function updateSlideCounter() {
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function updateNavDots() {
+            document.querySelectorAll('.nav-dot').forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active', 'bg-blue-600');
+                    dot.classList.remove('bg-gray-300');
+                } else {
+                    dot.classList.remove('active', 'bg-blue-600');
+                    dot.classList.add('bg-gray-300');
+                }
+            });
+        }
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            // 隐藏所有幻灯片
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // 显示目标幻灯片
+            if (slides[n]) {
+                slides[n].classList.add('active');
+                currentSlide = n;
+                updateSlideCounter();
+                updateNavDots();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function goToSlide(n) {
+            showSlide(n);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // 键盘导航
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            } else if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        // 初始化
+        updateSlideCounter();
+        updateNavDots();
+    </script>
+</body>
+</html> 

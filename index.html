@@ -46,6 +46,44 @@
         .sidebar-collapsed .menu-text {
             opacity: 0;
         }
+        
+        /* 自定义滚动条样式 */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 折叠状态下隐藏滚动条 */
+        .sidebar-collapsed .sidebar-scroll::-webkit-scrollbar {
+            width: 0px;
+        }
+        
+        /* Firefox 滚动条样式 */
+        .sidebar-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+        }
+        
+        /* 折叠状态下隐藏Firefox滚动条 */
+        .sidebar-collapsed .sidebar-scroll {
+            scrollbar-width: none;
+        }
+        
+        /* 确保折叠状态下滚动区域可见 */
+        .sidebar-collapsed .sidebar-scroll {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans overflow-hidden">
@@ -94,21 +132,22 @@
     </nav>
 
     <!-- 左侧菜单栏 -->
-    <div id="sidebar" class="fixed left-0 top-16 bottom-0 gradient-bg text-white sidebar-expanded transition-all duration-300 ease-in-out z-20">
-        <div class="p-6">
-            <div class="mb-8">
-                <div class="flex items-center space-x-3 mb-2">
-                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <i class="fas fa-robot text-white"></i>
-                    </div>
-                    <div class="menu-text">
-                        <h3 class="text-lg font-bold">AI助手</h3>
-                        <p class="text-sm text-white/80">智能运营管理</p>
-                    </div>
+    <div id="sidebar" class="fixed left-0 top-16 bottom-0 gradient-bg text-white sidebar-expanded transition-all duration-300 ease-in-out z-20 flex flex-col">
+        <!-- 头部信息 -->
+        <div class="flex-shrink-0 p-6 pb-4">
+            <div class="flex items-center space-x-3 mb-2">
+                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div class="menu-text">
+                    <h3 class="text-lg font-bold">AI助手</h3>
+                    <p class="text-sm text-white/80">智能运营管理</p>
                 </div>
             </div>
+        </div>
 
-            <!-- 菜单项 -->
+        <!-- 滚动菜单区域 -->
+        <div class="flex-1 overflow-y-auto px-6 pb-4 sidebar-scroll">
             <nav class="space-y-2">
                 <div class="menu-item active rounded-lg p-3 cursor-pointer" data-page="demo" data-url="demo.html">
                     <div class="flex items-center space-x-3">
@@ -183,11 +222,18 @@
                         <span class="menu-text font-medium">帮助文档</span>
                     </div>
                 </div>
+
+                <div class="menu-item rounded-lg p-3 cursor-pointer" data-page="requirements" data-url="ai-secops-requirements-ppt.html">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-file-powerpoint text-xl w-6"></i>
+                        <span class="menu-text font-medium">需求说明</span>
+                    </div>
+                </div>
             </nav>
         </div>
 
-        <!-- 底部状态 -->
-        <div class="absolute bottom-4 left-4 right-4">
+        <!-- 底部状态栏 -->
+        <div class="flex-shrink-0 p-4">
             <div class="bg-white/10 rounded-lg p-3">
                 <div class="flex items-center space-x-2">
                     <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
