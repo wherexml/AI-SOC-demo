@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 这是 **XDR-AI SecOps 2.0** 项目 - 一个AI驱动的安全运营中心(SOC)演示系统。代码库由相互关联的HTML原型组成，展示了智能安全运营平台的各个模块。
 
+**重要说明**: 这是一个纯前端交互式演示项目，无需设计任何后端架构。项目采用 Tailwind CSS 风格进行页面设计，专注于展示用户界面和交互体验。
+
 ## 代码库结构
 
 项目是一组静态HTML原型，演示XDR-AI安全运营系统的不同模块：

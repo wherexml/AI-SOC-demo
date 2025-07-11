@@ -298,6 +298,11 @@
                 if (page && url) {
                     navigateToPage(page, url);
                     
+                    // 更新URL参数
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('page', page);
+                    window.history.pushState({}, '', newUrl);
+                    
                     // 更新活跃状态
                     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
@@ -699,44 +704,44 @@
             dashboardContent.classList.remove('hidden');
         }
 
+        // 页面映射配置
+        const pageMap = {
+            'demo': 'demo.html',
+            'setup': 'ciso-onboarding-guide.html', 
+            'ciso': 'ciso-security-dashboard.html',
+            'alerts': 'im-security-alert-prototype.html',
+            'ciso-im': 'im-security-ciso-prototype.html',
+            'ai-learning': 'ai-learning-center.html',
+            'workflow': 'workflow-editor-prototype.html',
+            'reports': 'ai-report-prototype.html',
+            'settings': 'settings',
+            'help': 'help',
+            'requirements': 'ai-secops-requirements-ppt.html'
+        };
+        
+        // 从URL参数获取页面或使用默认页面
+        function getInitialPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get('page');
+            return page && pageMap[page] ? page : 'demo';
+        }
+        
         // 页面加载完成后的初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 强制加载演示Demo页面
-            const dashboardContent = document.getElementById('dashboard-content');
-            const contentFrame = document.getElementById('content-frame');
-            const loadingOverlay = document.getElementById('loading-overlay');
+            const initialPage = getInitialPage();
+            const initialUrl = pageMap[initialPage];
             
-            // 显示加载指示器
-            loadingOverlay.classList.remove('hidden');
-            loadingOverlay.classList.add('flex');
-            
-            // 确保iframe显示
-            dashboardContent.classList.add('hidden');
-            contentFrame.classList.remove('hidden');
-                            contentFrame.src = 'demo.html';
-            
-            // 监听iframe加载完成
-            contentFrame.onload = function() {
-                loadingOverlay.classList.add('hidden');
-                loadingOverlay.classList.remove('flex');
-            };
-            
-            // 超时处理，防止无限加载
-            setTimeout(() => {
-                if (loadingOverlay.classList.contains('flex')) {
-                    loadingOverlay.classList.add('hidden');
-                    loadingOverlay.classList.remove('flex');
-                }
-            }, 3000);
+            // 加载指定页面
+            navigateToPage(initialPage, initialUrl, true);
             
             // 设置当前页面状态
-            currentPage = 'demo';
+            currentPage = initialPage;
             
             // 确保正确的菜单项被激活
             document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-            const demoMenuItem = document.querySelector('[data-page="demo"]');
-            if (demoMenuItem) {
-                demoMenuItem.classList.add('active');
+            const targetMenuItem = document.querySelector(`[data-page="${initialPage}"]`);
+            if (targetMenuItem) {
+                targetMenuItem.classList.add('active');
             }
         });
     </script>
