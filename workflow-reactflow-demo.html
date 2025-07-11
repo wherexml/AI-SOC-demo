@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Flow 工作流编辑器演示 | XDR-AI SecOps 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- React and React DOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- React Flow -->
+    <script src="https://unpkg.com/reactflow@11.10.4/dist/umd/index.js"></script>
+    <!-- React Flow CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/reactflow@11.10.4/dist/style.css">
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        .react-flow__node-default,
+        .react-flow__node-input,
+        .react-flow__node-output {
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .react-flow__node-default.selected,
+        .react-flow__node-input.selected,
+        .react-flow__node-output.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .react-flow__edge-default {
+            stroke: #6b7280;
+            stroke-width: 2;
+        }
+
+        .react-flow__edge-path {
+            stroke: #6b7280;
+            stroke-width: 2;
+        }
+        
+        .react-flow__edge-default.selected {
+            stroke: #3b82f6;
+            stroke-width: 3;
+        }
+        
+        .node-panel {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .workflow-node {
+            min-width: 180px;
+            max-width: 220px;
+            padding: 16px;
+            border-radius: 12px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .workflow-node:hover {
+            border-color: #6366f1;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        .workflow-node.trigger {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+        
+        .workflow-node.condition {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+        }
+        
+        .workflow-node.action {
+            border-color: #6366f1;
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+        
+        .workflow-node.notification {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f5f3ff 0%, #e9d5ff 100%);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+        }
+
+        .workflow-node.agent {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .workflow-node.liaison {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f5f3ff 0%, #e9d5ff 100%);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+        }
+
+        .workflow-node.soar {
+            border-color: #ea580c;
+            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+        }
+
+        .workflow-node.human {
+            border-color: #dc2626;
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+        }
+
+        .workflow-node.annotation {
+            border-color: #ca8a04;
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.15);
+        }
+
+        /* 按钮禁用状态 */
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        button:disabled:hover {
+            transform: none;
+            box-shadow: initial;
+        }
+
+        /* 连线标签样式 */
+        .react-flow__edge-text {
+            font-size: 12px;
+            font-weight: 600;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 2px 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .react-flow__edge-textbg {
+            fill: white;
+            stroke: #e5e7eb;
+            stroke-width: 1;
+        }
+        
+        .react-flow__handle {
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border: 2px solid white;
+        }
+        
+        .react-flow__handle-left {
+            left: -6px;
+        }
+        
+        .react-flow__handle-right {
+            right: -6px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root" class="h-screen">
+        <!-- 加载状态 -->
+        <div id="loading" class="h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+            <div class="text-center">
+                <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600">加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useCallback, useRef, useMemo } = React;
+        // 检查React Flow是否正确加载
+        if (!window.ReactFlow) {
+            console.error('React Flow library not loaded');
+            document.body.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">React Flow库加载失败，请刷新页面重试</div>';
+        }
+        
+        const { 
+            ReactFlow, 
+            Controls, 
+            Background, 
+            useNodesState, 
+            useEdgesState, 
+            addEdge,
+            Handle,
+            Position,
+            MarkerType
+        } = window.ReactFlow || {};
+
+        // 自定义节点类型
+        const TriggerNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node trigger ${selected ? 'ring-2 ring-green-500' : ''}`}>
+                    <Handle type="source" position={Position.Right} />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-green-800">{data.label}</div>
+                            <div className="text-xs text-green-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ConditionNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node condition ${selected ? 'ring-2 ring-orange-500' : ''}`}>
+                    <Handle type="target" position={Position.Left} />
+                    <Handle type="source" position={Position.Right} />
+                    <Handle type="source" position={Position.Bottom} id="false" />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-orange-800">{data.label}</div>
+                            <div className="text-xs text-orange-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ActionNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node action ${selected ? 'ring-2 ring-indigo-500' : ''}`}>
+                    <Handle type="target" position={Position.Left} />
+                    <Handle type="source" position={Position.Right} />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-indigo-800">{data.label}</div>
+                            <div className="text-xs text-indigo-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AgentNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node agent ${selected ? 'ring-2 ring-blue-500' : ''}`}>
+                    <Handle type="target" position={Position.Left} />
+                    <Handle type="source" position={Position.Right} />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-blue-800">{data.label}</div>
+                            <div className="text-xs text-blue-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LiaisonNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node liaison ${selected ? 'ring-2 ring-purple-500' : ''}`}>
+                    <Handle type="target" position={Position.Left} />
+                    <Handle type="source" position={Position.Right} />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-purple-800">{data.label}</div>
+                            <div className="text-xs text-purple-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SoarNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node soar ${selected ? 'ring-2 ring-orange-500' : ''}`}>
+                    <Handle type="target" position={Position.Left} />
+                    <Handle type="source" position={Position.Right} />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-orange-800">{data.label}</div>
+                            <div className="text-xs text-orange-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const HumanNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node human ${selected ? 'ring-2 ring-red-500' : ''}`}>
+                    <Handle type="target" position={Position.Left} />
+                    <Handle type="source" position={Position.Right} />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-red-800">{data.label}</div>
+                            <div className="text-xs text-red-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AnnotationNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node annotation ${selected ? 'ring-2 ring-yellow-500' : ''}`}>
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-yellow-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-yellow-800">{data.label}</div>
+                            <div className="text-xs text-yellow-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const NotificationNode = ({ data, selected }) => {
+            return (
+                <div className={`workflow-node notification ${selected ? 'ring-2 ring-purple-500' : ''}`}>
+                    <Handle type="target" position={Position.Left} />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                            <i className={`fas ${data.icon} text-white text-sm`}></i>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-sm text-purple-800">{data.label}</div>
+                            <div className="text-xs text-purple-600">{data.description}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 节点类型配置
+        const nodeTypes = {
+            trigger: TriggerNode,
+            condition: ConditionNode,
+            action: ActionNode,
+            notification: NotificationNode,
+            agent: AgentNode,
+            liaison: LiaisonNode,
+            soar: SoarNode,
+            human: HumanNode,
+            annotation: AnnotationNode,
+        };
+
+        // 初始节点
+        const initialNodes = [
+            {
+                id: '1',
+                type: 'trigger',
+                position: { x: 50, y: 150 },
+                data: { 
+                    label: '告警触发器',
+                    description: '安全告警触发',
+                    icon: 'fa-exclamation-triangle'
+                },
+            },
+            {
+                id: '2',
+                type: 'agent',
+                position: { x: 350, y: 150 },
+                data: { 
+                    label: '调查溯源Agent',
+                    description: '智能调查分析',
+                    icon: 'fa-search'
+                },
+            },
+            {
+                id: '3',
+                type: 'condition',
+                position: { x: 650, y: 150 },
+                data: { 
+                    label: '条件判断',
+                    description: '逻辑条件分支',
+                    icon: 'fa-question-circle'
+                },
+            },
+            {
+                id: '4',
+                type: 'soar',
+                position: { x: 950, y: 80 },
+                data: { 
+                    label: '处置Playbook',
+                    description: '自动化剧本',
+                    icon: 'fa-play-circle'
+                },
+            },
+            {
+                id: '5',
+                type: 'human',
+                position: { x: 950, y: 220 },
+                data: { 
+                    label: '人工确认',
+                    description: '人工审核确认',
+                    icon: 'fa-user-check'
+                },
+            },
+            {
+                id: '6',
+                type: 'annotation',
+                position: { x: 50, y: 50 },
+                data: { 
+                    label: '文字说明',
+                    description: '安全响应流程',
+                    icon: 'fa-comment-alt'
+                },
+            },
+        ];
+
+        // 初始连接
+        const initialEdges = [
+            {
+                id: 'e1-2',
+                source: '1',
+                target: '2',
+                type: 'default',
+                markerEnd: { type: MarkerType.ArrowClosed },
+            },
+            {
+                id: 'e2-3',
+                source: '2',
+                target: '3',
+                type: 'default',
+                markerEnd: { type: MarkerType.ArrowClosed },
+            },
+            {
+                id: 'e3-4',
+                source: '3',
+                target: '4',
+                type: 'default',
+                label: '自动处置',
+                labelStyle: { fill: '#ea580c', fontWeight: 600 },
+                markerEnd: { type: MarkerType.ArrowClosed },
+            },
+            {
+                id: 'e3-5',
+                source: '3',
+                sourceHandle: 'false',
+                target: '5',
+                type: 'default',
+                label: '人工干预',
+                labelStyle: { fill: '#dc2626', fontWeight: 600 },
+                markerEnd: { type: MarkerType.ArrowClosed },
+            },
+        ];
+
+        // 可拖拽的节点模板
+        const nodeTemplates = [
+            { type: 'trigger', label: '触发器节点', icon: 'fa-bolt', items: [
+                { label: '告警触发器', description: '安全告警触发', icon: 'fa-exclamation-triangle' },
+                { label: '事件触发器', description: '事件行为触发', icon: 'fa-calendar-alt' },
+                { label: 'Webhook触发器', description: 'HTTP回调触发', icon: 'fa-webhook' },
+            ]},
+            { type: 'agent', label: 'AI Agent节点', icon: 'fa-robot', items: [
+                { label: '调查溯源Agent', description: '智能调查分析', icon: 'fa-search' },
+                { label: '实体处置Agent', description: '自动处置执行', icon: 'fa-shield-alt' },
+                { label: '自定义Agent', description: '用户自定义AI', icon: 'fa-cogs' },
+            ]},
+            { type: 'liaison', label: '联络员Agent', icon: 'fa-users', items: [
+                { label: '联络员Agent', description: '人工协作处理', icon: 'fa-user-tie' },
+            ]},
+            { type: 'soar', label: 'SOAR引擎', icon: 'fa-code-branch', items: [
+                { label: '处置Playbook', description: '自动化剧本', icon: 'fa-play-circle' },
+                { label: '工单管理', description: '工单流程管理', icon: 'fa-clipboard-list' },
+            ]},
+            { type: 'human', label: '人工节点', icon: 'fa-user', items: [
+                { label: '人工确认', description: '人工审核确认', icon: 'fa-user-check' },
+            ]},
+            { type: 'condition', label: '逻辑控制', icon: 'fa-sitemap', items: [
+                { label: '条件判断', description: '逻辑条件分支', icon: 'fa-question-circle' },
+            ]},
+            { type: 'annotation', label: '注释说明', icon: 'fa-sticky-note', items: [
+                { label: '文字说明', description: '流程说明注释', icon: 'fa-comment-alt' },
+            ]},
+        ];
+
+        const WorkflowEditor = () => {
+            const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+            const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+            const [selectedTemplate, setSelectedTemplate] = useState(null);
+            const [showSidebar, setShowSidebar] = useState(true);
+            const reactFlowWrapper = useRef(null);
+            const [reactFlowInstance, setReactFlowInstance] = useState(null);
+            const [draggedNode, setDraggedNode] = useState(null);
+            const [selectedNodes, setSelectedNodes] = useState([]);
+            const [selectedEdges, setSelectedEdges] = useState([]);
+
+            const onConnect = useCallback((params) => {
+                const edge = {
+                    ...params,
+                    type: 'default',
+                    markerEnd: { type: MarkerType.ArrowClosed },
+                };
+                setEdges((eds) => addEdge(edge, eds));
+            }, [setEdges]);
+
+            const onDragOver = useCallback((event) => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+            }, []);
+
+            const onDrop = useCallback(
+                (event) => {
+                    event.preventDefault();
+                    console.log('Drop event triggered', event);
+
+                    if (!reactFlowInstance) {
+                        console.error('ReactFlow instance not available');
+                        return;
+                    }
+
+                    const type = event.dataTransfer.getData('application/reactflow');
+                    const nodeData = event.dataTransfer.getData('application/nodedata');
+
+                    console.log('Dropped data:', { type, nodeData });
+
+                    if (typeof type === 'undefined' || !type || !nodeData) {
+                        console.error('Invalid drop data');
+                        return;
+                    }
+
+                    let parsedNodeData;
+                    try {
+                        parsedNodeData = JSON.parse(nodeData);
+                    } catch (e) {
+                        console.error('Failed to parse node data:', e);
+                        return;
+                    }
+
+                    const position = reactFlowInstance.screenToFlowPosition({
+                        x: event.clientX,
+                        y: event.clientY,
+                    });
+
+                    const newNode = {
+                        id: `node_${Date.now()}`,
+                        type,
+                        position,
+                        data: parsedNodeData,
+                    };
+
+                    console.log('Adding new node:', newNode);
+                    setNodes((nds) => nds.concat(newNode));
+                    setDraggedNode(null);
+                },
+                [reactFlowInstance, setNodes]
+            );
+
+            const onDragStart = (event, nodeType, nodeData) => {
+                try {
+                    console.log('Drag started:', nodeType, nodeData);
+                    event.dataTransfer.setData('application/reactflow', nodeType);
+                    event.dataTransfer.setData('application/nodedata', JSON.stringify(nodeData));
+                    event.dataTransfer.effectAllowed = 'move';
+                    setDraggedNode({ type: nodeType, data: nodeData });
+                } catch (e) {
+                    console.error('Failed to set drag data:', e);
+                }
+            };
+
+            const clearWorkflow = () => {
+                setNodes([]);
+                setEdges([]);
+            };
+
+            const exportWorkflow = () => {
+                const workflow = {
+                    nodes: nodes,
+                    edges: edges,
+                    timestamp: new Date().toISOString(),
+                };
+                
+                const dataStr = JSON.stringify(workflow, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'workflow-config.json';
+                link.click();
+                URL.revokeObjectURL(url);
+            };
+
+            const loadSampleWorkflow = () => {
+                setNodes(initialNodes);
+                setEdges(initialEdges);
+            };
+
+            const addTestNode = () => {
+                const newNode = {
+                    id: `test_${Date.now()}`,
+                    type: 'trigger',
+                    position: { x: Math.random() * 400, y: Math.random() * 300 },
+                    data: { 
+                        label: '测试节点',
+                        description: '手动添加的测试节点',
+                        icon: 'fa-test'
+                    },
+                };
+                setNodes((nds) => nds.concat(newNode));
+            };
+
+            // 删除选中的节点和连线
+            const deleteSelected = useCallback(() => {
+                const selectedNodeIds = nodes.filter(node => node.selected).map(node => node.id);
+                const selectedEdgeIds = edges.filter(edge => edge.selected).map(edge => edge.id);
+                
+                if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0) {
+                    // 删除节点
+                    if (selectedNodeIds.length > 0) {
+                        setNodes((nds) => nds.filter((node) => !selectedNodeIds.includes(node.id)));
+                        // 删除与这些节点相关的连线
+                        setEdges((eds) => eds.filter(
+                            (edge) => !selectedNodeIds.includes(edge.source) && !selectedNodeIds.includes(edge.target)
+                        ));
+                    }
+                    
+                    // 删除连线
+                    if (selectedEdgeIds.length > 0) {
+                        setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
+                    }
+                    
+                    console.log(`Deleted ${selectedNodeIds.length} nodes and ${selectedEdgeIds.length} edges`);
+                }
+            }, [nodes, edges, setNodes, setEdges]);
+
+            // 删除指定节点
+            const deleteNode = useCallback((nodeId) => {
+                setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+                setEdges((eds) => eds.filter(
+                    (edge) => edge.source !== nodeId && edge.target !== nodeId
+                ));
+            }, [setNodes, setEdges]);
+
+            // 删除指定连线
+            const deleteEdge = useCallback((edgeId) => {
+                setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
+            }, [setEdges]);
+
+            // 键盘事件监听
+            const onKeyDown = useCallback((event) => {
+                if (event.key === 'Delete' || event.key === 'Backspace') {
+                    event.preventDefault();
+                    deleteSelected();
+                }
+            }, [deleteSelected]);
+
+            // 节点选择事件
+            const onSelectionChange = useCallback((params) => {
+                setSelectedNodes(params.nodes || []);
+                setSelectedEdges(params.edges || []);
+            }, []);
+
+            // 组件挂载时添加键盘监听
+            React.useEffect(() => {
+                document.addEventListener('keydown', onKeyDown);
+                return () => {
+                    document.removeEventListener('keydown', onKeyDown);
+                };
+            }, [onKeyDown]);
+
+            return (
+                <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+                    {/* 侧边栏 */}
+                    <div className={`${showSidebar ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 shadow-lg`}>
+                        <div className="p-4 node-panel text-white">
+                            <h2 className="text-lg font-bold flex items-center">
+                                <i className="fas fa-puzzle-piece mr-2"></i>
+                                工作流组件
+                            </h2>
+                            <p className="text-sm opacity-90 mt-1">拖拽组件到画布创建工作流</p>
+                        </div>
+                        
+                        <div className="p-4 space-y-6 overflow-y-auto h-full">
+                            {nodeTemplates.map((category) => (
+                                <div key={category.type} className="space-y-3">
+                                    <h3 className="font-bold text-gray-800 flex items-center text-sm uppercase tracking-wide">
+                                        <i className={`fas ${category.icon} mr-2 text-gray-500`}></i>
+                                        {category.label}
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {category.items.map((item, index) => (
+                                            <div
+                                                key={`${category.type}-${index}`}
+                                                className="p-3 bg-white border border-gray-200 rounded-xl cursor-grab hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                                                draggable
+                                                onDragStart={(event) => onDragStart(event, category.type, item)}
+                                            >
+                                                <div className="flex items-center space-x-3">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                                        category.type === 'trigger' ? 'bg-green-100 text-green-600' :
+                                                        category.type === 'condition' ? 'bg-orange-100 text-orange-600' :
+                                                        category.type === 'action' ? 'bg-indigo-100 text-indigo-600' :
+                                                        category.type === 'agent' ? 'bg-blue-100 text-blue-600' :
+                                                        category.type === 'liaison' ? 'bg-purple-100 text-purple-600' :
+                                                        category.type === 'soar' ? 'bg-orange-100 text-orange-600' :
+                                                        category.type === 'human' ? 'bg-red-100 text-red-600' :
+                                                        category.type === 'annotation' ? 'bg-yellow-100 text-yellow-600' :
+                                                        'bg-gray-100 text-gray-600'
+                                                    }`}>
+                                                        <i className={`fas ${item.icon} text-sm`}></i>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="font-medium text-sm text-gray-800">{item.label}</div>
+                                                        <div className="text-xs text-gray-500">{item.description}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 主要内容区域 */}
+                    <div className="flex-1 flex flex-col">
+                        {/* 工具栏 */}
+                        <div className="bg-white border-b border-gray-200 p-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <button 
+                                        onClick={() => setShowSidebar(!showSidebar)}
+                                        className="flex items-center px-4 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg transition-colors border border-indigo-200"
+                                    >
+                                        <i className={`fas ${showSidebar ? 'fa-chevron-left' : 'fa-chevron-right'} mr-2`}></i>
+                                        {showSidebar ? '隐藏组件' : '显示组件'}
+                                    </button>
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                            <i className="fas fa-project-diagram text-white text-sm"></i>
+                                        </div>
+                                        <h1 className="text-xl font-bold text-gray-800">工作流编辑器</h1>
+                                    </div>
+                                    <span className="px-3 py-1 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 text-xs rounded-full font-medium">React Flow 演示</span>
+                                </div>
+                                
+                                <div className="flex items-center space-x-3">
+                                    <button 
+                                        onClick={loadSampleWorkflow}
+                                        className="flex items-center px-4 py-2 text-sm bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg transition-all duration-200 border border-emerald-200 hover:shadow-md"
+                                    >
+                                        <i className="fas fa-play mr-2"></i>
+                                        示例工作流
+                                    </button>
+                                    <button 
+                                        onClick={addTestNode}
+                                        className="flex items-center px-4 py-2 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-all duration-200 border border-blue-200 hover:shadow-md"
+                                    >
+                                        <i className="fas fa-plus mr-2"></i>
+                                        测试节点
+                                    </button>
+                                    <button 
+                                        onClick={deleteSelected}
+                                        className="flex items-center px-4 py-2 text-sm bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-all duration-200 border border-red-200 hover:shadow-md"
+                                        disabled={selectedNodes.length === 0 && selectedEdges.length === 0}
+                                    >
+                                        <i className="fas fa-trash-alt mr-2"></i>
+                                        删除选中
+                                    </button>
+                                    <button 
+                                        onClick={clearWorkflow}
+                                        className="flex items-center px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-md"
+                                    >
+                                        <i className="fas fa-broom mr-2"></i>
+                                        清空画布
+                                    </button>
+                                    <button 
+                                        onClick={exportWorkflow}
+                                        className="flex items-center px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                                    >
+                                        <i className="fas fa-download mr-2"></i>
+                                        导出配置
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* React Flow 画布 */}
+                        <div className="flex-1 relative" ref={reactFlowWrapper}>
+                            <ReactFlow
+                                nodes={nodes}
+                                edges={edges}
+                                onNodesChange={onNodesChange}
+                                onEdgesChange={onEdgesChange}
+                                onConnect={onConnect}
+                                onInit={setReactFlowInstance}
+                                onDrop={onDrop}
+                                onDragOver={onDragOver}
+                                onSelectionChange={onSelectionChange}
+                                nodeTypes={nodeTypes}
+                                fitView
+                                fitViewOptions={{
+                                    padding: 0.2,
+                                    minZoom: 0.5,
+                                    maxZoom: 1.5
+                                }}
+                                attributionPosition="bottom-left"
+                                style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
+                                deleteKeyCode={['Backspace', 'Delete']}
+                                multiSelectionKeyCode={['Meta', 'Ctrl']}
+                                selectNodesOnDrag={false}
+                            >
+                                <Controls className="bg-white shadow-lg rounded-lg border border-gray-200" />
+                                <Background variant="dots" gap={24} size={1} color="#e2e8f0" />
+                            </ReactFlow>
+                        </div>
+
+                        {/* 状态栏 */}
+                        <div className="bg-white border-t border-gray-200 px-6 py-3 text-sm text-gray-600">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-6">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span className="font-medium">节点数: {nodes.length}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span className="font-medium">连接数: {edges.length}</span>
+                                    </div>
+                                    {(selectedNodes.length > 0 || selectedEdges.length > 0) && (
+                                        <div className="flex items-center space-x-2">
+                                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                            <span className="font-medium text-orange-600">
+                                                已选中: {selectedNodes.length}节点, {selectedEdges.length}连线
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    {(selectedNodes.length > 0 || selectedEdges.length > 0) && (
+                                        <div className="flex items-center space-x-2 text-orange-600">
+                                            <i className="fas fa-keyboard"></i>
+                                            <span className="text-xs">Delete/Backspace 删除选中项</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center space-x-2">
+                                        <i className="fas fa-info-circle text-indigo-500"></i>
+                                        <span className="text-xs text-gray-500">拖拽组件到画布创建节点，点击选中后按Delete删除</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 等待所有库加载完成
+        function initializeApp() {
+            try {
+                console.log('Initializing app...');
+                
+                if (!ReactDOM || !React) {
+                    throw new Error('React libraries not loaded');
+                }
+                
+                if (!window.ReactFlow) {
+                    throw new Error('React Flow library not loaded');
+                }
+                
+                console.log('All libraries loaded successfully');
+                
+                // 隐藏加载状态
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+                
+                ReactDOM.render(<WorkflowEditor />, document.getElementById('root'));
+                console.log('App rendered successfully');
+                
+            } catch (error) {
+                console.error('Failed to render application:', error);
+                document.getElementById('root').innerHTML = `
+                    <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
+                        <h1 style="color: #dc2626; margin-bottom: 20px;">应用加载失败</h1>
+                        <p style="color: #6b7280; margin-bottom: 20px;">请检查网络连接或刷新页面重试</p>
+                        <p style="color: #9ca3af; font-size: 14px;">错误信息: ${error.message}</p>
+                        <button onclick="location.reload()" style="
+                            background: #3b82f6; 
+                            color: white; 
+                            border: none; 
+                            padding: 10px 20px; 
+                            border-radius: 8px; 
+                            cursor: pointer; 
+                            margin-top: 20px;
+                        ">刷新页面</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // 等待所有库加载完成
+        function waitForLibraries() {
+            let attempts = 0;
+            const maxAttempts = 50; // 5秒超时
+            
+            const checkLibraries = () => {
+                attempts++;
+                console.log(`Checking libraries... attempt ${attempts}`);
+                
+                if (window.React && window.ReactDOM && window.ReactFlow) {
+                    console.log('All libraries loaded, initializing app...');
+                    setTimeout(initializeApp, 100); // 稍微延迟确保初始化完成
+                } else if (attempts < maxAttempts) {
+                    console.log('Libraries not ready, retrying...');
+                    setTimeout(checkLibraries, 100);
+                } else {
+                    console.error('Libraries failed to load after timeout');
+                    document.getElementById('root').innerHTML = `
+                        <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
+                            <h1 style="color: #dc2626; margin-bottom: 20px;">库加载超时</h1>
+                            <p style="color: #6b7280; margin-bottom: 20px;">请检查网络连接或刷新页面重试</p>
+                            <button onclick="location.reload()" style="
+                                background: #3b82f6; 
+                                color: white; 
+                                border: none; 
+                                padding: 10px 20px; 
+                                border-radius: 8px; 
+                                cursor: pointer; 
+                                margin-top: 20px;
+                            ">刷新页面</button>
+                        </div>
+                    `;
+                }
+            };
+            
+            checkLibraries();
+        }
+        
+        // 等待DOM加载完成
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForLibraries);
+        } else {
+            waitForLibraries();
+        }
+    </script>
+</body>
+</html>
