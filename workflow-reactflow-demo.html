@@ -849,29 +849,25 @@
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
 请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
-详情
-一键遏制
-标记完成
-调查
+标记为正报
+标记为误报
 若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`);
 
             const [instructions, setInstructions] = useState(config.instructions || [
-                { label: '详情', description: '获取事件详细信息' },
-                { label: '一键遏制', description: '快速遏制威胁' },
-                { label: '标记完成', description: '标记事件处理完成' },
-                { label: '调查', description: '深入调查事件来源' }
+                { label: '标记为正报', description: '确认为真实安全威胁' },
+                { label: '标记为误报', description: '确认为误报事件' }
             ]);
 
             const [showNotificationConfig, setShowNotificationConfig] = useState(false);
 
             // 指令库
             const instructionLibrary = [
+                { label: '标记为正报', description: '确认为真实安全威胁' },
+                { label: '标记为误报', description: '确认为误报事件' },
                 { label: '详情', description: '获取事件详细信息' },
                 { label: '一键遏制', description: '快速遏制威胁' },
-                { label: '标记完成', description: '标记事件处理完成' },
                 { label: '调查', description: '深入调查事件来源' },
                 { label: '升级处理', description: '向上级报告' },
-                { label: '查看详情', description: '查看事件详细信息' },
                 { label: '调查溯源', description: '深入调查事件来源' },
                 { label: '添加白名单', description: '将IP/域名添加到白名单' },
                 { label: '隔离主机', description: '隔离受影响主机' },
@@ -1540,10 +1536,8 @@
                     notificationChannels: ['企微微信'],
                     promptTemplate: '安全事件通知模板',
                     instructions: [
-                        { label: '详情', description: '获取事件详细信息' },
-                        { label: '一键遏制', description: '快速遏制威胁' },
-                        { label: '标记完成', description: '标记事件处理完成' },
-                        { label: '调查', description: '深入调查事件来源' }
+                        { label: '标记为正报', description: '确认为真实安全威胁' },
+                        { label: '标记为误报', description: '确认为误报事件' }
                     ],
                     wechatConfig: {
                         webhook: '',
@@ -1583,48 +1577,28 @@
             },
             {
                 id: '3',
-                type: 'agent',
-                position: { x: 750, y: 80 },
+                type: 'human',
+                position: { x: 750, y: 150 },
                 data: { 
-                    label: '详情信息',
-                    description: '自定义AI',
-                    icon: 'fa-info-circle',
-                    systemPrompt: '包含告警数据包的详情内容输出'
+                    label: '正报处理',
+                    description: '真实威胁处理',
+                    icon: 'fa-exclamation-triangle',
+                    assignee: 'security_team',
+                    timeout: 30,
+                    instructions: '确认为真实安全威胁，进行相应处置'
                 },
             },
             {
                 id: '4',
-                type: 'soar',
-                position: { x: 750, y: 160 },
-                data: { 
-                    label: '一键遏制',
-                    description: 'SOAR剧本',
-                    icon: 'fa-shield-alt',
-                    playbook: 'ip_blocking'
-                },
-            },
-            {
-                id: '5',
                 type: 'human',
-                position: { x: 750, y: 240 },
+                position: { x: 750, y: 250 },
                 data: { 
-                    label: '标记完成',
-                    description: '工单系统',
-                    icon: 'fa-check-circle',
+                    label: '误报处理',
+                    description: '误报事件关闭',
+                    icon: 'fa-times-circle',
                     assignee: 'security_team',
                     timeout: 30,
-                    instructions: '标记事件处理完成'
-                },
-            },
-            {
-                id: '6',
-                type: 'agent',
-                position: { x: 750, y: 320 },
-                data: { 
-                    label: '调查分析',
-                    description: '调查分析',
-                    icon: 'fa-search',
-                    systemPrompt: '包含告警数据包的详情内容输出'
+                    instructions: '确认为误报事件，记录并关闭'
                 },
             },
         ];
@@ -1643,8 +1617,8 @@
                 source: '2',
                 target: '3',
                 type: 'default',
-                label: '详情',
-                labelStyle: { fill: '#3b82f6', fontWeight: 500, fontSize: 11 },
+                label: '标记为正报',
+                labelStyle: { fill: '#dc2626', fontWeight: 500, fontSize: 11 },
                 labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
                 labelBgPadding: [6, 3],
                 labelBgBorderRadius: 3,
@@ -1655,32 +1629,8 @@
                 source: '2',
                 target: '4',
                 type: 'default',
-                label: '遏制',
-                labelStyle: { fill: '#ea580c', fontWeight: 500, fontSize: 11 },
-                labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
-                labelBgPadding: [6, 3],
-                labelBgBorderRadius: 3,
-                markerEnd: { type: MarkerType.ArrowClosed },
-            },
-            {
-                id: 'e2-5',
-                source: '2',
-                target: '5',
-                type: 'default',
-                label: '完成',
+                label: '标记为误报',
                 labelStyle: { fill: '#10b981', fontWeight: 500, fontSize: 11 },
-                labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
-                labelBgPadding: [6, 3],
-                labelBgBorderRadius: 3,
-                markerEnd: { type: MarkerType.ArrowClosed },
-            },
-            {
-                id: 'e2-6',
-                source: '2',
-                target: '6',
-                type: 'default',
-                label: '调查',
-                labelStyle: { fill: '#6366f1', fontWeight: 500, fontSize: 11 },
                 labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
                 labelBgPadding: [6, 3],
                 labelBgBorderRadius: 3,
@@ -1876,10 +1826,8 @@
                             notificationChannels: ['企微微信'],
                             promptTemplate: '安全事件通知模板',
                             instructions: [
-                                { label: '详情', description: '获取事件详细信息' },
-                                { label: '一键遏制', description: '快速遏制威胁' },
-                                { label: '标记完成', description: '标记事件处理完成' },
-                                { label: '调查', description: '深入调查事件来源' }
+                                { label: '标记为正报', description: '确认为真实安全威胁' },
+                                { label: '标记为误报', description: '确认为误报事件' }
                             ],
                             wechatConfig: {
                                 webhook: '',
@@ -1910,10 +1858,8 @@
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
 请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
-详情
-一键遏制
-标记完成
-调查
+标记为正报
+标记为误报
 若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`
                         },
                         condition: {
