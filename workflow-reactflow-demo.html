@@ -849,31 +849,23 @@
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
 请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
-标记为正报
-标记为误报
+详情
+一键遏制
+标记完成
+调查
 若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`);
 
             const [instructions, setInstructions] = useState(config.instructions || [
-                { label: '标记为正报', description: '确认为真实安全威胁' },
-                { label: '标记为误报', description: '确认为误报事件' }
+                { label: '标记为正报', description: '确认为真实安全事件' },
+                { label: '标记为误报', description: '确认为误报或正常业务行为' }
             ]);
 
             const [showNotificationConfig, setShowNotificationConfig] = useState(false);
 
             // 指令库
             const instructionLibrary = [
-                { label: '标记为正报', description: '确认为真实安全威胁' },
-                { label: '标记为误报', description: '确认为误报事件' },
-                { label: '详情', description: '获取事件详细信息' },
-                { label: '一键遏制', description: '快速遏制威胁' },
-                { label: '调查', description: '深入调查事件来源' },
-                { label: '升级处理', description: '向上级报告' },
-                { label: '调查溯源', description: '深入调查事件来源' },
-                { label: '添加白名单', description: '将IP/域名添加到白名单' },
-                { label: '隔离主机', description: '隔离受影响主机' },
-                { label: '重置密码', description: '重置相关账户密码' },
-                { label: '生成报告', description: '生成事件处理报告' },
-                { label: '通知相关方', description: '通知相关责任人' }
+                { label: '标记为正报', description: '确认为真实安全事件' },
+                { label: '标记为误报', description: '确认为误报或正常业务行为' }
             ];
 
             const [selectedInstructionToAdd, setSelectedInstructionToAdd] = useState('');
@@ -1536,8 +1528,8 @@
                     notificationChannels: ['企微微信'],
                     promptTemplate: '安全事件通知模板',
                     instructions: [
-                        { label: '标记为正报', description: '确认为真实安全威胁' },
-                        { label: '标记为误报', description: '确认为误报事件' }
+                        { label: '标记为正报', description: '确认为真实安全事件' },
+                        { label: '标记为误报', description: '确认为误报或正常业务行为' }
                     ],
                     wechatConfig: {
                         webhook: '',
@@ -1568,24 +1560,20 @@
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
 请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
-详情
-一键遏制
-标记完成
-调查
+标记为正报
+标记为误报
 若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`
                 },
             },
             {
                 id: '3',
-                type: 'human',
+                type: 'soar',
                 position: { x: 750, y: 150 },
                 data: { 
                     label: '正报处理',
-                    description: '真实威胁处理',
-                    icon: 'fa-exclamation-triangle',
-                    assignee: 'security_team',
-                    timeout: 30,
-                    instructions: '确认为真实安全威胁，进行相应处置'
+                    description: '真实事件处理',
+                    icon: 'fa-shield-alt',
+                    playbook: 'incident_response'
                 },
             },
             {
@@ -1594,11 +1582,11 @@
                 position: { x: 750, y: 250 },
                 data: { 
                     label: '误报处理',
-                    description: '误报事件关闭',
-                    icon: 'fa-times-circle',
+                    description: '误报标记完成',
+                    icon: 'fa-check-circle',
                     assignee: 'security_team',
                     timeout: 30,
-                    instructions: '确认为误报事件，记录并关闭'
+                    instructions: '标记为误报并关闭事件'
                 },
             },
         ];
@@ -1785,8 +1773,8 @@
                     event.preventDefault();
 
 
-                                          if (!reactFlowInstance) {
-                          return;
+                    if (!reactFlowInstance) {
+                        return;
                     }
 
                     const type = event.dataTransfer.getData('application/reactflow');
@@ -1794,15 +1782,15 @@
 
 
 
-                                          if (typeof type === 'undefined' || !type || !nodeData) {
-                          return;
+                    if (typeof type === 'undefined' || !type || !nodeData) {
+                        return;
                     }
 
                     let parsedNodeData;
                     try {
                         parsedNodeData = JSON.parse(nodeData);
-                                      } catch (e) {
-                      return;
+                    } catch (e) {
+                        return;
                     }
 
                     const position = reactFlowInstance.screenToFlowPosition({
@@ -1826,8 +1814,8 @@
                             notificationChannels: ['企微微信'],
                             promptTemplate: '安全事件通知模板',
                             instructions: [
-                                { label: '标记为正报', description: '确认为真实安全威胁' },
-                                { label: '标记为误报', description: '确认为误报事件' }
+                                { label: '标记为正报', description: '确认为真实安全事件' },
+                                { label: '标记为误报', description: '确认为误报或正常业务行为' }
                             ],
                             wechatConfig: {
                                 webhook: '',
@@ -1858,8 +1846,10 @@
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
 请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
-标记为正报
-标记为误报
+详情
+一键遏制
+标记完成
+调查
 若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`
                         },
                         condition: {
@@ -1894,13 +1884,13 @@
             );
 
             const onDragStart = (event, nodeType, nodeData) => {
-                                      try {
-                          event.dataTransfer.setData('application/reactflow', nodeType);
+                try {
+                    event.dataTransfer.setData('application/reactflow', nodeType);
                     event.dataTransfer.setData('application/nodedata', JSON.stringify(nodeData));
                     event.dataTransfer.effectAllowed = 'move';
                     setDraggedNode({ type: nodeType, data: nodeData });
-                                  } catch (e) {
-                  }
+                } catch (e) {
+                }
             };
 
             const clearWorkflow = () => {
@@ -1949,7 +1939,7 @@
             const deleteSelected = useCallback(() => {
                 const selectedNodeIds = nodes.filter(node => node.selected).map(node => node.id);
                 const selectedEdgeIds = edges.filter(edge => edge.selected).map(edge => edge.id);
-                                  if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0) {
+                if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0) {
                     // 删除节点
                     if (selectedNodeIds.length > 0) {
                         setNodes((nds) => nds.filter((node) => !selectedNodeIds.includes(node.id)));
@@ -1963,18 +1953,18 @@
                     if (selectedEdgeIds.length > 0) {
                         setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
                     }
-                                                      }
-              }, [nodes, edges, setNodes, setEdges]);
-              // 删除指定节点
+                }
+            }, [nodes, edges, setNodes, setEdges]);
+            // 删除指定节点
             const deleteNode = useCallback((nodeId) => {
                 setNodes((nds) => nds.filter((node) => node.id !== nodeId));
                 setEdges((eds) => eds.filter(
                     (edge) => edge.source !== nodeId && edge.target !== nodeId
-                                ));
+                ));
             }, [setNodes, setEdges]);
             // 删除指定连线
             const deleteEdge = useCallback((edgeId) => {
-                                setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
+                setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
             }, [setEdges]);
             // 键盘事件监听
             const onKeyDown = useCallback((event) => {
@@ -2005,7 +1995,7 @@
             // 节点选择事件
             const onSelectionChange = useCallback((params) => {
                 setSelectedNodes(params.nodes || []);
-                                setSelectedEdges(params.edges || []);
+                setSelectedEdges(params.edges || []);
             }, []);
             // 组件挂载时添加键盘监听
             React.useEffect(() => {
@@ -2051,7 +2041,7 @@
                                                 key={`${category.type}-${index}`}
                                                 className="p-3 bg-white border border-gray-200 rounded-xl cursor-grab hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
                                                 draggable
-                                                                      onDragStart={(event) => onDragStart(event, category.type, item)}
+                                                onDragStart={(event) => onDragStart(event, category.type, item)}
                                             >
                                                 <div className="flex items-center space-x-3">
                                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -2154,33 +2144,33 @@
                                     e.currentTarget.focus();
                                 }}
                             >
-                                <ReactFlow
-                                    nodes={nodes}
-                                    edges={edges}
-                                    onNodesChange={onNodesChange}
-                                    onEdgesChange={onEdgesChange}
-                                    onConnect={onConnect}
-                                    onInit={setReactFlowInstance}
-                                    onDrop={onDrop}
-                                    onDragOver={onDragOver}
-                                    onSelectionChange={onSelectionChange}
-                                    nodeTypes={nodeTypes}
-                                    fitView
-                                    fitViewOptions={{
+                            <ReactFlow
+                                nodes={nodes}
+                                edges={edges}
+                                onNodesChange={onNodesChange}
+                                onEdgesChange={onEdgesChange}
+                                onConnect={onConnect}
+                                onInit={setReactFlowInstance}
+                                onDrop={onDrop}
+                                onDragOver={onDragOver}
+                                onSelectionChange={onSelectionChange}
+                                nodeTypes={nodeTypes}
+                                fitView
+                                fitViewOptions={{
                                         padding: 0.3,
                                         minZoom: 0.3,
-                                        maxZoom: 1.5
-                                    }}
+                                    maxZoom: 1.5
+                                }}
                                     defaultZoom={0.7}
-                                    attributionPosition="bottom-left"
-                                    style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
+                                attributionPosition="bottom-left"
+                                style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
                                     deleteKeyCode={null}
-                                    multiSelectionKeyCode={['Meta', 'Ctrl']}
-                                    selectNodesOnDrag={false}
-                                >
-                                    <Controls className="bg-white shadow-lg rounded-lg border border-gray-200" />
-                                    <Background variant="dots" gap={24} size={1} color="#e2e8f0" />
-                                </ReactFlow>
+                                multiSelectionKeyCode={['Meta', 'Ctrl']}
+                                selectNodesOnDrag={false}
+                            >
+                                <Controls className="bg-white shadow-lg rounded-lg border border-gray-200" />
+                                <Background variant="dots" gap={24} size={1} color="#e2e8f0" />
+                            </ReactFlow>
                             </div>
                         </div>
 
@@ -2246,7 +2236,7 @@
                     throw new Error('React Flow library not loaded');
                 }
                 // 隐藏加载状态
-                                const loadingElement = document.getElementById('loading');
+                const loadingElement = document.getElementById('loading');
                 if (loadingElement) {
                     loadingElement.style.display = 'none';
                 }
@@ -2272,40 +2262,40 @@
         }
         // 等待所有库加载完成
         function waitForLibraries() {
-                                let attempts = 0;
-                    const maxAttempts = 50; // 5秒超时
-                    const checkLibraries = () => {
-                        attempts++;
-                        if (window.React && window.ReactDOM && window.ReactFlow) {
-                            setTimeout(initializeApp, 100); // 稍微延迟确保初始化完成
-                        } else if (attempts < maxAttempts) {
-                            setTimeout(checkLibraries, 100);
-                        } else {
-                            document.getElementById('root').innerHTML = `
-                            <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
-                                <h1 style="color: #dc2626; margin-bottom: 20px;">库加载超时</h1>
-                                <p style="color: #6b7280; margin-bottom: 20px;">请检查网络连接或刷新页面重试</p>
-                                <button onclick="location.reload()" style="
-                                    background: #3b82f6; 
-                                    color: white; 
-                                    border: none; 
-                                    padding: 10px 20px; 
-                                    border-radius: 8px; 
-                                    cursor: pointer; 
-                                    margin-top: 20px;
-                                ">刷新页面</button>
-                            </div>
-                        `;
-                        }
-                    };
-                    checkLibraries();
-                        }
-                // 等待DOM加载完成
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', waitForLibraries);
+            let attempts = 0;
+            const maxAttempts = 50; // 5秒超时
+            const checkLibraries = () => {
+                attempts++;
+                if (window.React && window.ReactDOM && window.ReactFlow) {
+                    setTimeout(initializeApp, 100); // 稍微延迟确保初始化完成
+                } else if (attempts < maxAttempts) {
+                    setTimeout(checkLibraries, 100);
                 } else {
-                    waitForLibraries();
+                    document.getElementById('root').innerHTML = `
+                        <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
+                            <h1 style="color: #dc2626; margin-bottom: 20px;">库加载超时</h1>
+                            <p style="color: #6b7280; margin-bottom: 20px;">请检查网络连接或刷新页面重试</p>
+                            <button onclick="location.reload()" style="
+                                background: #3b82f6; 
+                                color: white; 
+                                border: none; 
+                                padding: 10px 20px; 
+                                border-radius: 8px; 
+                                cursor: pointer; 
+                                margin-top: 20px;
+                            ">刷新页面</button>
+                        </div>
+                    `;
                 }
+            };
+            checkLibraries();
+        }
+        // 等待DOM加载完成
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForLibraries);
+        } else {
+            waitForLibraries();
+        }
     </script>
 </body>
 </html>
