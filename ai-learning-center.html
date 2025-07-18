@@ -100,18 +100,22 @@
                         <i class="fas fa-brain text-white text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">AI学习中心</h1>
-                        <p class="text-sm text-gray-600">让AI学习您的业务知识，提供个性化安全分析</p>
+                        <h1 class="text-2xl font-bold text-gray-900">安全GPT智能学习平台</h1>
+                        <p class="text-sm text-gray-600">构建自适应、自学习的智能安全调优体系，让AI学习您的独特环境和研判经验</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
                     <div class="text-sm text-gray-500">
-                        <i class="fas fa-database mr-1"></i>
-                        已学习知识项: <span class="font-bold text-ai">156</span>
+                        <i class="fas fa-shield-alt mr-1"></i>
+                        告警精准度: <span class="font-bold text-success">92%</span>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-robot mr-1"></i>
+                        自动化率: <span class="font-bold text-ai">85%</span>
                     </div>
                     <div class="text-sm text-gray-500">
                         <i class="fas fa-lightbulb mr-1"></i>
-                        今日新增: <span class="font-bold text-learning">8</span>
+                        今日学习: <span class="font-bold text-learning">12</span>
                     </div>
                 </div>
             </div>
@@ -123,45 +127,142 @@
         <!-- 导航标签页 -->
         <div class="mb-6">
             <nav class="flex space-x-8">
-                <button class="tab-btn" data-tab="context">
+                <button class="tab-btn active" data-tab="context">
                     <i class="fas fa-hand-pointer mr-2"></i>
                     AI互动调优演示
                 </button>
-                <button class="tab-btn active" data-tab="assets">
-                    <i class="fas fa-server mr-2"></i>
-                    资产学习中心
+                <button class="tab-btn" data-tab="assets">
+                    <i class="fas fa-network-wired mr-2"></i>
+                    环境感知学习
                 </button>
                 <button class="tab-btn" data-tab="judgment">
-                    <i class="fas fa-gavel mr-2"></i>
-                    研判知识库
+                    <i class="fas fa-brain mr-2"></i>
+                    研判智能学习
                 </button>
                 <button class="tab-btn" data-tab="disposal">
                     <i class="fas fa-tasks mr-2"></i>
-                    处置知识库
+                    处置习惯学习
                 </button>
                 <button class="tab-btn" data-tab="analytics">
                     <i class="fas fa-chart-line mr-2"></i>
-                    学习统计
+                    价值可视化
                 </button>
             </nav>
         </div>
 
-        <!-- 资产学习中心 -->
-        <div id="assets-tab" class="tab-content">
+        <!-- 环境感知学习 -->
+        <div id="assets-tab" class="tab-content hidden">
             <div class="space-y-6">
-                <!-- 资产知识列表 -->
+                <!-- 页面说明 -->
+                <div class="bg-gradient-to-r from-context/10 to-blue-50 rounded-lg shadow-sm border border-context/20 p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-context to-blue-500 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-network-wired text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">环境感知学习</h3>
+                                <p class="text-sm text-gray-600">AI自动识别和学习客户IT环境，提供精准的网络拓扑分析和资产配置建议</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-shield-alt mr-1"></i>
+                                网络识别准确率: <span class="font-bold text-context">96%</span>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-server mr-1"></i>
+                                已识别资产: <span class="font-bold text-blue-600">342</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 网络拓扑自动识别 -->
+                <div class="bg-white rounded-lg shadow-sm border card-hover">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-sitemap text-blue-600 text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900">网络拓扑自动识别</h4>
+                                    <p class="text-sm text-gray-600">AI自动识别内外网配置，推荐网络分段策略</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-xs text-green-600 font-medium">实时扫描</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-medium text-blue-800 mb-1">AI发现: 内网分段建议</h5>
+                                        <p class="text-sm text-blue-700 mb-2">基于流量分析，建议将192.168.100.0/24设为DMZ区域</p>
+                                        <div class="text-xs text-blue-600 mb-2">
+                                            <strong>分析证据:</strong> 该网段存在大量外网访问，且运行Web服务
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <button onclick="applyNetworkConfig('dmz-suggestion')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full hover:bg-blue-700">
+                                                一键应用
+                                            </button>
+                                            <button onclick="showNetworkDetail('dmz-suggestion')" class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full hover:bg-blue-200">
+                                                查看详情
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-medium text-green-800 mb-1">已识别: 办公网络区域</h5>
+                                        <p class="text-sm text-green-700 mb-2">10.10.0.0/16确认为办公内网，安全策略已自动适配</p>
+                                        <div class="text-xs text-green-600">
+                                            <strong>最后更新:</strong> 2小时前
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 资产学习与识别 -->
                 <div>
                     <div class="bg-white rounded-lg shadow-sm border card-hover">
                         <div class="p-6 border-b border-gray-200">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">
-                                    <i class="fas fa-list-ul text-ai mr-2"></i>
-                                    资产知识列表
-                                </h3>
-                                <button onclick="addAssetKnowledge()" class="bg-ai text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                                    <i class="fas fa-plus mr-2"></i>
-                                    新增资产知识
-                                </button>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-context to-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-database text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">资产学习与识别</h4>
+                                        <p class="text-sm text-gray-600">支持CMDB导入，AI自动学习资产属性和业务关联</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="importCMDB()" class="bg-gradient-to-r from-context to-blue-500 text-white px-3 py-2 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all text-sm">
+                                        <i class="fas fa-upload mr-1"></i>
+                                        导入CMDB
+                                    </button>
+                                    <button onclick="addAssetKnowledge()" class="bg-ai text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                        <i class="fas fa-plus mr-1"></i>
+                                        新增资产
+                                    </button>
+                                </div>
                             </div>
                             <div class="mt-4 flex space-x-4">
                                 <input type="text" id="asset-search" placeholder="搜索IP、标签或业务归属..." 
@@ -221,42 +322,300 @@
             </div>
         </div>
 
-        <!-- 研判知识库 -->
+        <!-- 研判智能学习 -->
         <div id="judgment-tab" class="tab-content hidden">
-            <div class="max-w-4xl mx-auto">
-                <!-- AI智能规则引擎 -->
-                <div class="bg-white rounded-lg shadow-sm border card-hover">
-                    <div class="p-6 border-b border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">
-                                    <i class="fas fa-atom text-ai mr-2"></i>
-                                    AI智能规则引擎
-                                </h3>
-                                <p class="text-sm text-gray-600 mt-1">基于机器学习的自适应威胁检测规则</p>
+            <div class="max-w-7xl mx-auto">
+                <!-- 页面说明 -->
+                <div class="bg-gradient-to-r from-judgment/10 to-orange-50 rounded-lg shadow-sm border border-judgment/20 p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-judgment to-orange-500 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-brain text-white text-xl"></i>
                             </div>
-                            <button onclick="addCustomRule()" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all">
-                                <i class="fas fa-magic mr-2"></i>
-                                AI生成规则
-                            </button>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">研判智能学习</h3>
+                                <p class="text-sm text-gray-600">基于用户反馈的监督学习，形成"人工反馈 → AI学习 → 策略优化"的良性闭环</p>
+                            </div>
                         </div>
-                        <!-- 规则学习状态 -->
-                        <div class="mt-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-3">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-thumbs-up mr-1"></i>
+                                标注准确率: <span class="font-bold text-judgment">94%</span>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-robot mr-1"></i>
+                                AI推荐采纳率: <span class="font-bold text-orange-600">87%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 功能模块网格 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- 用户反馈学习 -->
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <div class="text-sm">
-                                        <span class="text-gray-600">活跃规则:</span>
-                                        <span class="font-bold text-ai">12条</span>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-thumbs-up text-green-600 text-lg"></i>
                                     </div>
-                                    <div class="text-sm">
-                                        <span class="text-gray-600">AI优化:</span>
-                                        <span class="font-bold text-success">+18%</span>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">用户反馈学习</h4>
+                                        <p class="text-sm text-gray-600">客户打标系统，AI实时学习用户判断</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                    <span class="text-xs text-green-600">实时学习中</span>
+                                    <span class="text-xs text-green-600 font-medium">实时学习</span>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <!-- 打标演示 -->
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-800 mb-3">模拟告警打标演示</h5>
+                                    <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="text-sm font-medium text-gray-800">SQL注入攻击尝试</div>
+                                            <div class="text-xs text-gray-500">2024-01-15 14:30</div>
+                                        </div>
+                                        <div class="text-sm text-gray-600 mb-3">来源: 192.168.1.100 → 目标: 10.10.10.10</div>
+                                        <div class="flex items-center space-x-2">
+                                            <button onclick="labelAlert('positive')" class="flex items-center space-x-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm hover:bg-green-600 transition-colors">
+                                                <i class="fas fa-check"></i>
+                                                <span>✅正报</span>
+                                            </button>
+                                            <button onclick="labelAlert('negative')" class="flex items-center space-x-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm hover:bg-red-600 transition-colors">
+                                                <i class="fas fa-times"></i>
+                                                <span>❌误报</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 学习统计 -->
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <h5 class="font-medium text-green-800 mb-3">本周学习统计</h5>
+                                    <div class="grid grid-cols-2 gap-3 text-sm">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-green-600">156</div>
+                                            <div class="text-green-700">用户标注</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-blue-600">23</div>
+                                            <div class="text-blue-700">AI纠错</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 现场交互式调优 -->
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-edit text-purple-600 text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">现场交互式调优</h4>
+                                        <p class="text-sm text-gray-600">划词调优，复合条件，全程审计</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs text-purple-600 font-medium">实时调优</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <!-- 调优演示 -->
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-800 mb-3">Payload调优演示</h5>
+                                    <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4 font-mono text-sm">
+                                        <div class="text-xs text-gray-500 mb-2">划选特定字段创建调优规则</div>
+                                        <div class="selectable-text cursor-text">
+                                            GET /api/user?id=<span class="bg-yellow-200 px-1 rounded border border-yellow-400 font-semibold">1' OR '1'='1</span> HTTP/1.1<br>
+                                            Host: target.com<br>
+                                            User-Agent: <span class="bg-yellow-200 px-1 rounded border border-yellow-400 font-semibold">sqlmap/1.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 调优记录 -->
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                    <h5 class="font-medium text-purple-800 mb-3">最近调优记录</h5>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-purple-600 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </div>
+                                            <span class="text-purple-700">条件: User-Agent包含"sqlmap" AND Payload包含"OR"</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </div>
+                                            <span class="text-green-700">操作: 设置为高风险威胁</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            操作人: 张安全 | 时间: 2024-01-15 14:25
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 知识注入与AI推荐 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 外部知识学习 -->
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-file-upload text-blue-600 text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">外部知识学习</h4>
+                                        <p class="text-sm text-gray-600">导入研判手册、应急预案等文档</p>
+                                    </div>
+                                </div>
+                                <button onclick="uploadKnowledgeDoc()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    导入文档
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <i class="fas fa-file-alt text-blue-600"></i>
+                                        <span class="font-medium text-blue-800">研判经验手册.pdf</span>
+                                    </div>
+                                    <div class="text-sm text-blue-700 mb-2">AI已解析并生成12条分析规则</div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">已学习</span>
+                                        <span class="text-xs text-blue-600">上传时间: 2024-01-10</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <i class="fas fa-file-alt text-gray-600"></i>
+                                        <span class="font-medium text-gray-800">应急响应预案.docx</span>
+                                    </div>
+                                    <div class="text-sm text-gray-700 mb-2">AI正在解析文档内容...</div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">处理中</span>
+                                        <span class="text-xs text-gray-600">预计完成: 5分钟</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI自主推荐 -->
+                    <div class="bg-white rounded-lg shadow-sm border card-hover">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-robot text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">AI自主推荐</h4>
+                                        <p class="text-sm text-gray-600">基于数据分析的智能规则推荐</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs text-purple-600 font-medium">AI推荐中</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs">
+                                            <i class="fas fa-lightbulb"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h5 class="font-medium text-purple-800 mb-1">AI推荐规则</h5>
+                                            <p class="text-sm text-purple-700 mb-2">基于相似性分析，建议对"Python-requests"特征进行良性标记</p>
+                                            <div class="text-xs text-purple-600 mb-2">
+                                                <strong>影响告警:</strong> 约45条
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button onclick="acceptAIRecommendation('python-requests')" class="text-xs bg-purple-600 text-white px-3 py-1 rounded-full hover:bg-purple-700">
+                                                    采纳推荐
+                                                </button>
+                                                <button onclick="rejectAIRecommendation('python-requests')" class="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full hover:bg-purple-200">
+                                                    拒绝推荐
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h5 class="font-medium text-blue-800 mb-1">策略优化建议</h5>
+                                            <p class="text-sm text-blue-700 mb-2">建议调整SQL注入检测阈值，降低15%误报率</p>
+                                            <div class="text-xs text-blue-600 mb-2">
+                                                <strong>预期效果:</strong> 误报率从12%降至7%
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button onclick="acceptAIRecommendation('sql-threshold')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full hover:bg-blue-700">
+                                                    采纳推荐
+                                                </button>
+                                                <button onclick="rejectAIRecommendation('sql-threshold')" class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full hover:bg-blue-200">
+                                                    拒绝推荐
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统一研判知识库 -->
+                <div class="mt-6 bg-white rounded-lg shadow-sm border card-hover">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-r from-judgment to-orange-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-database text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900">统一研判知识库</h4>
+                                    <p class="text-sm text-gray-600">管理所有来源的研判规则，支持策略生效与反馈机制</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="exportKnowledgeBase()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                    <i class="fas fa-download mr-2"></i>
+                                    导出知识库
+                                </button>
+                                <button onclick="addCustomRule()" class="bg-gradient-to-r from-judgment to-orange-500 text-white px-4 py-2 rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    新增规则
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -269,7 +628,7 @@
             </div>
         </div>
 
-        <!-- 处置知识库 -->
+        <!-- 处置习惯学习 -->
         <div id="disposal-tab" class="tab-content hidden">
             <div class="max-w-7xl mx-auto">
                 <!-- 页面说明 -->
@@ -280,7 +639,7 @@
                                 <i class="fas fa-tasks text-white text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900">处置知识库</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">处置习惯学习</h3>
                                 <p class="text-sm text-gray-600">识别和学习客户的个性化安全事件处置习惯</p>
                             </div>
                         </div>
@@ -679,108 +1038,152 @@
             </div>
         </div>
 
-        <!-- 在场学习 -->
-        <div id="context-tab" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 学习演示区域 -->
-                <div class="lg:col-span-2">
+        <!-- AI互动调优演示 -->
+        <div id="context-tab" class="tab-content">
+            <div class="max-w-7xl mx-auto">
+                <!-- 页面说明 -->
+                <div class="bg-gradient-to-r from-judgment/10 to-orange-50 rounded-lg shadow-sm border border-judgment/20 p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-judgment to-orange-500 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-brain text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">研判智能学习</h3>
+                                <p class="text-sm text-gray-600">基于用户反馈的监督学习，形成"人工反馈 → AI学习 → 策略优化"的良性闭环</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-thumbs-up mr-1"></i>
+                                标注准确率: <span class="font-bold text-judgment">94%</span>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-robot mr-1"></i>
+                                AI推荐采纳率: <span class="font-bold text-orange-600">87%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 功能模块网格 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 用户反馈学习 -->
                     <div class="bg-white rounded-lg shadow-sm border card-hover">
                         <div class="p-6 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">
-                                <i class="fas fa-mouse-pointer text-learning mr-2"></i>
-                                在场学习演示
-                            </h3>
-                            <p class="text-sm text-gray-600 mt-1">在分析界面直接划选文本或点击IP地址，即可教AI学习</p>
-                        </div>
-                        <div class="p-6">
-                            <!-- 模拟告警详情 -->
-                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                <h4 class="font-medium text-gray-800 mb-3">模拟告警详情：</h4>
-                                <div class="space-y-3">
-                                    <div class="flex items-center space-x-4">
-                                        <span class="text-sm text-gray-600">攻击源IP:</span>
-                                        <span class="knowledge-item font-mono text-blue-600 cursor-pointer hover:bg-blue-50 px-2 py-1 rounded relative group">
-                                            192.168.10.50
-                                            <button onclick="teachAI('ip', '192.168.10.50')" class="teach-ai-btn absolute -top-2 -right-2 w-6 h-6 bg-ai text-white rounded-full text-xs hover:bg-purple-700">
-                                                🧠
-                                            </button>
-                                        </span>
-                                    </div>
-                                    <div class="flex items-center space-x-4">
-                                        <span class="text-sm text-gray-600">目标IP:</span>
-                                        <span class="knowledge-item font-mono text-blue-600 cursor-pointer hover:bg-blue-50 px-2 py-1 rounded relative group">
-                                            10.10.10.10
-                                            <button onclick="teachAI('ip', '10.10.10.10')" class="teach-ai-btn absolute -top-2 -right-2 w-6 h-6 bg-ai text-white rounded-full text-xs hover:bg-purple-700">
-                                                🧠
-                                            </button>
-                                        </span>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-thumbs-up text-green-600 text-lg"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm text-gray-600 block mb-2">HTTP请求详情:</span>
-                                        <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 font-mono text-sm selectable-text hover:border-ai hover:bg-blue-50 transition-colors cursor-text" id="demo-payload">
-                                            <div class="text-xs text-gray-500 mb-2">
-                                                <i class="fas fa-mouse-pointer mr-1"></i>
-                                                试试划选下面的文本，特别是高亮的部分
-                                            </div>
-GET /admin/login HTTP/1.1
-Host: 10.10.10.10
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 <span class="bg-yellow-200 px-1 rounded border border-yellow-400 font-semibold cursor-pointer hover:bg-yellow-300 transition-colors">HealthChecker/1.0</span>
-Accept: text/html,application/xhtml+xml
-Connection: keep-alive
+                                        <h4 class="text-lg font-semibold text-gray-900">用户反馈学习</h4>
+                                        <p class="text-sm text-gray-600">客户打标系统，AI实时学习用户判断</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs text-green-600 font-medium">实时学习</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <!-- 打标演示 -->
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-800 mb-3">模拟告警打标演示</h5>
+                                    <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="text-sm font-medium text-gray-800">SQL注入攻击尝试</div>
+                                            <div class="text-xs text-gray-500">2024-01-15 14:30</div>
+                                        </div>
+                                        <div class="text-sm text-gray-600 mb-3">来源: 192.168.1.100 → 目标: 10.10.10.10</div>
+                                        <div class="flex items-center space-x-2">
+                                            <button onclick="labelAlert('positive')" class="flex items-center space-x-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm hover:bg-green-600 transition-colors">
+                                                <i class="fas fa-check"></i>
+                                                <span>✅正报</span>
+                                            </button>
+                                            <button onclick="labelAlert('negative')" class="flex items-center space-x-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm hover:bg-red-600 transition-colors">
+                                                <i class="fas fa-times"></i>
+                                                <span>❌误报</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- 学习指导 -->
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <h5 class="font-medium text-blue-800 mb-3">
-                                    <i class="fas fa-lightbulb mr-2"></i>
-                                    学习操作指南
-                                </h5>
-                                <div class="space-y-3">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
-                                        <div class="text-sm text-blue-700">
-                                            <strong>标记资产属性：</strong> 点击IP地址旁的 🧠 图标，可标记资产属性
+                                
+                                <!-- 学习统计 -->
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <h5 class="font-medium text-green-800 mb-3">本周学习统计</h5>
+                                    <div class="grid grid-cols-2 gap-3 text-sm">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-green-600">156</div>
+                                            <div class="text-green-700">用户标注</div>
                                         </div>
-                                    </div>
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                                        <div class="text-sm text-blue-700">
-                                            <strong>划选文本学习：</strong> 用鼠标划选HTTP请求中的 <span class="bg-yellow-200 px-1 rounded font-mono">"HealthChecker/1.0"</span> 文本，会弹出浮动工具条
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                                        <div class="text-sm text-blue-700">
-                                            <strong>确认学习：</strong> 点击浮动工具条中的"标记为良性"按钮，AI会记住这个特征
-                                        </div>
-                                    </div>
-                                    <div class="bg-white rounded p-2 mt-2">
-                                        <div class="text-xs text-blue-600">
-                                            <i class="fas fa-info-circle mr-1"></i>
-                                            <strong>提示：</strong> 所有学习的知识都会立即生效，提升AI分析准确性
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-blue-600">23</div>
+                                            <div class="text-blue-700">AI纠错</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 学习记录 -->
-                <div>
+                    <!-- 现场交互式调优 -->
                     <div class="bg-white rounded-lg shadow-sm border card-hover">
                         <div class="p-6 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">
-                                <i class="fas fa-history text-gray-600 mr-2"></i>
-                                最近学习记录
-                            </h3>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-edit text-purple-600 text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">现场交互式调优</h4>
+                                        <p class="text-sm text-gray-600">划词调优，复合条件，全程审计</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs text-purple-600 font-medium">实时调优</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="p-6">
-                            <div class="space-y-4" id="recent-learning-list">
-                                <!-- 学习记录列表 -->
+                            <div class="space-y-4">
+                                <!-- 调优演示 -->
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-800 mb-3">Payload调优演示</h5>
+                                    <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4 font-mono text-sm">
+                                        <div class="text-xs text-gray-500 mb-2">划选特定字段创建调优规则</div>
+                                        <div class="selectable-text cursor-text">
+                                            GET /api/user?id=<span class="bg-yellow-200 px-1 rounded border border-yellow-400 font-semibold">1' OR '1'='1</span> HTTP/1.1<br>
+                                            Host: target.com<br>
+                                            User-Agent: <span class="bg-yellow-200 px-1 rounded border border-yellow-400 font-semibold">sqlmap/1.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 调优记录 -->
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                    <h5 class="font-medium text-purple-800 mb-3">最近调优记录</h5>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-purple-600 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </div>
+                                            <span class="text-purple-700">条件: User-Agent包含"sqlmap" AND Payload包含"OR"</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </div>
+                                            <span class="text-green-700">操作: 设置为高风险威胁</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            操作人: 张安全 | 时间: 2024-01-15 14:25
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -788,58 +1191,102 @@ Connection: keep-alive
             </div>
         </div>
 
-        <!-- 学习统计 -->
+        <!-- 价值可视化 -->
         <div id="analytics-tab" class="tab-content hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <!-- 统计卡片 -->
-                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-ai/10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-database text-ai text-xl"></i>
+            <!-- 页面说明 -->
+            <div class="bg-gradient-to-r from-ai/10 to-learning/10 rounded-lg shadow-sm border border-ai/20 p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-r from-ai to-learning rounded-xl flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white text-xl"></i>
                         </div>
-                        <div class="ml-4">
-                            <h4 class="text-2xl font-bold text-gray-900">156</h4>
-                            <p class="text-sm text-gray-600">总知识项</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-learning/10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-server text-learning text-xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="text-2xl font-bold text-gray-900">89</h4>
-                            <p class="text-sm text-gray-600">资产知识</p>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">价值可视化</h3>
+                            <p class="text-sm text-gray-600">将学习和调优的过程与效果清晰地展示，证明系统的价值</p>
                         </div>
                     </div>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check-shield text-success text-xl"></i>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-trophy mr-1"></i>
+                            综合价值评分: <span class="font-bold text-ai">A+</span>
                         </div>
-                        <div class="ml-4">
-                            <h4 class="text-2xl font-bold text-gray-900">67</h4>
-                            <p class="text-sm text-gray-600">可信特征</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border card-hover p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-gradient-to-r from-red-100 to-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-sync-alt text-green-600 text-xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="text-2xl font-bold text-green-600">23次</h4>
-                            <p class="text-sm text-gray-600">AI纠正误判</p>
-                            <p class="text-xs text-green-500 mt-1">准确率提升+15%</p>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            月度提升: <span class="font-bold text-success">+28%</span>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- 价值指标卡片 -->
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6 cursor-pointer" onclick="showMetricDetail('accuracy')">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-success text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-gray-900">92%</h4>
+                            <p class="text-sm text-gray-600">告警精准度</p>
+                            <p class="text-xs text-success mt-1">↑ 比上月提升15%</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        点击查看计算说明
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6 cursor-pointer" onclick="showMetricDetail('automation')">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-ai/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-robot text-ai text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-gray-900">85%</h4>
+                            <p class="text-sm text-gray-600">自动化处理率</p>
+                            <p class="text-xs text-ai mt-1">↑ 比上月提升12%</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        点击查看计算说明
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6 cursor-pointer" onclick="showMetricDetail('response')">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-warning text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-gray-900">3.2分钟</h4>
+                            <p class="text-sm text-gray-600">平均响应时间</p>
+                            <p class="text-xs text-warning mt-1">↓ 比上月减少40%</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        点击查看计算说明
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6 cursor-pointer" onclick="showMetricDetail('false_positive')">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-filter text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-2xl font-bold text-blue-600">8%</h4>
+                            <p class="text-sm text-gray-600">误报率</p>
+                            <p class="text-xs text-blue-500 mt-1">↓ 比上月减少58%</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        点击查看计算说明
+                    </div>
+                </div>
+            </div>
 
-            <!-- AI优化成果展示 -->
+            <!-- 学习效果展示 -->
             <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow-sm border border-blue-200 p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-3">
@@ -847,81 +1294,96 @@ Connection: keep-alive
                             <i class="fas fa-brain text-white text-lg"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">AI优化成果</h3>
-                            <p class="text-sm text-gray-600">最新的AI学习和优化表现</p>
+                            <h3 class="text-lg font-semibold text-gray-900">AI学习效果</h3>
+                            <p class="text-sm text-gray-600">智能学习系统的实时表现和优化成果</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
                         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span class="text-xs text-green-600 font-medium">实时优化中</span>
+                        <span class="text-xs text-green-600 font-medium">实时学习中</span>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg p-4 border border-blue-100">
+                    <div class="bg-white rounded-lg p-4 border border-blue-100 cursor-pointer hover:shadow-md transition-shadow" onclick="showLearningDetail('user_feedback')">
                         <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-exclamation-triangle text-red-500 text-sm"></i>
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-thumbs-up text-blue-500 text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-800">纠正人工误判</div>
-                                <div class="text-xs text-gray-500">最近7天</div>
+                                <div class="text-sm font-medium text-gray-800">用户反馈学习</div>
+                                <div class="text-xs text-gray-500">最近30天</div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="text-2xl font-bold text-red-500">8次</div>
-                            <div class="text-xs text-gray-600">包含杜少的3次误判</div>
+                            <div class="text-2xl font-bold text-blue-500">2,348条</div>
+                            <div class="text-xs text-gray-600">标注数据，AI学习正报率94%</div>
                         </div>
                     </div>
                     
-                    <div class="bg-white rounded-lg p-4 border border-green-100">
+                    <div class="bg-white rounded-lg p-4 border border-green-100 cursor-pointer hover:shadow-md transition-shadow" onclick="showLearningDetail('rule_optimization')">
                         <div class="flex items-center space-x-3">
                             <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check-circle text-green-500 text-sm"></i>
+                                <i class="fas fa-cogs text-green-500 text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-800">准确率提升</div>
-                                <div class="text-xs text-gray-500">对比上周</div>
+                                <div class="text-sm font-medium text-gray-800">规则自动优化</div>
+                                <div class="text-xs text-gray-500">本周统计</div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="text-2xl font-bold text-green-500">+15%</div>
-                            <div class="text-xs text-gray-600">从87%提升至92%</div>
+                            <div class="text-2xl font-bold text-green-500">156次</div>
+                            <div class="text-xs text-gray-600">规则调优，检测效率提升23%</div>
                         </div>
                     </div>
                     
-                    <div class="bg-white rounded-lg p-4 border border-purple-100">
+                    <div class="bg-white rounded-lg p-4 border border-purple-100 cursor-pointer hover:shadow-md transition-shadow" onclick="showLearningDetail('knowledge_base')">
                         <div class="flex items-center space-x-3">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-lightbulb text-purple-500 text-sm"></i>
+                                <i class="fas fa-database text-purple-500 text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-800">智能建议</div>
-                                <div class="text-xs text-gray-500">已被采纳</div>
+                                <div class="text-sm font-medium text-gray-800">知识库增长</div>
+                                <div class="text-xs text-gray-500">累计学习</div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="text-2xl font-bold text-purple-500">16条</div>
-                            <div class="text-xs text-gray-600">采纳率89%</div>
+                            <div class="text-2xl font-bold text-purple-500">4,567项</div>
+                            <div class="text-xs text-gray-600">环境特征，覆盖率98%</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 学习趋势图 -->
+            <!-- 价值提升趋势 -->
             <div class="bg-white rounded-lg shadow-sm border card-hover">
                 <div class="p-6 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900">
                         <i class="fas fa-chart-area text-ai mr-2"></i>
-                        学习趋势分析
+                        价值提升趋势
                     </h3>
+                    <p class="text-sm text-gray-600 mt-1">安全GPT智能学习带来的价值提升可视化</p>
                 </div>
                 <div class="p-6">
-                    <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
+                    <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gradient-to-br from-ai/5 to-learning/5">
                         <div class="text-center">
-                            <i class="fas fa-chart-line text-gray-400 text-4xl mb-4"></i>
-                            <p class="text-gray-500">学习趋势图表区域</p>
-                            <p class="text-sm text-gray-400">可集成Chart.js等图表库显示数据</p>
+                            <i class="fas fa-chart-line text-ai text-4xl mb-4"></i>
+                            <p class="text-gray-700 font-medium">价值提升趋势图表区域</p>
+                            <p class="text-sm text-gray-500">展示告警精准度、自动化程度、成本节省等关键指标的提升趋势</p>
+                            <div class="mt-4 grid grid-cols-3 gap-4 text-sm">
+                                <div class="bg-white rounded-lg p-3 border">
+                                    <div class="text-success font-bold">+28%</div>
+                                    <div class="text-gray-600">月度提升</div>
+                                </div>
+                                <div class="bg-white rounded-lg p-3 border">
+                                    <div class="text-ai font-bold">95%</div>
+                                    <div class="text-gray-600">客户满意度</div>
+                                </div>
+                                <div class="bg-white rounded-lg p-3 border">
+                                    <div class="text-warning font-bold">ROI 3.2x</div>
+                                    <div class="text-gray-600">投资回报率</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1384,7 +1846,6 @@ Connection: keep-alive
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${rule.status === '学习中' ? 'bg-yellow-100 text-yellow-700' : rule.status === '已优化' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}">
                                 ${rule.status}
                             </span>
-                            <span class="text-xs text-gray-500">置信度: ${rule.confidence}</span>
                         </div>
                     </div>
                     <div class="space-y-2 mb-3">
@@ -1887,7 +2348,6 @@ Connection: keep-alive
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${priorityBadgeClass}">
                                             ${priorityText}
                                         </span>
-                                        <span class="text-xs bg-ai text-white px-2 py-1 rounded-full">置信度: ${suggestion.confidence}</span>
                                     </div>
                                 </div>
                                 <p class="text-sm text-gray-700 mb-4 leading-relaxed">${suggestion.description}</p>
@@ -1935,7 +2395,6 @@ Connection: keep-alive
                             </div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900">${suggestion.title}</h3>
-                                <p class="text-sm text-gray-600">置信度: ${suggestion.confidence}</p>
                             </div>
                         </div>
                         <div class="bg-gray-50 rounded-lg p-4">
@@ -1974,7 +2433,6 @@ Connection: keep-alive
                             </div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900">${suggestion.title}</h3>
-                                <p class="text-sm text-gray-600">置信度: ${suggestion.confidence}</p>
                             </div>
                         </div>
                         <div class="bg-gray-50 rounded-lg p-4">
@@ -2044,6 +2502,334 @@ Connection: keep-alive
         function ignoreSuggestion(type) {
             showNotification('已忽略该建议', 'info');
             // 这里可以添加从建议列表中移除的逻辑
+        }
+
+        // 新增的环境感知学习相关函数
+        function applyNetworkConfig(suggestionId) {
+            showNotification('网络配置已应用，正在生成配置单...', 'success');
+            // 这里可以添加实际的网络配置应用逻辑
+        }
+
+        function showNetworkDetail(suggestionId) {
+            showNotification('查看网络配置详情...', 'info');
+            // 这里可以添加显示网络详情的逻辑
+        }
+
+        function confirmProxyServer(ip) {
+            showNotification(`已确认 ${ip} 为代理服务器，正在应用配置...`, 'success');
+            // 这里可以添加确认代理服务器的逻辑
+        }
+
+        function ignoreProxyServer(ip) {
+            showNotification(`已忽略 ${ip} 的代理服务器建议`, 'info');
+            // 这里可以添加忽略代理服务器建议的逻辑
+        }
+
+        function importCMDB() {
+            showNotification('CMDB导入功能开发中，敬请期待！', 'info');
+            // 这里可以添加CMDB导入的逻辑
+        }
+
+        // 新增的研判智能学习相关函数
+        function labelAlert(type) {
+            const labels = {
+                'positive': '✅正报',
+                'negative': '❌误报'
+            };
+            
+            showNotification(`已标记为${labels[type]}，AI正在学习中...`, 'success');
+            // 这里可以添加实际的标记学习逻辑
+        }
+
+        function uploadKnowledgeDoc() {
+            showNotification('知识文档上传功能开发中，敬请期待！', 'info');
+            // 这里可以添加文档上传的逻辑
+        }
+
+        function acceptAIRecommendation(ruleId) {
+            showNotification('AI推荐规则已采纳，正在应用中...', 'success');
+            // 这里可以添加采纳AI推荐的逻辑
+        }
+
+        function rejectAIRecommendation(ruleId) {
+            showNotification('AI推荐规则已拒绝', 'info');
+            // 这里可以添加拒绝AI推荐的逻辑
+        }
+
+        function exportKnowledgeBase() {
+            showNotification('知识库导出功能开发中，敬请期待！', 'info');
+            // 这里可以添加知识库导出的逻辑
+        }
+
+        // 显示指标详情
+        function showMetricDetail(metricType) {
+            const modal = document.getElementById('learning-modal');
+            const content = document.getElementById('learning-modal-content');
+            
+            const metricDetails = {
+                'accuracy': {
+                    title: '告警精准度',
+                    value: '92%',
+                    formula: '告警精准度 = 真实威胁告警数 / 总告警数',
+                    calculation: `
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h5 class="font-medium text-gray-800 mb-2">计算公式</h5>
+                                <div class="font-mono text-sm text-blue-600">
+                                    精准度 = 真实威胁告警数 / 总告警数 × 100%
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-blue-50 rounded-lg p-3">
+                                    <div class="text-sm text-blue-800">真实威胁告警</div>
+                                    <div class="text-2xl font-bold text-blue-600">2,208</div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="text-sm text-gray-800">总告警数</div>
+                                    <div class="text-2xl font-bold text-gray-600">2,400</div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-3">
+                                <div class="text-sm text-green-800">计算结果</div>
+                                <div class="text-lg font-bold text-green-600">2,208 ÷ 2,400 = 92%</div>
+                            </div>
+                        </div>
+                    `,
+                    improvement: '通过AI学习用户标注，模型不断优化威胁识别准确性，相比上月提升15%'
+                },
+                'automation': {
+                    title: '自动化处理率',
+                    value: '85%',
+                    formula: '自动化处理率 = 自动处理告警数 / 总告警数',
+                    calculation: `
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h5 class="font-medium text-gray-800 mb-2">计算公式</h5>
+                                <div class="font-mono text-sm text-purple-600">
+                                    自动化率 = 自动处理告警数 / 总告警数 × 100%
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-purple-50 rounded-lg p-3">
+                                    <div class="text-sm text-purple-800">自动处理告警</div>
+                                    <div class="text-2xl font-bold text-purple-600">2,040</div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="text-sm text-gray-800">总告警数</div>
+                                    <div class="text-2xl font-bold text-gray-600">2,400</div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-3">
+                                <div class="text-sm text-green-800">计算结果</div>
+                                <div class="text-lg font-bold text-green-600">2,040 ÷ 2,400 = 85%</div>
+                            </div>
+                        </div>
+                    `,
+                    improvement: '通过处置习惯学习，系统自动应用历史处置策略，减少人工干预'
+                },
+                'response': {
+                    title: '平均响应时间',
+                    value: '3.2分钟',
+                    formula: '平均响应时间 = 总响应时间 / 处理告警数',
+                    calculation: `
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h5 class="font-medium text-gray-800 mb-2">计算公式</h5>
+                                <div class="font-mono text-sm text-orange-600">
+                                    响应时间 = 总响应时间 / 处理告警数
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-orange-50 rounded-lg p-3">
+                                    <div class="text-sm text-orange-800">总响应时间</div>
+                                    <div class="text-2xl font-bold text-orange-600">7,680分钟</div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="text-sm text-gray-800">处理告警数</div>
+                                    <div class="text-2xl font-bold text-gray-600">2,400</div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-3">
+                                <div class="text-sm text-green-800">计算结果</div>
+                                <div class="text-lg font-bold text-green-600">7,680 ÷ 2,400 = 3.2分钟</div>
+                            </div>
+                        </div>
+                    `,
+                    improvement: '通过智能分析和自动化处理，告警响应时间比上月减少40%'
+                },
+                'false_positive': {
+                    title: '误报率',
+                    value: '8%',
+                    formula: '误报率 = 误报告警数 / 总告警数',
+                    calculation: `
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h5 class="font-medium text-gray-800 mb-2">计算公式</h5>
+                                <div class="font-mono text-sm text-red-600">
+                                    误报率 = 误报告警数 / 总告警数 × 100%
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-red-50 rounded-lg p-3">
+                                    <div class="text-sm text-red-800">误报告警数</div>
+                                    <div class="text-2xl font-bold text-red-600">192</div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="text-sm text-gray-800">总告警数</div>
+                                    <div class="text-2xl font-bold text-gray-600">2,400</div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-3">
+                                <div class="text-sm text-green-800">计算结果</div>
+                                <div class="text-lg font-bold text-green-600">192 ÷ 2,400 = 8%</div>
+                            </div>
+                        </div>
+                    `,
+                    improvement: '通过环境感知学习和研判智能优化，误报率比上月降低58%'
+                }
+            };
+            
+            const detail = metricDetails[metricType];
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-calculator text-blue-600 text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800">${detail.title}</h4>
+                        <p class="text-sm text-gray-600">当前数值: ${detail.value}</p>
+                    </div>
+                    
+                    ${detail.calculation}
+                    
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h5 class="font-medium text-blue-800 mb-2">优化说明</h5>
+                        <p class="text-sm text-blue-700">${detail.improvement}</p>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button onclick="closeLearningModal()" class="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 显示学习详情
+        function showLearningDetail(learningType) {
+            const modal = document.getElementById('learning-modal');
+            const content = document.getElementById('learning-modal-content');
+            
+            const learningDetails = {
+                'user_feedback': {
+                    title: '用户反馈学习',
+                    icon: 'fa-thumbs-up',
+                    color: 'text-blue-600',
+                    description: '通过客户打标系统收集的反馈数据，AI实时学习用户的判断标准',
+                    details: `
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-green-50 rounded-lg p-3">
+                                    <div class="text-sm text-green-800">正报标注</div>
+                                    <div class="text-2xl font-bold text-green-600">2,208</div>
+                                </div>
+                                <div class="bg-red-50 rounded-lg p-3">
+                                    <div class="text-sm text-red-800">误报标注</div>
+                                    <div class="text-2xl font-bold text-red-600">140</div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-sm text-gray-800">学习准确率</div>
+                                <div class="text-lg font-bold text-gray-600">94%</div>
+                                <div class="text-xs text-gray-500">AI对用户标注的学习准确度</div>
+                            </div>
+                        </div>
+                    `
+                },
+                'rule_optimization': {
+                    title: '规则自动优化',
+                    icon: 'fa-cogs',
+                    color: 'text-green-600',
+                    description: '基于历史数据和用户反馈，AI自动优化检测规则，提升检测效率',
+                    details: `
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-blue-50 rounded-lg p-3">
+                                    <div class="text-sm text-blue-800">规则优化次数</div>
+                                    <div class="text-2xl font-bold text-blue-600">156</div>
+                                </div>
+                                <div class="bg-purple-50 rounded-lg p-3">
+                                    <div class="text-sm text-purple-800">生成新规则</div>
+                                    <div class="text-2xl font-bold text-purple-600">23</div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-sm text-gray-800">效率提升</div>
+                                <div class="text-lg font-bold text-gray-600">23%</div>
+                                <div class="text-xs text-gray-500">相比优化前的检测效率提升</div>
+                            </div>
+                        </div>
+                    `
+                },
+                'knowledge_base': {
+                    title: '知识库增长',
+                    icon: 'fa-database',
+                    color: 'text-purple-600',
+                    description: '通过环境感知学习积累的环境特征和威胁模式知识库',
+                    details: `
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-green-50 rounded-lg p-3">
+                                    <div class="text-sm text-green-800">环境特征</div>
+                                    <div class="text-2xl font-bold text-green-600">3,245</div>
+                                </div>
+                                <div class="bg-orange-50 rounded-lg p-3">
+                                    <div class="text-sm text-orange-800">威胁模式</div>
+                                    <div class="text-2xl font-bold text-orange-600">1,322</div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-sm text-gray-800">覆盖率</div>
+                                <div class="text-lg font-bold text-gray-600">98%</div>
+                                <div class="text-xs text-gray-500">对客户环境的特征覆盖程度</div>
+                            </div>
+                        </div>
+                    `
+                }
+            };
+            
+            const detail = learningDetails[learningType];
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas ${detail.icon} ${detail.color} text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800">${detail.title}</h4>
+                        <p class="text-sm text-gray-600">${detail.description}</p>
+                    </div>
+                    
+                    ${detail.details}
+                    
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h5 class="font-medium text-blue-800 mb-2">技术说明</h5>
+                        <p class="text-sm text-blue-700">所有学习数据都经过脱敏处理，确保用户隐私安全。AI模型采用联邦学习技术，在本地环境中进行训练和优化。</p>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button onclick="closeLearningModal()" class="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
         }
 
         // 显示通知

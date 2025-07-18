@@ -138,19 +138,19 @@
 
         /* 连线标签样式 */
         .react-flow__edge-text {
-            font-size: 12px;
-            font-weight: 600;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 2px 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 11px;
+            font-weight: 500;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .react-flow__edge-textbg {
             fill: white;
-            stroke: #e5e7eb;
+            stroke: #d1d5db;
             stroke-width: 1;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12));
         }
         
         .react-flow__handle {
@@ -166,6 +166,243 @@
         
         .react-flow__handle-right {
             right: -6px;
+        }
+
+        /* 配置面板样式 */
+        .config-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 480px;
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .config-panel.open {
+            transform: translateX(0);
+        }
+
+        /* 去掉遮罩层，保持非模态交互 */
+
+        /* 自定义滚动条 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 表单样式 */
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .checkbox-input {
+            width: 16px;
+            height: 16px;
+            accent-color: #3b82f6;
+        }
+
+        .tag-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            min-height: 40px;
+            background: white;
+        }
+
+        .tag-input:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .tag {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tag button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            font-size: 12px;
+        }
+
+        .tag button:hover {
+            color: #374151;
+        }
+
+        /* 指令配置样式 */
+        .instruction-item {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .instruction-item .instruction-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .instruction-item .instruction-actions button {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .instruction-item .instruction-actions button:hover {
+            background: #f3f4f6;
+        }
+
+        .instruction-item .instruction-actions button.delete {
+            color: #dc2626;
+            border-color: #dc2626;
+        }
+
+        .instruction-item .instruction-actions button.delete:hover {
+            background: #fee2e2;
+        }
+
+        /* Markdown编辑器样式 */
+        .markdown-editor {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .markdown-editor:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .markdown-editor textarea {
+            background: transparent;
+            color: #1f2937;
+        }
+
+        .markdown-editor textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        /* 节点悬浮菜单样式 */
+        .node-menu-button {
+            backdrop-filter: blur(8px);
+            background: rgba(75, 85, 99, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .node-menu-button:hover {
+            background: rgba(55, 65, 81, 0.9);
+        }
+
+        .node-menu {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            font-size: 12px;
+            min-width: 110px;
+        }
+
+        .node-menu button {
+            transition: all 0.15s ease;
+            font-size: 12px;
+        }
+
+        .node-menu button:hover {
+            transform: translateX(1px);
+        }
+
+        .node-menu .menu-item {
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .node-menu .menu-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .node-menu .menu-item.delete:hover {
+            background: rgba(239, 68, 68, 0.1);
         }
     </style>
 </head>
@@ -184,7 +421,7 @@
         const { useState, useCallback, useRef, useMemo } = React;
         // 检查React Flow是否正确加载
         if (!window.ReactFlow) {
-            console.error('React Flow library not loaded');
+            
             document.body.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">React Flow库加载失败，请刷新页面重试</div>';
         }
         
@@ -200,8 +437,116 @@
             MarkerType
         } = window.ReactFlow || {};
 
-        // 自定义节点类型
-        const TriggerNode = ({ data, selected }) => {
+        // 创建节点组件的高阶组件，添加点击事件和悬浮菜单
+        const createNodeComponent = (Component, type) => {
+            return ({ data, selected, id }) => {
+                const [showMenu, setShowMenu] = React.useState(false);
+                const [isHovered, setIsHovered] = React.useState(false);
+
+                const handleClick = (event) => {
+                    event.stopPropagation();
+                    if (window.openNodeConfig) {
+                        window.openNodeConfig(id, type, data);
+                    }
+                };
+
+                const handleMenuClick = (event) => {
+                    event.stopPropagation();
+                    setShowMenu(!showMenu);
+                };
+
+                const handleCopy = (event) => {
+                    event.stopPropagation();
+                    if (window.copyNode) {
+                        window.copyNode(id);
+                    }
+                    setShowMenu(false);
+                };
+
+                const handleDuplicate = (event) => {
+                    event.stopPropagation();
+                    if (window.duplicateNode) {
+                        window.duplicateNode(id);
+                    }
+                    setShowMenu(false);
+                };
+
+                const handleDelete = (event) => {
+                    event.stopPropagation();
+                    if (window.deleteNode) {
+                        window.deleteNode(id);
+                    }
+                    setShowMenu(false);
+                };
+
+                React.useEffect(() => {
+                    const handleClickOutside = () => {
+                        setShowMenu(false);
+                    };
+                    if (showMenu) {
+                        document.addEventListener('click', handleClickOutside);
+                    }
+                    return () => {
+                        document.removeEventListener('click', handleClickOutside);
+                    };
+                }, [showMenu]);
+
+                return (
+                    <div 
+                        className="relative"
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        onClick={handleClick}
+                    >
+                        <Component data={data} selected={selected} />
+                        
+                        {/* 悬浮菜单按钮 */}
+                        {isHovered && (
+                            <button
+                                className="absolute top-1 right-1 w-5 h-5 node-menu-button text-white rounded-full flex items-center justify-center text-xs transition-all duration-200 z-10"
+                                onClick={handleMenuClick}
+                            >
+                                <i className="fas fa-ellipsis-h" style={{ fontSize: '9px' }}></i>
+                            </button>
+                        )}
+                        
+                        {/* 操作菜单 */}
+                        {showMenu && (
+                            <div className="absolute top-6 right-0 node-menu rounded-lg py-1 z-20">
+                                <button
+                                    className="w-full menu-item text-left text-gray-700"
+                                    onClick={handleCopy}
+                                >
+                                    <i className="fas fa-copy text-gray-500" style={{ fontSize: '11px' }}></i>
+                                    <span className="flex-1" style={{ fontSize: '12px' }}>Copy</span>
+                                    <span className="text-gray-400 ml-2" style={{ fontSize: '10px' }}>{navigator.platform.includes('Mac') ? '⌘C' : 'Ctrl+C'}</span>
+                                </button>
+                                <button
+                                    className="w-full menu-item text-left text-gray-700"
+                                    onClick={handleDuplicate}
+                                >
+                                    <i className="fas fa-clone text-gray-500" style={{ fontSize: '11px' }}></i>
+                                    <span className="flex-1" style={{ fontSize: '12px' }}>Duplicate</span>
+                                    <span className="text-gray-400 ml-2" style={{ fontSize: '10px' }}>{navigator.platform.includes('Mac') ? '⌘D' : 'Ctrl+D'}</span>
+                                </button>
+                                <hr className="my-1 border-gray-200" />
+                                <button
+                                    className="w-full menu-item text-left text-red-600 delete"
+                                    onClick={handleDelete}
+                                >
+                                    <i className="fas fa-trash text-red-500" style={{ fontSize: '11px' }}></i>
+                                    <span className="flex-1" style={{ fontSize: '12px' }}>Delete</span>
+                                    <span className="text-gray-400 ml-2" style={{ fontSize: '10px' }}>Del</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+        };
+
+        // 基础节点组件
+        const BaseTriggerNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node trigger ${selected ? 'ring-2 ring-green-500' : ''}`}>
                     <Handle type="source" position={Position.Right} />
@@ -218,7 +563,7 @@
             );
         };
 
-        const ConditionNode = ({ data, selected }) => {
+        const BaseConditionNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node condition ${selected ? 'ring-2 ring-orange-500' : ''}`}>
                     <Handle type="target" position={Position.Left} />
@@ -237,7 +582,7 @@
             );
         };
 
-        const ActionNode = ({ data, selected }) => {
+        const BaseActionNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node action ${selected ? 'ring-2 ring-indigo-500' : ''}`}>
                     <Handle type="target" position={Position.Left} />
@@ -255,7 +600,7 @@
             );
         };
 
-        const AgentNode = ({ data, selected }) => {
+        const BaseAgentNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node agent ${selected ? 'ring-2 ring-blue-500' : ''}`}>
                     <Handle type="target" position={Position.Left} />
@@ -273,7 +618,7 @@
             );
         };
 
-        const LiaisonNode = ({ data, selected }) => {
+        const BaseLiaisonNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node liaison ${selected ? 'ring-2 ring-purple-500' : ''}`}>
                     <Handle type="target" position={Position.Left} />
@@ -291,7 +636,7 @@
             );
         };
 
-        const SoarNode = ({ data, selected }) => {
+        const BaseSoarNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node soar ${selected ? 'ring-2 ring-orange-500' : ''}`}>
                     <Handle type="target" position={Position.Left} />
@@ -309,7 +654,7 @@
             );
         };
 
-        const HumanNode = ({ data, selected }) => {
+        const BaseHumanNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node human ${selected ? 'ring-2 ring-red-500' : ''}`}>
                     <Handle type="target" position={Position.Left} />
@@ -327,7 +672,7 @@
             );
         };
 
-        const AnnotationNode = ({ data, selected }) => {
+        const BaseAnnotationNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node annotation ${selected ? 'ring-2 ring-yellow-500' : ''}`}>
                     <div className="flex items-center space-x-3">
@@ -343,7 +688,7 @@
             );
         };
 
-        const NotificationNode = ({ data, selected }) => {
+        const BaseNotificationNode = ({ data, selected }) => {
             return (
                 <div className={`workflow-node notification ${selected ? 'ring-2 ring-purple-500' : ''}`}>
                     <Handle type="target" position={Position.Left} />
@@ -360,6 +705,17 @@
             );
         };
 
+        // 创建可点击的节点组件
+        const TriggerNode = createNodeComponent(BaseTriggerNode, 'trigger');
+        const ConditionNode = createNodeComponent(BaseConditionNode, 'condition');
+        const ActionNode = createNodeComponent(BaseActionNode, 'action');
+        const AgentNode = createNodeComponent(BaseAgentNode, 'agent');
+        const LiaisonNode = createNodeComponent(BaseLiaisonNode, 'liaison');
+        const SoarNode = createNodeComponent(BaseSoarNode, 'soar');
+        const HumanNode = createNodeComponent(BaseHumanNode, 'human');
+        const AnnotationNode = createNodeComponent(BaseAnnotationNode, 'annotation');
+        const NotificationNode = createNodeComponent(BaseNotificationNode, 'notification');
+
         // 节点类型配置
         const nodeTypes = {
             trigger: TriggerNode,
@@ -373,66 +729,902 @@
             annotation: AnnotationNode,
         };
 
-        // 初始节点
+        // 节点配置面板组件
+        const NodeConfigPanel = ({ isOpen, onClose, nodeId, nodeType, nodeData, onSave }) => {
+            const [config, setConfig] = useState({
+                label: '',
+                description: '',
+                ...nodeData
+            });
+
+            React.useEffect(() => {
+                if (nodeData) {
+                    setConfig({ ...nodeData });
+                }
+            }, [nodeData]);
+
+            const handleSave = () => {
+                onSave(nodeId, config);
+                onClose();
+            };
+
+            const renderConfigForm = () => {
+                switch (nodeType) {
+                    case 'liaison':
+                        return <LiaisonConfigForm config={config} setConfig={setConfig} />;
+                    case 'agent':
+                        return <AgentConfigForm config={config} setConfig={setConfig} />;
+                    case 'trigger':
+                        return <TriggerConfigForm config={config} setConfig={setConfig} />;
+                    case 'condition':
+                        return <ConditionConfigForm config={config} setConfig={setConfig} />;
+                    case 'soar':
+                        return <SoarConfigForm config={config} setConfig={setConfig} />;
+                    case 'human':
+                        return <HumanConfigForm config={config} setConfig={setConfig} />;
+                    default:
+                        return <DefaultConfigForm config={config} setConfig={setConfig} />;
+                }
+            };
+
+            return (
+                <div className={`config-panel ${isOpen ? 'open' : ''}`}>
+                    <div className="h-full flex flex-col">
+                        {/* 头部 */}
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+                            <h2 className="text-lg font-semibold text-gray-800">节点属性</h2>
+                            <button 
+                                onClick={onClose}
+                                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                            >
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        {/* 节点信息 */}
+                        <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-gray-200">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                                    <i className={`fas ${config.icon || 'fa-cog'} text-white`}></i>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="font-semibold text-purple-800">{config.label || '未命名节点'}</div>
+                                    <div className="text-sm text-purple-600">{config.description || '节点描述'}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 配置内容 */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                            <div className="p-4">
+                                {renderConfigForm()}
+                            </div>
+                        </div>
+
+                        {/* 底部按钮 */}
+                        <div className="p-4 border-t border-gray-200 bg-gray-50">
+                            <div className="flex space-x-3">
+                                <button 
+                                    onClick={handleSave}
+                                    className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium"
+                                >
+                                    <i className="fas fa-save mr-2"></i>保存配置
+                                </button>
+                                <button 
+                                    onClick={onClose}
+                                    className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                                >
+                                    <i className="fas fa-times mr-2"></i>取消
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 联络员配置表单
+        const LiaisonConfigForm = ({ config, setConfig }) => {
+            const [promptContent, setPromptContent] = useState(config.promptContent || `# 角色
+你是一位顶尖的安全运营专家和沟通大师。你的任务是将一份机器可读的JSON格式的安全事件报告，转换为一份清晰、准确、专业的企微通知消息，以便一线分析师能快速理解情况并做出决策。
+
+# 任务
+严格按照下方指定的"输出格式"和"内容要求"，根据提供的"[事件JSON数据]"生成内容。
+
+# 规则
+1. **忠于原文:** 所有信息都必须来自提供的JSON，严禁杜撰或猜测。
+2. **智能处理空值:** 如果JSON中某个关键信息不存在（如漏洞信息），请在生成的内容中智能地说明情况（如"暂无关联漏洞信息"），以保证通知的通顺和专业性。
+3. **语言风格:** 语气必须专业、冷静、紧急，但不能引发不必要的恐慌。
+
+# 事件JSON数据
+[此处将动态插入上述示例JSON]
+
+# 输出格式与内容要求
+【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请在 [写出规则中设定的响应超时分钟数] 分钟 内确认并选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
+⸻
+• GPT研判结论：[概括并填入AI的核心研判结论]
+• 威胁等级：[再次明确威胁等级]
+• 受影响资产：[描述受影响资产的关键信息，包括其IP、端口和业务描述]
+• 攻击源 IP：[描述攻击源的IP地址及其地理位置]
+• 检测详情：[使用GPT研判的总结内容]
+⸻
+请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
+详情
+一键遏制
+标记完成
+调查
+若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`);
+
+            const [instructions, setInstructions] = useState(config.instructions || [
+                { label: '详情', description: '获取事件详细信息' },
+                { label: '一键遏制', description: '快速遏制威胁' },
+                { label: '标记完成', description: '标记事件处理完成' },
+                { label: '调查', description: '深入调查事件来源' }
+            ]);
+
+            const [showNotificationConfig, setShowNotificationConfig] = useState(false);
+
+            // 指令库
+            const instructionLibrary = [
+                { label: '详情', description: '获取事件详细信息' },
+                { label: '一键遏制', description: '快速遏制威胁' },
+                { label: '标记完成', description: '标记事件处理完成' },
+                { label: '调查', description: '深入调查事件来源' },
+                { label: '升级处理', description: '向上级报告' },
+                { label: '查看详情', description: '查看事件详细信息' },
+                { label: '调查溯源', description: '深入调查事件来源' },
+                { label: '添加白名单', description: '将IP/域名添加到白名单' },
+                { label: '隔离主机', description: '隔离受影响主机' },
+                { label: '重置密码', description: '重置相关账户密码' },
+                { label: '生成报告', description: '生成事件处理报告' },
+                { label: '通知相关方', description: '通知相关责任人' }
+            ];
+
+            const [selectedInstructionToAdd, setSelectedInstructionToAdd] = useState('');
+
+            const handleAddInstruction = () => {
+                if (selectedInstructionToAdd) {
+                    const instructionToAdd = instructionLibrary.find(inst => inst.label === selectedInstructionToAdd);
+                    if (instructionToAdd && !instructions.some(inst => inst.label === instructionToAdd.label)) {
+                        setInstructions([...instructions, instructionToAdd]);
+                        setSelectedInstructionToAdd('');
+                    }
+                }
+            };
+
+            const handleDeleteInstruction = (index) => {
+                setInstructions(instructions.filter((_, i) => i !== index));
+            };
+
+            React.useEffect(() => {
+                setConfig({
+                    ...config,
+                    promptContent,
+                    instructions,
+                    recipientType: config.recipientType || '资产责任人',
+                    recipientDescription: config.recipientDescription || '系统自动识别事件关联资产的责任人',
+                    escalationTime: config.escalationTime || 15,
+                    notificationChannels: config.notificationChannels || ['企微微信'],
+                    wechatConfig: config.wechatConfig || {
+                        webhook: '',
+                        secret: '',
+                        mentioned: []
+                    }
+                });
+            }, [promptContent, instructions]);
+
+            return (
+                <div className="space-y-6">
+                    {/* 基本信息 */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">基本信息</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">节点名称</label>
+                                <input
+                                    type="text"
+                                    value={config.label || ''}
+                                    onChange={(e) => setConfig({ ...config, label: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入节点名称"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">节点描述</label>
+                                <input
+                                    type="text"
+                                    value={config.description || ''}
+                                    onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入节点描述"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Prompt工程 */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">Prompt工程</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">从Prompt库选择</label>
+                                <select 
+                                    value={config.promptTemplate || '安全事件通知模板'}
+                                    onChange={(e) => setConfig({ ...config, promptTemplate: e.target.value })}
+                                    className="form-select"
+                                >
+                                    <option value="">选择预设Prompt...</option>
+                                    <option value="安全事件通知模板">安全事件通知模板</option>
+                                    <option value="威胁情报通报">威胁情报通报</option>
+                                    <option value="漏洞处置通知">漏洞处置通知</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Prompt内容</label>
+                                <div className="markdown-editor rounded-lg overflow-hidden">
+                                    <textarea
+                                        value={promptContent}
+                                        onChange={(e) => setPromptContent(e.target.value)}
+                                        className="w-full p-3 border-0 resize-none focus:ring-0 focus:outline-none font-mono text-sm"
+                                        rows="20"
+                                        placeholder="输入Prompt内容"
+                                        style={{
+                                            fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+                                            lineHeight: '1.5',
+                                            whiteSpace: 'pre-wrap'
+                                        }}
+                                    />
+                                </div>
+                                <div className="mt-2 space-y-1">
+                                    <div className="text-xs text-gray-500">
+                                        <i className="fas fa-markdown mr-1"></i>
+                                        支持 Markdown 格式，包括 **粗体**、*斜体*、`代码`、# 标题 等
+                                    </div>
+                                    <div className="text-xs text-green-600">
+                                        <i className="fas fa-check mr-1"></i>
+                                        已包含完整的安全事件通知模板，包含输出格式和用户指令
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 专业设计理念 */}
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                            <i className="fas fa-lightbulb text-yellow-600"></i>
+                            <span className="font-medium text-yellow-800">专业设计理念</span>
+                        </div>
+                        <p className="text-sm text-yellow-700">
+                            采用冷静、专业、紧急但不引发恐慌的语气，指令设计基于安全运营实战需求，确保高压环境下快速决策
+                        </p>
+                    </div>
+
+                    {/* 接收人配置 */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">接收人配置</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">接收人类型</label>
+                                <select 
+                                    value={config.recipientType || ''}
+                                    onChange={(e) => setConfig({ ...config, recipientType: e.target.value })}
+                                    className="form-select"
+                                >
+                                    <option value="资产责任人">资产责任人</option>
+                                    <option value="安全管理员">安全管理员</option>
+                                    <option value="系统管理员">系统管理员</option>
+                                    <option value="自定义">自定义</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">具体接收人</label>
+                                <input
+                                    type="text"
+                                    value={config.recipientDescription || ''}
+                                    onChange={(e) => setConfig({ ...config, recipientDescription: e.target.value })}
+                                    className="form-input"
+                                    placeholder="系统自动识别事件关联资产的责任人"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">升级时间</label>
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="number"
+                                        value={config.escalationTime || 15}
+                                        onChange={(e) => setConfig({ ...config, escalationTime: parseInt(e.target.value) })}
+                                        className="form-input w-20"
+                                        min="1"
+                                    />
+                                    <span className="text-sm text-gray-600">分钟后升级给管理员</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 通知渠道 */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-800">通知渠道</h3>
+                            <button
+                                onClick={() => setShowNotificationConfig(true)}
+                                className="text-sm bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors"
+                            >
+                                <i className="fas fa-cog mr-1"></i>通知配置
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={true}
+                                    disabled={true}
+                                    className="checkbox-input"
+                                />
+                                <span className="text-sm font-medium text-gray-700">企微微信</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* 用户指令配置 */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">用户指令配置</h3>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+                            <i className="fas fa-info-circle mr-2"></i>
+                            您在这里配置的每一条指令，都会在工作流画布的节点上生成一个对应的"输出锚点"，用于连接后续的流程。
+                        </div>
+                        
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-700">指令配置</span>
+                                <div className="flex items-center space-x-2">
+                                    <select 
+                                        value={selectedInstructionToAdd}
+                                        onChange={(e) => setSelectedInstructionToAdd(e.target.value)}
+                                        className="form-select text-sm"
+                                    >
+                                        <option value="">选择指令...</option>
+                                        {instructionLibrary.filter(inst => !instructions.some(existingInst => existingInst.label === inst.label)).map((instruction, index) => (
+                                            <option key={index} value={instruction.label}>{instruction.label}</option>
+                                        ))}
+                                    </select>
+                                    <button 
+                                        onClick={handleAddInstruction}
+                                        className="text-sm bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700 transition-colors"
+                                        disabled={!selectedInstructionToAdd}
+                                    >
+                                        <i className="fas fa-plus mr-1"></i>添加
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {instructions.map((instruction, index) => (
+                                <div key={index} className="instruction-item">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-sm font-medium text-gray-700">{instruction.label}</span>
+                                        </div>
+                                        <button 
+                                            onClick={() => handleDeleteInstruction(index)}
+                                            className="text-red-600 hover:text-red-800 text-sm"
+                                        >
+                                            <i className="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div className="text-sm text-gray-600">{instruction.description}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 企微配置弹窗 */}
+                    {showNotificationConfig && (
+                        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+                            <div className="bg-white rounded-lg p-6 w-96 max-w-90vw border border-gray-200 shadow-xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-800">企微微信配置</h3>
+                                    <button 
+                                        onClick={() => setShowNotificationConfig(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Webhook URL</label>
+                                        <input
+                                            type="text"
+                                            value={config.wechatConfig?.webhook || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                wechatConfig: {
+                                                    ...config.wechatConfig,
+                                                    webhook: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Secret (可选)</label>
+                                        <input
+                                            type="text"
+                                            value={config.wechatConfig?.secret || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                wechatConfig: {
+                                                    ...config.wechatConfig,
+                                                    secret: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="输入Secret密钥"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">@提醒人员</label>
+                                        <input
+                                            type="text"
+                                            value={(config.wechatConfig?.mentioned || []).join(', ')}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                wechatConfig: {
+                                                    ...config.wechatConfig,
+                                                    mentioned: e.target.value.split(',').map(item => item.trim()).filter(item => item)
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="用户ID，多个用逗号分隔"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex justify-end space-x-3">
+                                    <button 
+                                        onClick={() => setShowNotificationConfig(false)}
+                                        className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                                    >
+                                        取消
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowNotificationConfig(false)}
+                                        className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                    >
+                                        保存
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // 其他节点的配置表单
+        const AgentConfigForm = ({ config, setConfig }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">Agent配置</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Agent名称</label>
+                                <input
+                                    type="text"
+                                    value={config.label || ''}
+                                    onChange={(e) => setConfig({ ...config, label: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入Agent名称"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Agent描述</label>
+                                <input
+                                    type="text"
+                                    value={config.description || ''}
+                                    onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入Agent描述"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">系统Prompt</label>
+                                <textarea
+                                    value={config.systemPrompt || '包含告警数据包的详情内容输出'}
+                                    onChange={(e) => setConfig({ ...config, systemPrompt: e.target.value })}
+                                    className="form-textarea h-32"
+                                    placeholder="包含告警数据包的详情内容输出"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const TriggerConfigForm = ({ config, setConfig }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">触发器配置</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">触发类型</label>
+                                <select 
+                                    value={config.triggerType || 'alert'}
+                                    onChange={(e) => setConfig({ ...config, triggerType: e.target.value })}
+                                    className="form-select"
+                                    disabled
+                                >
+                                    <option value="alert">安全告警</option>
+                                    <option value="event">安全事件</option>
+                                </select>
+                                <div className="text-xs text-gray-500 mt-1">系统预设类型，不可修改</div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">触发器名称</label>
+                                <input
+                                    type="text"
+                                    value={config.label || ''}
+                                    onChange={(e) => setConfig({ ...config, label: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入触发器名称"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">触发器描述</label>
+                                <input
+                                    type="text"
+                                    value={config.description || ''}
+                                    onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入触发器描述"
+                                />
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-gray-700">触发条件</label>
+                                    <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">请直接复制专家模式语句</span>
+                                </div>
+                                <textarea
+                                    value={config.triggerCondition || ''}
+                                    onChange={(e) => setConfig({ ...config, triggerCondition: e.target.value })}
+                                    className="form-textarea"
+                                    placeholder="输入触发条件"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ConditionConfigForm = ({ config, setConfig }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">条件配置</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">条件名称</label>
+                                <input
+                                    type="text"
+                                    value={config.label || ''}
+                                    onChange={(e) => setConfig({ ...config, label: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入条件名称"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">条件描述</label>
+                                <input
+                                    type="text"
+                                    value={config.description || ''}
+                                    onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入条件描述"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">条件表达式</label>
+                                <textarea
+                                    value={config.conditionExpression || ''}
+                                    onChange={(e) => setConfig({ ...config, conditionExpression: e.target.value })}
+                                    className="form-textarea"
+                                    placeholder="输入条件表达式，如：severity >= 'high'"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">条件类型</label>
+                                <select 
+                                    value={config.conditionType || 'expression'}
+                                    onChange={(e) => setConfig({ ...config, conditionType: e.target.value })}
+                                    className="form-select"
+                                >
+                                    <option value="expression">表达式判断</option>
+                                    <option value="script">脚本判断</option>
+                                    <option value="ai">AI判断</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SoarConfigForm = ({ config, setConfig }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">SOAR配置</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Playbook名称</label>
+                                <input
+                                    type="text"
+                                    value={config.label || ''}
+                                    onChange={(e) => setConfig({ ...config, label: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入Playbook名称"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Playbook描述</label>
+                                <input
+                                    type="text"
+                                    value={config.description || ''}
+                                    onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入Playbook描述"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">用户选择剧本</label>
+                                <select 
+                                    value={config.playbook || ''}
+                                    onChange={(e) => setConfig({ ...config, playbook: e.target.value })}
+                                    className="form-select"
+                                >
+                                    <option value="">选择剧本...</option>
+                                    <option value="ip_blocking">IP封禁剧本</option>
+                                    <option value="user_disable">用户禁用剧本</option>
+                                    <option value="host_isolation">主机隔离剧本</option>
+                                    <option value="malware_cleanup">恶意软件清理剧本</option>
+                                    <option value="vulnerability_patch">漏洞修复剧本</option>
+                                    <option value="incident_response">事件响应剧本</option>
+                                    <option value="threat_hunting">威胁狩猎剧本</option>
+                                    <option value="data_exfiltration">数据泄露处理剧本</option>
+                                    <option value="phishing_response">钓鱼邮件处理剧本</option>
+                                    <option value="custom">自定义剧本</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const HumanConfigForm = ({ config, setConfig }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">人工处理配置</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">处理节点名称</label>
+                                <input
+                                    type="text"
+                                    value={config.label || ''}
+                                    onChange={(e) => setConfig({ ...config, label: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入节点名称"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">处理描述</label>
+                                <input
+                                    type="text"
+                                    value={config.description || ''}
+                                    onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入处理描述"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">处理人员</label>
+                                <select 
+                                    value={config.assignee || 'security_team'}
+                                    onChange={(e) => setConfig({ ...config, assignee: e.target.value })}
+                                    className="form-select"
+                                >
+                                    <option value="security_team">安全团队</option>
+                                    <option value="soc_analyst">SOC分析师</option>
+                                    <option value="incident_manager">事件管理员</option>
+                                    <option value="custom">自定义</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">处理说明</label>
+                                <textarea
+                                    value={config.instructions || ''}
+                                    onChange={(e) => setConfig({ ...config, instructions: e.target.value })}
+                                    className="form-textarea"
+                                    placeholder="输入处理说明和要求"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">超时时间（分钟）</label>
+                                <input
+                                    type="number"
+                                    value={config.timeout || 30}
+                                    onChange={(e) => setConfig({ ...config, timeout: parseInt(e.target.value) })}
+                                    className="form-input"
+                                    min="1"
+                                    placeholder="30"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const DefaultConfigForm = ({ config, setConfig }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">基本配置</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">节点名称</label>
+                                <input
+                                    type="text"
+                                    value={config.label || ''}
+                                    onChange={(e) => setConfig({ ...config, label: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入节点名称"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">节点描述</label>
+                                <input
+                                    type="text"
+                                    value={config.description || ''}
+                                    onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                                    className="form-input"
+                                    placeholder="输入节点描述"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">节点备注</label>
+                                <textarea
+                                    value={config.notes || ''}
+                                    onChange={(e) => setConfig({ ...config, notes: e.target.value })}
+                                    className="form-textarea"
+                                    placeholder="输入节点备注"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 初始节点，为每个节点添加默认配置
         const initialNodes = [
             {
                 id: '1',
                 type: 'trigger',
-                position: { x: 50, y: 150 },
+                position: { x: 50, y: 200 },
                 data: { 
-                    label: '告警触发器',
-                    description: '安全告警触发',
-                    icon: 'fa-exclamation-triangle'
+                    label: '安全事件触发',
+                    description: '告警触发器',
+                    icon: 'fa-exclamation-triangle',
+                    triggerType: 'alert',
+                    triggerCondition: 'filter 标签  in { "WebShell上传", "文件链接创建WebShell", "文件写入创建WebShell", "其他Webshell上传", "WebShell管理工具", "WebShell访问", "WebShell扫描" } | filter not ( 加白状态  in { "已加白" } )'
                 },
             },
             {
                 id: '2',
-                type: 'agent',
-                position: { x: 350, y: 150 },
+                type: 'liaison',
+                position: { x: 400, y: 200 },
                 data: { 
-                    label: '调查溯源Agent',
-                    description: '智能调查分析',
-                    icon: 'fa-search'
+                    label: '联络员Agent',
+                    description: '联络通知',
+                    icon: 'fa-user-tie',
+                    recipientType: '资产责任人',
+                    recipientDescription: '系统自动识别事件关联资产的责任人',
+                    escalationTime: 15,
+                    notificationChannels: ['企微微信'],
+                    promptTemplate: '安全事件通知模板',
+                    instructions: [
+                        { label: '详情', description: '获取事件详细信息' },
+                        { label: '一键遏制', description: '快速遏制威胁' },
+                        { label: '标记完成', description: '标记事件处理完成' },
+                        { label: '调查', description: '深入调查事件来源' }
+                    ],
+                    wechatConfig: {
+                        webhook: '',
+                        secret: '',
+                        mentioned: []
+                    },
+                    promptContent: `# 角色
+你是一位顶尖的安全运营专家和沟通大师。你的任务是将一份机器可读的JSON格式的安全事件报告，转换为一份清晰、准确、专业的企微通知消息，以便一线分析师能快速理解情况并做出决策。
+
+# 任务
+严格按照下方指定的"输出格式"和"内容要求"，根据提供的"[事件JSON数据]"生成内容。
+
+# 规则
+1. **忠于原文:** 所有信息都必须来自提供的JSON，严禁杜撰或猜测。
+2. **智能处理空值:** 如果JSON中某个关键信息不存在（如漏洞信息），请在生成的内容中智能地说明情况（如"暂无关联漏洞信息"），以保证通知的通顺和专业性。
+3. **语言风格:** 语气必须专业、冷静、紧急，但不能引发不必要的恐慌。
+
+# 事件JSON数据
+[此处将动态插入上述示例JSON]
+
+# 输出格式与内容要求
+【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请在 [写出规则中设定的响应超时分钟数] 分钟 内确认并选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
+⸻
+• GPT研判结论：[概括并填入AI的核心研判结论]
+• 威胁等级：[再次明确威胁等级]
+• 受影响资产：[描述受影响资产的关键信息，包括其IP、端口和业务描述]
+• 攻击源 IP：[描述攻击源的IP地址及其地理位置]
+• 检测详情：[使用GPT研判的总结内容]
+⸻
+请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
+详情
+一键遏制
+标记完成
+调查
+若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`
                 },
             },
             {
                 id: '3',
-                type: 'condition',
-                position: { x: 650, y: 150 },
+                type: 'agent',
+                position: { x: 750, y: 80 },
                 data: { 
-                    label: '条件判断',
-                    description: '逻辑条件分支',
-                    icon: 'fa-question-circle'
+                    label: '详情信息',
+                    description: '自定义AI',
+                    icon: 'fa-info-circle',
+                    systemPrompt: '包含告警数据包的详情内容输出'
                 },
             },
             {
                 id: '4',
                 type: 'soar',
-                position: { x: 950, y: 80 },
+                position: { x: 750, y: 160 },
                 data: { 
-                    label: '处置Playbook',
-                    description: '自动化剧本',
-                    icon: 'fa-play-circle'
+                    label: '一键遏制',
+                    description: 'SOAR剧本',
+                    icon: 'fa-shield-alt',
+                    playbook: 'ip_blocking'
                 },
             },
             {
                 id: '5',
                 type: 'human',
-                position: { x: 950, y: 220 },
+                position: { x: 750, y: 240 },
                 data: { 
-                    label: '人工确认',
-                    description: '人工审核确认',
-                    icon: 'fa-user-check'
+                    label: '标记完成',
+                    description: '工单系统',
+                    icon: 'fa-check-circle',
+                    assignee: 'security_team',
+                    timeout: 30,
+                    instructions: '标记事件处理完成'
                 },
             },
             {
                 id: '6',
-                type: 'annotation',
-                position: { x: 50, y: 50 },
+                type: 'agent',
+                position: { x: 750, y: 320 },
                 data: { 
-                    label: '文字说明',
-                    description: '安全响应流程',
-                    icon: 'fa-comment-alt'
+                    label: '调查分析',
+                    description: '调查分析',
+                    icon: 'fa-search',
+                    systemPrompt: '包含告警数据包的详情内容输出'
                 },
             },
         ];
@@ -451,25 +1643,47 @@
                 source: '2',
                 target: '3',
                 type: 'default',
+                label: '详情',
+                labelStyle: { fill: '#3b82f6', fontWeight: 500, fontSize: 11 },
+                labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
+                labelBgPadding: [6, 3],
+                labelBgBorderRadius: 3,
                 markerEnd: { type: MarkerType.ArrowClosed },
             },
             {
-                id: 'e3-4',
-                source: '3',
+                id: 'e2-4',
+                source: '2',
                 target: '4',
                 type: 'default',
-                label: '自动处置',
-                labelStyle: { fill: '#ea580c', fontWeight: 600 },
+                label: '遏制',
+                labelStyle: { fill: '#ea580c', fontWeight: 500, fontSize: 11 },
+                labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
+                labelBgPadding: [6, 3],
+                labelBgBorderRadius: 3,
                 markerEnd: { type: MarkerType.ArrowClosed },
             },
             {
-                id: 'e3-5',
-                source: '3',
-                sourceHandle: 'false',
+                id: 'e2-5',
+                source: '2',
                 target: '5',
                 type: 'default',
-                label: '人工干预',
-                labelStyle: { fill: '#dc2626', fontWeight: 600 },
+                label: '完成',
+                labelStyle: { fill: '#10b981', fontWeight: 500, fontSize: 11 },
+                labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
+                labelBgPadding: [6, 3],
+                labelBgBorderRadius: 3,
+                markerEnd: { type: MarkerType.ArrowClosed },
+            },
+            {
+                id: 'e2-6',
+                source: '2',
+                target: '6',
+                type: 'default',
+                label: '调查',
+                labelStyle: { fill: '#6366f1', fontWeight: 500, fontSize: 11 },
+                labelBgStyle: { fill: 'white', fillOpacity: 0.95, stroke: '#d1d5db', strokeWidth: 1 },
+                labelBgPadding: [6, 3],
+                labelBgBorderRadius: 3,
                 markerEnd: { type: MarkerType.ArrowClosed },
             },
         ];
@@ -477,21 +1691,20 @@
         // 可拖拽的节点模板
         const nodeTemplates = [
             { type: 'trigger', label: '触发器节点', icon: 'fa-bolt', items: [
-                { label: '告警触发器', description: '安全告警触发', icon: 'fa-exclamation-triangle' },
-                { label: '事件触发器', description: '事件行为触发', icon: 'fa-calendar-alt' },
-                { label: 'Webhook触发器', description: 'HTTP回调触发', icon: 'fa-webhook' },
+                { label: '安全告警触发', description: '安全告警触发', icon: 'fa-exclamation-triangle', triggerType: 'alert', triggerCondition: '源IP != "17.182.79.59" and 源IP != "17.182.79.58" and xForwardedFor != "17.182.79.59" and xForwardedFor != "17.182.79.58" | filter 加白状态  in { "未加白" } | filter not ( 处置动作  in { "处置完成\\(标为误报\\)" } ) | filter 告警定性  in { "业务行为" }' },
+                { label: '安全事件触发', description: '事件行为触发', icon: 'fa-calendar-alt', triggerType: 'event', triggerCondition: 'filter 标签  in { "WebShell上传", "文件链接创建WebShell", "文件写入创建WebShell", "其他Webshell上传", "WebShell管理工具", "WebShell访问", "WebShell扫描" } | filter not ( 加白状态  in { "已加白" } )' },
             ]},
             { type: 'agent', label: 'AI Agent节点', icon: 'fa-robot', items: [
-                { label: '调查溯源Agent', description: '智能调查分析', icon: 'fa-search' },
-                { label: '实体处置Agent', description: '自动处置执行', icon: 'fa-shield-alt' },
-                { label: '自定义Agent', description: '用户自定义AI', icon: 'fa-cogs' },
+                { label: '调查溯源Agent', description: '智能调查分析', icon: 'fa-search', systemPrompt: '包含告警数据包的详情内容输出' },
+                { label: '实体处置Agent', description: '自动处置执行', icon: 'fa-shield-alt', systemPrompt: '包含告警数据包的详情内容输出' },
+                { label: '自定义Agent(暂不支持)', description: '用户自定义AI', icon: 'fa-cogs', systemPrompt: '包含告警数据包的详情内容输出' },
             ]},
             { type: 'liaison', label: '联络员Agent', icon: 'fa-users', items: [
-                { label: '联络员Agent', description: '人工协作处理', icon: 'fa-user-tie' },
+                { label: '联络员Agent', description: '人工协作处理', icon: 'fa-user-tie', promptTemplate: '安全事件通知模板' },
             ]},
             { type: 'soar', label: 'SOAR引擎', icon: 'fa-code-branch', items: [
                 { label: '处置Playbook', description: '自动化剧本', icon: 'fa-play-circle' },
-                { label: '工单管理', description: '工单流程管理', icon: 'fa-clipboard-list' },
+                { label: '工单管理(暂不支持)', description: '工单流程管理', icon: 'fa-clipboard-list' },
             ]},
             { type: 'human', label: '人工节点', icon: 'fa-user', items: [
                 { label: '人工确认', description: '人工审核确认', icon: 'fa-user-check' },
@@ -514,6 +1727,94 @@
             const [draggedNode, setDraggedNode] = useState(null);
             const [selectedNodes, setSelectedNodes] = useState([]);
             const [selectedEdges, setSelectedEdges] = useState([]);
+            
+            // 节点配置相关状态
+            const [configPanel, setConfigPanel] = useState({
+                isOpen: false,
+                nodeId: null,
+                nodeType: null,
+                nodeData: null
+            });
+
+            // 打开节点配置
+            const openNodeConfig = useCallback((nodeId, nodeType, nodeData) => {
+                setConfigPanel({
+                    isOpen: true,
+                    nodeId,
+                    nodeType,
+                    nodeData
+                });
+            }, []);
+
+            // 关闭节点配置
+            const closeNodeConfig = useCallback(() => {
+                setConfigPanel({
+                    isOpen: false,
+                    nodeId: null,
+                    nodeType: null,
+                    nodeData: null
+                });
+            }, []);
+
+            // 保存节点配置
+            const saveNodeConfig = useCallback((nodeId, newConfig) => {
+                setNodes((nds) =>
+                    nds.map((node) =>
+                        node.id === nodeId
+                            ? { ...node, data: { ...node.data, ...newConfig } }
+                            : node
+                    )
+                );
+            }, [setNodes]);
+
+            // 复制节点
+            const copyNode = useCallback((nodeId) => {
+                const nodeToCopy = nodes.find(node => node.id === nodeId);
+                if (nodeToCopy) {
+                    const copiedNodeData = JSON.stringify(nodeToCopy, null, 2);
+                    navigator.clipboard.writeText(copiedNodeData).then(() => {
+                                                            }).catch(err => {
+                    });
+                }
+            }, [nodes]);
+
+            // 复制节点
+            const duplicateNode = useCallback((nodeId) => {
+                const nodeToDuplicate = nodes.find(node => node.id === nodeId);
+                if (nodeToDuplicate) {
+                    const newNode = {
+                        ...nodeToDuplicate,
+                        id: `node_${Date.now()}`,
+                        position: {
+                            x: nodeToDuplicate.position.x + 20,
+                            y: nodeToDuplicate.position.y + 20
+                        }
+                    };
+                    setNodes((nds) => nds.concat(newNode));
+                }
+            }, [nodes, setNodes]);
+
+            // 删除节点
+            const deleteNodeById = useCallback((nodeId) => {
+                setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+                setEdges((eds) => eds.filter(
+                                        (edge) => edge.source !== nodeId && edge.target !== nodeId
+                ));
+            }, [setNodes, setEdges]);
+
+            // 将函数暴露到全局，供节点组件调用
+            React.useEffect(() => {
+                window.openNodeConfig = openNodeConfig;
+                window.copyNode = copyNode;
+                window.duplicateNode = duplicateNode;
+                window.deleteNode = deleteNodeById;
+                return () => {
+                    delete window.openNodeConfig;
+                    delete window.copyNode;
+                    delete window.duplicateNode;
+                    delete window.deleteNode;
+                };
+            }, [openNodeConfig, copyNode, duplicateNode, deleteNodeById]);
 
             const onConnect = useCallback((params) => {
                 const edge = {
@@ -532,29 +1833,26 @@
             const onDrop = useCallback(
                 (event) => {
                     event.preventDefault();
-                    console.log('Drop event triggered', event);
 
-                    if (!reactFlowInstance) {
-                        console.error('ReactFlow instance not available');
-                        return;
+
+                                          if (!reactFlowInstance) {
+                          return;
                     }
 
                     const type = event.dataTransfer.getData('application/reactflow');
                     const nodeData = event.dataTransfer.getData('application/nodedata');
 
-                    console.log('Dropped data:', { type, nodeData });
 
-                    if (typeof type === 'undefined' || !type || !nodeData) {
-                        console.error('Invalid drop data');
-                        return;
+
+                                          if (typeof type === 'undefined' || !type || !nodeData) {
+                          return;
                     }
 
                     let parsedNodeData;
                     try {
                         parsedNodeData = JSON.parse(nodeData);
-                    } catch (e) {
-                        console.error('Failed to parse node data:', e);
-                        return;
+                                      } catch (e) {
+                      return;
                     }
 
                     const position = reactFlowInstance.screenToFlowPosition({
@@ -562,14 +1860,87 @@
                         y: event.clientY,
                     });
 
+                    // 为不同类型的节点设置默认配置
+                    const defaultConfigs = {
+                        trigger: {
+                            triggerType: 'alert',
+                            triggerCondition: 'filter 标签  in { "WebShell上传", "文件链接创建WebShell", "文件写入创建WebShell", "其他Webshell上传", "WebShell管理工具", "WebShell访问", "WebShell扫描" } | filter not ( 加白状态  in { "已加白" } )'
+                        },
+                        agent: {
+                            systemPrompt: '包含告警数据包的详情内容输出'
+                        },
+                        liaison: {
+                            recipientType: '资产责任人',
+                            recipientDescription: '系统自动识别事件关联资产的责任人',
+                            escalationTime: 15,
+                            notificationChannels: ['企微微信'],
+                            promptTemplate: '安全事件通知模板',
+                            instructions: [
+                                { label: '详情', description: '获取事件详细信息' },
+                                { label: '一键遏制', description: '快速遏制威胁' },
+                                { label: '标记完成', description: '标记事件处理完成' },
+                                { label: '调查', description: '深入调查事件来源' }
+                            ],
+                            wechatConfig: {
+                                webhook: '',
+                                secret: '',
+                                mentioned: []
+                            },
+                            promptContent: `# 角色
+你是一位顶尖的安全运营专家和沟通大师。你的任务是将一份机器可读的JSON格式的安全事件报告，转换为一份清晰、准确、专业的企微通知消息，以便一线分析师能快速理解情况并做出决策。
+
+# 任务
+严格按照下方指定的"输出格式"和"内容要求"，根据提供的"[事件JSON数据]"生成内容。
+
+# 规则
+1. **忠于原文:** 所有信息都必须来自提供的JSON，严禁杜撰或猜测。
+2. **智能处理空值:** 如果JSON中某个关键信息不存在（如漏洞信息），请在生成的内容中智能地说明情况（如"暂无关联漏洞信息"），以保证通知的通顺和专业性。
+3. **语言风格:** 语气必须专业、冷静、紧急，但不能引发不必要的恐慌。
+
+# 事件JSON数据
+[此处将动态插入上述示例JSON]
+
+# 输出格式与内容要求
+【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请在 [写出规则中设定的响应超时分钟数] 分钟 内确认并选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
+⸻
+• GPT研判结论：[概括并填入AI的核心研判结论]
+• 威胁等级：[再次明确威胁等级]
+• 受影响资产：[描述受影响资产的关键信息，包括其IP、端口和业务描述]
+• 攻击源 IP：[描述攻击源的IP地址及其地理位置]
+• 检测详情：[使用GPT研判的总结内容]
+⸻
+请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：
+详情
+一键遏制
+标记完成
+调查
+若超时未回复，事件将进入「待人工复核」队列并持续监控。感谢配合！`
+                        },
+                        condition: {
+                            conditionType: 'expression',
+                            conditionExpression: ''
+                        },
+                        soar: {
+                            playbook: ''
+                        },
+                        human: {
+                            assignee: 'security_team',
+                            timeout: 30,
+                            instructions: ''
+                        }
+                    };
+
                     const newNode = {
                         id: `node_${Date.now()}`,
                         type,
                         position,
-                        data: parsedNodeData,
+                        data: {
+                            ...parsedNodeData,
+                            ...defaultConfigs[type]
+                        },
                     };
 
-                    console.log('Adding new node:', newNode);
+
                     setNodes((nds) => nds.concat(newNode));
                     setDraggedNode(null);
                 },
@@ -577,15 +1948,13 @@
             );
 
             const onDragStart = (event, nodeType, nodeData) => {
-                try {
-                    console.log('Drag started:', nodeType, nodeData);
-                    event.dataTransfer.setData('application/reactflow', nodeType);
+                                      try {
+                          event.dataTransfer.setData('application/reactflow', nodeType);
                     event.dataTransfer.setData('application/nodedata', JSON.stringify(nodeData));
                     event.dataTransfer.effectAllowed = 'move';
                     setDraggedNode({ type: nodeType, data: nodeData });
-                } catch (e) {
-                    console.error('Failed to set drag data:', e);
-                }
+                                  } catch (e) {
+                  }
             };
 
             const clearWorkflow = () => {
@@ -623,7 +1992,8 @@
                     data: { 
                         label: '测试节点',
                         description: '手动添加的测试节点',
-                        icon: 'fa-test'
+                        icon: 'fa-test',
+                        triggerType: 'manual'
                     },
                 };
                 setNodes((nds) => nds.concat(newNode));
@@ -633,8 +2003,7 @@
             const deleteSelected = useCallback(() => {
                 const selectedNodeIds = nodes.filter(node => node.selected).map(node => node.id);
                 const selectedEdgeIds = edges.filter(edge => edge.selected).map(edge => edge.id);
-                
-                if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0) {
+                                  if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0) {
                     // 删除节点
                     if (selectedNodeIds.length > 0) {
                         setNodes((nds) => nds.filter((node) => !selectedNodeIds.includes(node.id)));
@@ -648,46 +2017,69 @@
                     if (selectedEdgeIds.length > 0) {
                         setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
                     }
-                    
-                    console.log(`Deleted ${selectedNodeIds.length} nodes and ${selectedEdgeIds.length} edges`);
-                }
-            }, [nodes, edges, setNodes, setEdges]);
-
-            // 删除指定节点
+                                                      }
+              }, [nodes, edges, setNodes, setEdges]);
+              // 删除指定节点
             const deleteNode = useCallback((nodeId) => {
                 setNodes((nds) => nds.filter((node) => node.id !== nodeId));
                 setEdges((eds) => eds.filter(
                     (edge) => edge.source !== nodeId && edge.target !== nodeId
-                ));
+                                ));
             }, [setNodes, setEdges]);
-
             // 删除指定连线
             const deleteEdge = useCallback((edgeId) => {
-                setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
+                                setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
             }, [setEdges]);
-
             // 键盘事件监听
             const onKeyDown = useCallback((event) => {
+                // Delete 键删除选中的节点和连线
                 if (event.key === 'Delete' || event.key === 'Backspace') {
                     event.preventDefault();
                     deleteSelected();
                 }
-            }, [deleteSelected]);
-
+                
+                // 复制节点快捷键 (Ctrl/Cmd + C)
+                if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
+                    event.preventDefault();
+                    const selectedNodeIds = nodes.filter(node => node.selected).map(node => node.id);
+                    if (selectedNodeIds.length > 0) {
+                        copyNode(selectedNodeIds[0]);
+                    }
+                }
+                
+                // 复制节点快捷键 (Ctrl/Cmd + D)
+                if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd') {
+                    event.preventDefault();
+                    const selectedNodeIds = nodes.filter(node => node.selected).map(node => node.id);
+                    if (selectedNodeIds.length > 0) {
+                        duplicateNode(selectedNodeIds[0]);
+                    }
+                                }
+            }, [deleteSelected, copyNode, duplicateNode, nodes]);
             // 节点选择事件
             const onSelectionChange = useCallback((params) => {
                 setSelectedNodes(params.nodes || []);
-                setSelectedEdges(params.edges || []);
+                                setSelectedEdges(params.edges || []);
             }, []);
-
             // 组件挂载时添加键盘监听
             React.useEffect(() => {
-                document.addEventListener('keydown', onKeyDown);
+                const handleKeyDown = (event) => {
+                    // 防止在输入框中触发快捷键
+                    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                        return;
+                    }
+                    // 防止在配置面板中触发快捷键
+                    if (event.target.closest('.config-panel')) {
+                        return;
+                    }
+                    // 直接调用删除函数，不需要严格的焦点检查
+                    onKeyDown(event);
+                };
+                document.addEventListener('keydown', handleKeyDown);
                 return () => {
-                    document.removeEventListener('keydown', onKeyDown);
+                    document.removeEventListener('keydown', handleKeyDown);
                 };
             }, [onKeyDown]);
-
             return (
                 <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
                     {/* 侧边栏 */}
@@ -713,7 +2105,7 @@
                                                 key={`${category.type}-${index}`}
                                                 className="p-3 bg-white border border-gray-200 rounded-xl cursor-grab hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
                                                 draggable
-                                                onDragStart={(event) => onDragStart(event, category.type, item)}
+                                                                      onDragStart={(event) => onDragStart(event, category.type, item)}
                                             >
                                                 <div className="flex items-center space-x-3">
                                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -807,32 +2199,43 @@
 
                         {/* React Flow 画布 */}
                         <div className="flex-1 relative" ref={reactFlowWrapper}>
-                            <ReactFlow
-                                nodes={nodes}
-                                edges={edges}
-                                onNodesChange={onNodesChange}
-                                onEdgesChange={onEdgesChange}
-                                onConnect={onConnect}
-                                onInit={setReactFlowInstance}
-                                onDrop={onDrop}
-                                onDragOver={onDragOver}
-                                onSelectionChange={onSelectionChange}
-                                nodeTypes={nodeTypes}
-                                fitView
-                                fitViewOptions={{
-                                    padding: 0.2,
-                                    minZoom: 0.5,
-                                    maxZoom: 1.5
+                                                        <div 
+                                tabIndex={0}
+                                className="w-full h-full outline-none react-flow"
+                                onFocus={() => {}}
+                                onClick={(e) => {
+                                    // 点击画布时获得焦点
+                                    e.currentTarget.focus();
                                 }}
-                                attributionPosition="bottom-left"
-                                style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
-                                deleteKeyCode={['Backspace', 'Delete']}
-                                multiSelectionKeyCode={['Meta', 'Ctrl']}
-                                selectNodesOnDrag={false}
                             >
-                                <Controls className="bg-white shadow-lg rounded-lg border border-gray-200" />
-                                <Background variant="dots" gap={24} size={1} color="#e2e8f0" />
-                            </ReactFlow>
+                                <ReactFlow
+                                    nodes={nodes}
+                                    edges={edges}
+                                    onNodesChange={onNodesChange}
+                                    onEdgesChange={onEdgesChange}
+                                    onConnect={onConnect}
+                                    onInit={setReactFlowInstance}
+                                    onDrop={onDrop}
+                                    onDragOver={onDragOver}
+                                    onSelectionChange={onSelectionChange}
+                                    nodeTypes={nodeTypes}
+                                    fitView
+                                    fitViewOptions={{
+                                        padding: 0.3,
+                                        minZoom: 0.3,
+                                        maxZoom: 1.5
+                                    }}
+                                    defaultZoom={0.7}
+                                    attributionPosition="bottom-left"
+                                    style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
+                                    deleteKeyCode={null}
+                                    multiSelectionKeyCode={['Meta', 'Ctrl']}
+                                    selectNodesOnDrag={false}
+                                >
+                                    <Controls className="bg-white shadow-lg rounded-lg border border-gray-200" />
+                                    <Background variant="dots" gap={24} size={1} color="#e2e8f0" />
+                                </ReactFlow>
+                            </div>
                         </div>
 
                         {/* 状态栏 */}
@@ -865,12 +2268,22 @@
                                     )}
                                     <div className="flex items-center space-x-2">
                                         <i className="fas fa-info-circle text-indigo-500"></i>
-                                        <span className="text-xs text-gray-500">拖拽组件到画布创建节点，点击选中后按Delete删除</span>
+                                        <span className="text-xs text-gray-500">点击节点配置参数，悬浮节点显示操作菜单</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* 节点配置面板 */}
+                    <NodeConfigPanel
+                        isOpen={configPanel.isOpen}
+                        onClose={closeNodeConfig}
+                        nodeId={configPanel.nodeId}
+                        nodeType={configPanel.nodeType}
+                        nodeData={configPanel.nodeData}
+                        onSave={saveNodeConfig}
+                    />
                 </div>
             );
         };
@@ -878,29 +2291,21 @@
         // 等待所有库加载完成
         function initializeApp() {
             try {
-                console.log('Initializing app...');
+
                 
                 if (!ReactDOM || !React) {
                     throw new Error('React libraries not loaded');
                 }
-                
                 if (!window.ReactFlow) {
                     throw new Error('React Flow library not loaded');
                 }
-                
-                console.log('All libraries loaded successfully');
-                
                 // 隐藏加载状态
-                const loadingElement = document.getElementById('loading');
+                                const loadingElement = document.getElementById('loading');
                 if (loadingElement) {
                     loadingElement.style.display = 'none';
                 }
-                
                 ReactDOM.render(<WorkflowEditor />, document.getElementById('root'));
-                console.log('App rendered successfully');
-                
             } catch (error) {
-                console.error('Failed to render application:', error);
                 document.getElementById('root').innerHTML = `
                     <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
                         <h1 style="color: #dc2626; margin-bottom: 20px;">应用加载失败</h1>
@@ -919,51 +2324,42 @@
                 `;
             }
         }
-        
         // 等待所有库加载完成
         function waitForLibraries() {
-            let attempts = 0;
-            const maxAttempts = 50; // 5秒超时
-            
-            const checkLibraries = () => {
-                attempts++;
-                console.log(`Checking libraries... attempt ${attempts}`);
-                
-                if (window.React && window.ReactDOM && window.ReactFlow) {
-                    console.log('All libraries loaded, initializing app...');
-                    setTimeout(initializeApp, 100); // 稍微延迟确保初始化完成
-                } else if (attempts < maxAttempts) {
-                    console.log('Libraries not ready, retrying...');
-                    setTimeout(checkLibraries, 100);
+                                let attempts = 0;
+                    const maxAttempts = 50; // 5秒超时
+                    const checkLibraries = () => {
+                        attempts++;
+                        if (window.React && window.ReactDOM && window.ReactFlow) {
+                            setTimeout(initializeApp, 100); // 稍微延迟确保初始化完成
+                        } else if (attempts < maxAttempts) {
+                            setTimeout(checkLibraries, 100);
+                        } else {
+                            document.getElementById('root').innerHTML = `
+                            <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
+                                <h1 style="color: #dc2626; margin-bottom: 20px;">库加载超时</h1>
+                                <p style="color: #6b7280; margin-bottom: 20px;">请检查网络连接或刷新页面重试</p>
+                                <button onclick="location.reload()" style="
+                                    background: #3b82f6; 
+                                    color: white; 
+                                    border: none; 
+                                    padding: 10px 20px; 
+                                    border-radius: 8px; 
+                                    cursor: pointer; 
+                                    margin-top: 20px;
+                                ">刷新页面</button>
+                            </div>
+                        `;
+                        }
+                    };
+                    checkLibraries();
+                        }
+                // 等待DOM加载完成
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', waitForLibraries);
                 } else {
-                    console.error('Libraries failed to load after timeout');
-                    document.getElementById('root').innerHTML = `
-                        <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
-                            <h1 style="color: #dc2626; margin-bottom: 20px;">库加载超时</h1>
-                            <p style="color: #6b7280; margin-bottom: 20px;">请检查网络连接或刷新页面重试</p>
-                            <button onclick="location.reload()" style="
-                                background: #3b82f6; 
-                                color: white; 
-                                border: none; 
-                                padding: 10px 20px; 
-                                border-radius: 8px; 
-                                cursor: pointer; 
-                                margin-top: 20px;
-                            ">刷新页面</button>
-                        </div>
-                    `;
+                    waitForLibraries();
                 }
-            };
-            
-            checkLibraries();
-        }
-        
-        // 等待DOM加载完成
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', waitForLibraries);
-        } else {
-            waitForLibraries();
-        }
     </script>
 </body>
 </html>
