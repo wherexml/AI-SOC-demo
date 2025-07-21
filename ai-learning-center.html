@@ -141,7 +141,7 @@
                 </button>
                 <button class="tab-btn" data-tab="disposal">
                     <i class="fas fa-tasks mr-2"></i>
-                    处置习惯学习
+                    处置知识学习
                 </button>
                 <button class="tab-btn" data-tab="analytics">
                     <i class="fas fa-chart-line mr-2"></i>
@@ -296,29 +296,6 @@
                     </div>
                 </div>
 
-                <!-- AI智能建议 -->
-                <div>
-                    <div class="bg-white rounded-lg shadow-sm border card-hover">
-                        <div class="p-6 border-b border-gray-200">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">
-                                        <i class="fas fa-robot text-ai mr-2"></i>
-                                        AI智能建议
-                                    </h3>
-                                    <p class="text-sm text-gray-600 mt-1">基于流量分析和行为模式的智能发现</p>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-2 h-2 bg-ai rounded-full animate-pulse"></div>
-                                    <span class="text-xs text-ai font-medium">实时分析中</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-6" id="ai-suggestions">
-                            <!-- AI建议内容 -->
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -639,161 +616,476 @@
                                 <i class="fas fa-tasks text-white text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900">处置习惯学习</h3>
-                                <p class="text-sm text-gray-600">识别和学习客户的个性化安全事件处置习惯</p>
+                                <h3 class="text-lg font-semibold text-gray-900">处置知识学习</h3>
+                                <p class="text-sm text-gray-600">AI自动学习和识别业务流，智能提升安全策略精确度</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-4">
                             <div class="text-sm text-gray-500">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                已识别习惯: <span class="font-bold text-ai">23</span>
+                                <i class="fas fa-network-wired mr-1"></i>
+                                已学习业务流: <span class="font-bold text-ai">47</span>
                             </div>
                             <div class="text-sm text-gray-500">
                                 <i class="fas fa-clock mr-1"></i>
-                                今日新增: <span class="font-bold text-learning">5</span>
+                                今日新增: <span class="font-bold text-learning">8</span>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-brain mr-1"></i>
+                                平均置信度: <span class="font-bold text-success">94%</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 处置习惯分类 -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- 高危事件处置习惯 -->
-                    <div class="bg-white rounded-lg shadow-sm border card-hover">
-                        <div class="p-6 border-b border-gray-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-900">高危事件处置习惯</h3>
-                                        <p class="text-sm text-gray-600">AI分析客户对高危安全事件的处置模式</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                                    <span class="text-xs text-red-600 font-medium">实时分析</span>
-                                </div>
+                <!-- 业务流知识管理 -->
+                <div class="space-y-6">
+                    <!-- 搜索和筛选区域 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900">业务流知识列表</h4>
+                            <div class="flex items-center space-x-3">
+                                <select id="status-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai text-sm">
+                                    <option value="">全部状态</option>
+                                    <option value="待确认">待确认</option>
+                                    <option value="已确认">已确认</option>
+                                    <option value="AI确认">AI确认</option>
+                                    <option value="已忽略">已忽略</option>
+                                </select>
+                                <select id="confidence-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai text-sm">
+                                    <option value="">全部置信度</option>
+                                    <option value="high">高置信度 (90%+)</option>
+                                    <option value="medium">中等置信度 (70-90%)</option>
+                                    <option value="low">低置信度 (<70%)</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="p-6">
-                            <div class="space-y-4">
-                                <!-- 处置习惯项 -->
-                                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-red-800 mb-1">SQL注入攻击 → 立即阻断</h4>
-                                            <p class="text-sm text-red-700 mb-2">AI识别：用户习惯对SQL注入攻击进行立即阻断处置</p>
-                                            <div class="flex items-center space-x-4 text-xs text-red-600">
-                                                <span><i class="fas fa-chart-line mr-1"></i>识别频率: 89%</span>
-                                                <span><i class="fas fa-clock mr-1"></i>平均响应时间: 3分钟</span>
-                                                <span><i class="fas fa-shield-alt mr-1"></i>阻断成功率: 100%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <input type="text" id="business-flow-search" placeholder="搜索业务流名称、源/目的实体、协议或研判理由..." 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai focus:border-transparent">
+                    </div>
 
-                                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-red-800 mb-1">恶意文件上传 → 隔离+取证</h4>
-                                            <p class="text-sm text-red-700 mb-2">AI识别：用户习惯对恶意文件上传进行隔离并启动取证流程</p>
-                                            <div class="flex items-center space-x-4 text-xs text-red-600">
-                                                <span><i class="fas fa-chart-line mr-1"></i>识别频率: 76%</span>
-                                                <span><i class="fas fa-clock mr-1"></i>平均响应时间: 8分钟</span>
-                                                <span><i class="fas fa-search mr-1"></i>取证成功率: 95%</span>
+                    <!-- 业务流知识表格 -->
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">业务流名称</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">源/目的实体</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">协议/端口</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">研判理由</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">置信度</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">确认状态</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="business-flow-list">
+                                    <!-- 示例业务流数据 -->
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="1">办公网访问CRM系统</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>办公网IP段: 10.10.0.0/16</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>CRM服务器集群: 192.168.100.0/24</div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            HTTP/HTTPS<br>
+                                            <span class="text-gray-400">80, 443</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">高频访问模式识别</div>
+                                                <div class="text-xs text-gray-500">工作时间内规律性访问，符合办公场景特征</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-green-500 h-2 rounded-full" style="width: 98%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-green-600">98%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                待确认
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="confirmBusinessFlow(1)" class="text-green-600 hover:text-green-900 transition-colors">
+                                                <i class="fas fa-check mr-1"></i>确认
+                                            </button>
+                                            <button onclick="editBusinessFlow(1)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button onclick="ignoreBusinessFlow(1)" class="text-gray-600 hover:text-gray-900 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>忽略
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="2">数据库备份流量</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>数据库服务器: 192.168.10.5</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>备份存储: 172.16.5.0/24</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            TCP<br>
+                                            <span class="text-gray-400">3306, 22</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">定时备份流量</div>
+                                                <div class="text-xs text-gray-500">夜间定时执行，数据量大且规律，符合备份特征</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-green-500 h-2 rounded-full" style="width: 95%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-green-600">95%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                已确认
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="editBusinessFlow(2)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button onclick="ignoreBusinessFlow(2)" class="text-gray-600 hover:text-gray-900 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>忽略
+                                            </button>
+                                        </td>
+                                    </tr>
 
-                                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-red-800 mb-1">内网横向移动 → 网络隔离</h4>
-                                            <p class="text-sm text-red-700 mb-2">AI识别：用户习惯对内网横向移动进行网络隔离处置</p>
-                                            <div class="flex items-center space-x-4 text-xs text-red-600">
-                                                <span><i class="fas fa-chart-line mr-1"></i>识别频率: 82%</span>
-                                                <span><i class="fas fa-clock mr-1"></i>平均响应时间: 5分钟</span>
-                                                <span><i class="fas fa-network-wired mr-1"></i>隔离成功率: 98%</span>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="3">监控系统数据采集</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>各业务服务器: 多个网段</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>监控中心: 192.168.200.10</div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            SNMP/HTTP<br>
+                                            <span class="text-gray-400">161, 8080</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">监控数据采集</div>
+                                                <div class="text-xs text-gray-500">多源设备向监控中心报告状态，数据量适中且持续</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 87%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-yellow-600">87%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <i class="fas fa-robot mr-1"></i>AI确认
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="confirmBusinessFlow(3)" class="text-green-600 hover:text-green-900 transition-colors">
+                                                <i class="fas fa-check mr-1"></i>确认
+                                            </button>
+                                            <button onclick="editBusinessFlow(3)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button onclick="ignoreBusinessFlow(3)" class="text-gray-600 hover:text-gray-900 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>忽略
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="4">Web服务负载均衡</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>负载均衡器: 192.168.1.100</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>Web服务器池: 192.168.1.101-105</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            HTTP/HTTPS<br>
+                                            <span class="text-gray-400">80, 443, 8080</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">负载均衡流量</div>
+                                                <div class="text-xs text-gray-500">流量分布不均，可能存在异常访问模式</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-red-500 h-2 rounded-full" style="width: 65%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-red-600">65%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <i class="fas fa-robot mr-1"></i>AI确认
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="confirmBusinessFlow(4)" class="text-green-600 hover:text-green-900 transition-colors">
+                                                <i class="fas fa-check mr-1"></i>确认
+                                            </button>
+                                            <button onclick="editBusinessFlow(4)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button onclick="ignoreBusinessFlow(4)" class="text-gray-600 hover:text-gray-900 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>忽略
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="5">外部API调用</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>应用服务器: 192.168.50.20</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>第三方API: 外部互联网</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            HTTPS<br>
+                                            <span class="text-gray-400">443</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">外部API调用</div>
+                                                <div class="text-xs text-gray-500">固定时间调用第三方服务，频率可控且安全</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-green-500 h-2 rounded-full" style="width: 92%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-green-600">92%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                已忽略
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="confirmBusinessFlow(5)" class="text-green-600 hover:text-green-900 transition-colors">
+                                                <i class="fas fa-check mr-1"></i>确认
+                                            </button>
+                                            <button onclick="editBusinessFlow(5)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- 代理场景业务流 -->
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="6">HTTP代理上网流量</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>员工终端: 10.10.0.0/16</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>HTTP代理: 192.168.1.200</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            HTTP/HTTPS<br>
+                                            <span class="text-gray-400">8080, 3128</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">代理上网流量</div>
+                                                <div class="text-xs text-gray-500">员工通过代理服务器访问外网，流量集中且规律</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-green-500 h-2 rounded-full" style="width: 89%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-green-600">89%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                已确认
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="editBusinessFlow(6)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button onclick="ignoreBusinessFlow(6)" class="text-gray-600 hover:text-gray-900 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>忽略
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="7">SOCKS代理连接</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>开发环境: 172.16.0.0/16</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>SOCKS代理: 192.168.2.100</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            SOCKS5<br>
+                                            <span class="text-gray-400">1080</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">开发环境代理</div>
+                                                <div class="text-xs text-gray-500">开发人员通过SOCKS代理访问外部资源</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 76%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-yellow-600">76%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                待确认
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="confirmBusinessFlow(7)" class="text-green-600 hover:text-green-900 transition-colors">
+                                                <i class="fas fa-check mr-1"></i>确认
+                                            </button>
+                                            <button onclick="editBusinessFlow(7)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button onclick="ignoreBusinessFlow(7)" class="text-gray-600 hover:text-gray-900 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>忽略
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 editable-name" data-id="8">反向代理流量</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-600">
+                                                <div>外部用户: 互联网</div>
+                                                <div class="text-gray-400">↓</div>
+                                                <div>Nginx反向代理: 10.0.1.10</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            HTTP/HTTPS<br>
+                                            <span class="text-gray-400">80, 443</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            <div class="max-w-xs">
+                                                <div class="text-gray-800 font-medium mb-1">反向代理服务</div>
+                                                <div class="text-xs text-gray-500">外部请求通过反向代理转发到内部服务器</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="bg-green-500 h-2 rounded-full" style="width: 94%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-green-600">94%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                已确认
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="editBusinessFlow(8)" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button onclick="ignoreBusinessFlow(8)" class="text-gray-600 hover:text-gray-900 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>忽略
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
-                    <!-- 中等威胁处置习惯 -->
-                    <div class="bg-white rounded-lg shadow-sm border card-hover">
-                        <div class="p-6 border-b border-gray-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-exclamation-circle text-yellow-600 text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-900">中等威胁处置习惯</h3>
-                                        <p class="text-sm text-gray-600">AI分析客户对中等威胁的处置偏好</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                                    <span class="text-xs text-yellow-600 font-medium">持续学习</span>
-                                </div>
-                            </div>
+            </div>
+        </div>
+
+        <!-- 价值可视化 -->
+        <div id="analytics-tab" class="tab-content hidden">
+            <!-- 页面说明 -->
+            <div class="bg-gradient-to-r from-ai/10 to-learning/10 rounded-lg shadow-sm border border-ai/20 p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-r from-ai to-learning rounded-xl flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white text-xl"></i>
                         </div>
-                        <div class="p-6">
-                            <div class="space-y-4">
-                                <!-- 处置习惯项 -->
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-8 h-8 bg-yellow-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-yellow-800 mb-1">暴力破解攻击 → 加强监控</h4>
-                                            <p class="text-sm text-yellow-700 mb-2">AI识别：用户习惯对暴力破解攻击进行加强监控，观察后续行为</p>
-                                            <div class="flex items-center space-x-4 text-xs text-yellow-600">
-                                                <span><i class="fas fa-chart-line mr-1"></i>识别频率: 67%</span>
-                                                <span><i class="fas fa-clock mr-1"></i>平均监控时间: 2小时</span>
-                                                <span><i class="fas fa-eye mr-1"></i>后续处置率: 34%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-8 h-8 bg-yellow-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-yellow-800 mb-1">异常端口扫描 → 记录+告警</h4>
-                                            <p class="text-sm text-yellow-700 mb-2">AI识别：用户习惯对异常端口扫描进行记录并发送告警通知</p>
-                                            <div class="flex items-center space-x-4 text-xs text-yellow-600">
-                                                <span><i class="fas fa-chart-line mr-1"></i>识别频率: 73%</span>
-                                                <span><i class="fas fa-clock mr-1"></i>平均响应时间: 15分钟</span>
-                                                <span><i class="fas fa-bell mr-1"></i>告警发送率: 100%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-8 h-8 bg-yellow-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-yellow-800 mb-1">可疑外联行为 → 深度分析</h4>
-                                            <p class="text-sm text-yellow-700 mb-2">AI识别：用户习惯对可疑外联行为进行深度分析，检查数据流量</p>
-                                            <div class="flex items-center space-x-4 text-xs text-yellow-600">
-                                                <span><i class="fas fa-chart-line mr-1"></i>识别频率: 58%</span>
-                                                <span><i class="fas fa-clock mr-1"></i>平均分析时间: 45分钟</span>
-                                                <span><i class="fas fa-search mr-1"></i>分析完成率: 89%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">价值可视化</h3>
+                            <p class="text-sm text-gray-600">将学习和调优的过程与效果清晰地展示，证明系统的价值</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-trophy mr-1"></i>
+                            综合价值评分: <span class="font-bold text-ai">A+</span>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            月度提升: <span class="font-bold text-success">+28%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- 价值指标卡片 -->
+                <div class="bg-white rounded-lg shadow-sm border card-hover p-6 cursor-pointer" onclick="showMetricDetail('accuracy')">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-success text-xl"></i>
+                        </div>
                             </div>
                         </div>
                     </div>
@@ -939,102 +1231,6 @@
                     </div>
                 </div>
 
-                <!-- AI智能建议 -->
-                <div class="mt-6 bg-white rounded-lg shadow-sm border card-hover">
-                    <div class="p-6 border-b border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-brain text-white text-lg"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">AI智能建议</h3>
-                                    <p class="text-sm text-gray-600">基于处置习惯分析的智能优化建议</p>
-                                </div>
-                            </div>
-                            <button onclick="refreshDisposalSuggestions()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all">
-                                <i class="fas fa-sync-alt mr-2"></i>
-                                刷新建议
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="disposal-suggestions">
-                            <!-- AI建议内容 -->
-                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs">
-                                        <i class="fas fa-lightbulb"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-purple-800 mb-1">自动化建议</h4>
-                                        <p class="text-sm text-purple-700 mb-2">建议对"健康检查告警"设置自动化处理规则，可节省95%的处理时间</p>
-                                        <div class="flex items-center space-x-2">
-                                            <button onclick="applyDisposalSuggestion('auto-health-check')" class="text-xs bg-purple-600 text-white px-3 py-1 rounded-full hover:bg-purple-700">
-                                                应用建议
-                                            </button>
-                                            <span class="text-xs text-purple-600">预计效果：+95%效率</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-4">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-blue-800 mb-1">优化建议</h4>
-                                        <p class="text-sm text-blue-700 mb-2">建议对"暴力破解攻击"调整监控策略，从观察型转为预防型处置</p>
-                                        <div class="flex items-center space-x-2">
-                                            <button onclick="applyDisposalSuggestion('optimize-brute-force')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full hover:bg-blue-700">
-                                                应用建议
-                                            </button>
-                                            <span class="text-xs text-blue-600">预计效果：+40%防护</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gradient-to-r from-green-50 to-teal-50 border border-green-200 rounded-lg p-4">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-xs">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-green-800 mb-1">协作建议</h4>
-                                        <p class="text-sm text-green-700 mb-2">建议建立与业务方的快速响应机制，缩短数据泄露风险的确认时间</p>
-                                        <div class="flex items-center space-x-2">
-                                            <button onclick="applyDisposalSuggestion('improve-collaboration')" class="text-xs bg-green-600 text-white px-3 py-1 rounded-full hover:bg-green-700">
-                                                应用建议
-                                            </button>
-                                            <span class="text-xs text-green-600">预计效果：+60%响应速度</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs">
-                                        <i class="fas fa-shield-alt"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-orange-800 mb-1">安全建议</h4>
-                                        <p class="text-sm text-orange-700 mb-2">建议对高危事件处置时同步启动备份验证，避免数据丢失风险</p>
-                                        <div class="flex items-center space-x-2">
-                                            <button onclick="applyDisposalSuggestion('backup-verification')" class="text-xs bg-orange-600 text-white px-3 py-1 rounded-full hover:bg-orange-700">
-                                                应用建议
-                                            </button>
-                                            <span class="text-xs text-orange-600">预计效果：+80%数据安全</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -3115,6 +3311,265 @@
             });
 
             console.log('处置知识库初始化完成', disposalStats);
+        }
+
+        // 业务流知识操作函数
+        function confirmBusinessFlow(id) {
+            const row = document.querySelector(`tr:has([data-id="${id}"])`);
+            if (row) {
+                const statusCell = row.querySelector('td:nth-child(5) span');
+                statusCell.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                statusCell.textContent = '已确认';
+                
+                // 隐藏确认按钮
+                const confirmBtn = row.querySelector('button[onclick*="confirmBusinessFlow"]');
+                if (confirmBtn) {
+                    confirmBtn.style.display = 'none';
+                }
+                
+                // 显示成功提示
+                showNotification('业务流已确认为正常流量', 'success');
+            }
+        }
+
+        function editBusinessFlow(id) {
+            const row = document.querySelector(`tr:has([data-id="${id}"])`);
+            if (row) {
+                const nameCell = row.querySelector('.editable-name');
+                const currentName = nameCell.textContent;
+                
+                // 创建现代化编辑对话框
+                showEditDialog(currentName, (newName) => {
+                    if (newName && newName !== currentName) {
+                        nameCell.textContent = newName;
+                        showNotification('业务流名称已更新', 'success');
+                    }
+                });
+            }
+        }
+
+        function showEditDialog(currentName, callback) {
+            // 创建模态对话框背景
+            const backdrop = document.createElement('div');
+            backdrop.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            backdrop.style.animation = 'fadeIn 0.2s ease-out';
+
+            // 创建对话框内容
+            backdrop.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-200 scale-95 opacity-0" id="edit-dialog">
+                    <div class="p-6">
+                        <!-- 头部 -->
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-edit text-blue-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">编辑业务流名称</h3>
+                                <p class="text-sm text-gray-600">请输入更符合业务场景的描述名称</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 输入框 -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">业务流名称</label>
+                            <input type="text" id="business-flow-name-input" 
+                                   value="${currentName}" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="请输入业务流名称...">
+                        </div>
+                        
+                        <!-- 按钮 -->
+                        <div class="flex justify-end space-x-3">
+                            <button onclick="closeEditDialog()" 
+                                    class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                取消
+                            </button>
+                            <button onclick="confirmEdit()" 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                确认修改
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(backdrop);
+
+            // 显示动画
+            setTimeout(() => {
+                const dialog = document.getElementById('edit-dialog');
+                dialog.classList.remove('scale-95', 'opacity-0');
+                dialog.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            // 聚焦输入框
+            setTimeout(() => {
+                const input = document.getElementById('business-flow-name-input');
+                input.focus();
+                input.select();
+            }, 200);
+
+            // 保存回调函数
+            window.editCallback = callback;
+
+            // ESC键关闭
+            const handleEsc = (e) => {
+                if (e.key === 'Escape') {
+                    closeEditDialog();
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+            window.editDialogEscHandler = handleEsc;
+
+            // Enter键确认
+            const handleEnter = (e) => {
+                if (e.key === 'Enter') {
+                    confirmEdit();
+                }
+            };
+            document.getElementById('business-flow-name-input').addEventListener('keydown', handleEnter);
+        }
+
+        function closeEditDialog() {
+            const backdrop = document.querySelector('.fixed.inset-0.bg-black.bg-opacity-50');
+            if (backdrop) {
+                const dialog = document.getElementById('edit-dialog');
+                dialog.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    document.body.removeChild(backdrop);
+                    if (window.editDialogEscHandler) {
+                        document.removeEventListener('keydown', window.editDialogEscHandler);
+                        delete window.editDialogEscHandler;
+                    }
+                    delete window.editCallback;
+                }, 200);
+            }
+        }
+
+        function confirmEdit() {
+            const input = document.getElementById('business-flow-name-input');
+            const newName = input.value.trim();
+            
+            if (newName && window.editCallback) {
+                window.editCallback(newName);
+            }
+            
+            closeEditDialog();
+        }
+
+        function ignoreBusinessFlow(id) {
+            const row = document.querySelector(`tr:has([data-id="${id}"])`);
+            if (row) {
+                const statusCell = row.querySelector('td:nth-child(5) span');
+                statusCell.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+                statusCell.textContent = '已忽略';
+                
+                // 隐藏确认和忽略按钮
+                const confirmBtn = row.querySelector('button[onclick*="confirmBusinessFlow"]');
+                const ignoreBtn = row.querySelector('button[onclick*="ignoreBusinessFlow"]');
+                if (confirmBtn) confirmBtn.style.display = 'none';
+                if (ignoreBtn) ignoreBtn.style.display = 'none';
+                
+                // 显示成功提示
+                showNotification('业务流已标记为忽略', 'warning');
+            }
+        }
+
+        // 通知提示函数
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            const colors = {
+                success: 'bg-green-500 text-white',
+                warning: 'bg-yellow-500 text-white',
+                error: 'bg-red-500 text-white',
+                info: 'bg-blue-500 text-white'
+            };
+            
+            notification.className += ` ${colors[type] || colors.info}`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'warning' ? 'exclamation-triangle' : type === 'error' ? 'times' : 'info'}-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 显示动画
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // 自动隐藏
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // 搜索和筛选功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('business-flow-search');
+            const statusFilter = document.getElementById('status-filter');
+            const confidenceFilter = document.getElementById('confidence-filter');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', filterBusinessFlows);
+            }
+            if (statusFilter) {
+                statusFilter.addEventListener('change', filterBusinessFlows);
+            }
+            if (confidenceFilter) {
+                confidenceFilter.addEventListener('change', filterBusinessFlows);
+            }
+        });
+
+        function filterBusinessFlows() {
+            const searchTerm = document.getElementById('business-flow-search')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('status-filter')?.value || '';
+            const confidenceFilter = document.getElementById('confidence-filter')?.value || '';
+            
+            const rows = document.querySelectorAll('#business-flow-list tr');
+            
+            rows.forEach(row => {
+                const name = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
+                const entities = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                const protocol = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+                const reason = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() || '';
+                const status = row.querySelector('td:nth-child(6) span')?.textContent || '';
+                const confidenceText = row.querySelector('td:nth-child(5) span')?.textContent || '';
+                const confidence = parseInt(confidenceText.replace('%', '')) || 0;
+                
+                let show = true;
+                
+                // 搜索过滤
+                if (searchTerm && !name.includes(searchTerm) && !entities.includes(searchTerm) && !protocol.includes(searchTerm) && !reason.includes(searchTerm)) {
+                    show = false;
+                }
+                
+                // 状态过滤
+                if (statusFilter && status !== statusFilter) {
+                    show = false;
+                }
+                
+                // 置信度过滤
+                if (confidenceFilter) {
+                    if (confidenceFilter === 'high' && confidence < 90) {
+                        show = false;
+                    } else if (confidenceFilter === 'medium' && (confidence < 70 || confidence >= 90)) {
+                        show = false;
+                    } else if (confidenceFilter === 'low' && confidence >= 70) {
+                        show = false;
+                    }
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
         }
     </script>
 </body>
