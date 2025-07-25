@@ -41,9 +41,359 @@
             position: relative;
             height: 200px;
         }
+        
+        /* 侧拉弹窗样式 */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: -600px;
+            width: 600px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 25px rgba(0, 0, 0, 0.15);
+            transition: right 0.3s ease-in-out;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .side-panel.open {
+            right: 0;
+        }
+        .side-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+            z-index: 999;
+        }
+        .side-panel-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        /* Tab切换样式 */
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        .tab-button.active {
+            background-color: rgb(239, 246, 255);
+            color: rgb(37, 99, 235);
+            border-color: rgb(59, 130, 246);
+        }
+        .tab-content {
+            display: block;
+        }
+        .tab-content.hidden {
+            display: none;
+        }
+        
+        /* 白名单配置页面特有样式 */
+        .icon-bounce {
+            animation: bounce 2s infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans">
+    <!-- 侧拉弹窗遮罩 -->
+    <div class="side-panel-overlay" id="sidePanelOverlay" onclick="closeSidePanel()"></div>
+    
+    <!-- 侧拉弹窗 -->
+    <div class="side-panel" id="sidePanel">
+        <div class="p-6">
+            <!-- 弹窗头部 -->
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-secret text-red-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900" id="attackerIP">192.168.1.100</h2>
+                        <p class="text-sm text-gray-500" id="attackerLocation">🇨🇳 中国 北京</p>
+                    </div>
+                </div>
+                <button onclick="closeSidePanel()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- AI总结结论 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-brain text-purple-600 mr-2"></i>
+                    AI总结结论
+                </h3>
+                <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 border-l-4 border-purple-500">
+                    <div class="text-sm text-gray-700 leading-relaxed" id="aiSummary">
+                        该IP地址显示出明显的恶意攻击行为模式。根据7天内的247次告警分析，其中189次被识别为真实攻击，攻击成功率高达76.5%。主要攻击手段包括SQL注入、权限提升和数据窃取尝试。该攻击者具有较强的技术能力，能够绕过部分安全防护措施。建议立即进行永久封堵并加入黑名单。
+                    </div>
+                    <div class="mt-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>高危威胁
+                            </span>
+                            <span class="text-xs text-gray-500">置信度: 94.2%</span>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>更新时间: 2分钟前
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI业务分析 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-robot text-indigo-600 mr-2"></i>
+                    AI业务分析
+                </h3>
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-search-plus text-indigo-600"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="mb-3">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" id="businessAnalysisTag">
+                                    <i class="fas fa-times mr-1"></i>非业务访问
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-700 leading-relaxed" id="businessAnalysisReason">
+                                基于访问模式分析，该IP地址的访问行为不符合正常业务访问特征：1）访问时间集中在非工作时段（夜间和周末）；2）访问频率异常高，存在批量请求行为；3）访问路径包含敏感系统文件和数据库相关接口；4）用户代理信息异常，疑似使用自动化工具；5）地理位置与已知业务伙伴区域不符。综合判断为恶意攻击行为。
+                            </div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <div class="text-xs text-gray-500">
+                                    <i class="fas fa-clock mr-1"></i>分析完成于: 1分钟前
+                                </div>
+                                <div class="text-xs text-indigo-600 font-medium">
+                                    AI置信度: 96.8%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 告警总数统计 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-chart-bar text-blue-600 mr-2"></i>
+                    告警总数统计
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600 mb-1" id="totalAlerts">247</div>
+                            <div class="text-sm text-gray-600">7天总告警数</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-600 mb-1" id="realAttacks">189</div>
+                            <div class="text-sm text-gray-600">真实攻击数</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600 mb-1" id="blockedAttacks">189</div>
+                            <div class="text-sm text-gray-600">成功拦截数</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600 mb-1" id="accuracyRate">76.5%</div>
+                            <div class="text-sm text-gray-600">攻击准确率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 告警研判结论饼状图 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-chart-pie text-green-600 mr-2"></i>
+                    告警研判结论分布
+                </h3>
+                <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="alertPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top10告警分析 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-list-ol text-orange-600 mr-2"></i>
+                    Top10告警类型分析
+                </h3>
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div class="divide-y divide-gray-200">
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 font-semibold text-sm">1</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">SQL注入攻击</div>
+                                    <div class="text-sm text-gray-500">尝试获取数据库敏感信息</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-red-600">67</div>
+                                <div class="text-xs text-gray-500">27.1%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold text-sm">2</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">权限提升攻击</div>
+                                    <div class="text-sm text-gray-500">尝试获取管理员权限</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-orange-600">45</div>
+                                <div class="text-xs text-gray-500">18.2%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 font-semibold text-sm">3</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">跨站脚本攻击</div>
+                                    <div class="text-sm text-gray-500">XSS攻击尝试</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-yellow-600">32</div>
+                                <div class="text-xs text-gray-500">13.0%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-semibold text-sm">4</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">文件上传攻击</div>
+                                    <div class="text-sm text-gray-500">恶意文件上传尝试</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-purple-600">28</div>
+                                <div class="text-xs text-gray-500">11.3%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">5</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">暴力破解攻击</div>
+                                    <div class="text-sm text-gray-500">密码暴力破解</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-blue-600">23</div>
+                                <div class="text-xs text-gray-500">9.3%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold text-sm">6</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">命令注入攻击</div>
+                                    <div class="text-sm text-gray-500">系统命令执行尝试</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-indigo-600">18</div>
+                                <div class="text-xs text-gray-500">7.3%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-semibold text-sm">7</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">目录遍历攻击</div>
+                                    <div class="text-sm text-gray-500">敏感文件访问尝试</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-pink-600">15</div>
+                                <div class="text-xs text-gray-500">6.1%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 font-semibold text-sm">8</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">CSRF攻击</div>
+                                    <div class="text-sm text-gray-500">跨站请求伪造</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-teal-600">12</div>
+                                <div class="text-xs text-gray-500">4.9%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-cyan-100 rounded-full flex items-center justify-center text-cyan-600 font-semibold text-sm">9</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">代码注入攻击</div>
+                                    <div class="text-sm text-gray-500">恶意代码执行尝试</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-cyan-600">9</div>
+                                <div class="text-xs text-gray-500">3.6%</div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-semibold text-sm">10</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">信息泄露攻击</div>
+                                    <div class="text-sm text-gray-500">敏感信息获取尝试</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-emerald-600">6</div>
+                                <div class="text-xs text-gray-500">2.4%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="pt-4 border-t border-gray-200">
+                <div class="flex space-x-3">
+                    <button class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-ban mr-2"></i>永久封堵
+                    </button>
+                    <button class="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-shield-alt mr-2"></i>解封
+                    </button>
+                    <button class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-check mr-2"></i>加白
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 顶部导航栏 -->
     <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
         <div class="px-6 py-4">
@@ -85,6 +435,25 @@
 
     <!-- 主内容区域 -->
     <div class="p-6">
+        
+        <!-- Tab导航区域 -->
+        <div class="mb-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="flex">
+                    <button class="tab-button active flex-1 px-6 py-4 text-center font-medium border-b-2 border-blue-500 text-blue-600 bg-blue-50" data-tab="attacker-analysis">
+                        <i class="fas fa-crosshairs mr-2"></i>
+                        攻击者详细分析
+                    </button>
+                    <button class="tab-button flex-1 px-6 py-4 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="whitelist-config">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        响应白名单配置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab内容区域 -->
+        <div id="attacker-analysis" class="tab-content">
         <!-- 统计卡片区域 - 简洁版本 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <!-- 卡片一：实时威胁洞察 -->
@@ -194,7 +563,6 @@
             </div>
         </div>
 
-
         <!-- 数据表格区域 (下方2/3) -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100">
             <!-- 表格头部 -->
@@ -230,19 +598,19 @@
                 <table class="w-full table-striped">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">攻击者信息</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">攻击信息</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">深信服情报</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">告警统计(7d)</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AI研判结果</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">历史封堵(30d)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">封堵历史(30d)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">业务访问AI分析</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AI研判结论</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">封堵状态</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <!-- 攻击者 1 -->
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 clickable-row" onclick="openSidePanel('192.168.1.100', '🇨🇳 中国 北京', '该IP地址显示出明显的恶意攻击行为模式。根据7天内的247次告警分析，其中189次被识别为真实攻击，攻击成功率高达76.5%。主要攻击手段包括SQL注入、权限提升和数据窃取尝试。该攻击者具有较强的技术能力，能够绕过部分安全防护措施，对系统安全构成严重威胁。', 247, 189, {tag: '非业务访问', isBusiness: false, reason: '基于访问模式分析，该IP地址的访问行为不符合正常业务访问特征：1）访问时间集中在非工作时段（夜间和周末）；2）访问频率异常高，存在批量请求行为；3）访问路径包含敏感系统文件和数据库相关接口；4）用户代理信息异常，疑似使用自动化工具；5）地理位置与已知业务伙伴区域不符。综合判断为恶意攻击行为。'}, {type: 'block'})">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
@@ -265,12 +633,6 @@
                                     <span class="text-red-600">真实攻击: 189</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-red-700">恶意攻击</span>
-                                </div>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <div class="flex flex-col">
                                     <span class="font-medium">12次</span>
@@ -285,6 +647,11 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-ban mr-1"></i>建议封堵
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
                                         <i class="fas fa-ban mr-1"></i>已封堵
@@ -296,12 +663,13 @@
                                 <div class="flex space-x-2">
                                     <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
                                     <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
+                                    <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">永久封堵</button>
                                 </div>
                             </td>
                         </tr>
 
                         <!-- 攻击者 2 -->
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 clickable-row" onclick="openSidePanel('203.45.67.89', '🇺🇸 美国 加州', '该IP显示部分业务访问特征，在7天内产生156次告警，其中89次被识别为真实攻击。经过深度分析发现，虽然存在一些异常行为，但综合评估后判断为合法业务用户的正常操作，可能是由于网络环境或配置问题导致的误报。建议将其加入可信列表。', 156, 89, {tag: '疑似业务访问', isBusiness: true, reason: 'AI综合分析后确认该IP具有明显的业务访问特征：1）访问时间虽有部分夜间活动，但符合美国西海岸时区的工作模式；2）访问的API接口主要为业务相关功能；3）虽然有密码尝试行为，但分析后发现是正常的登录重试；4）用户代理信息显示为企业常用的自动化工具；5）该IP段属于已知的企业合作伙伴网络范围。建议请勿封堵并考虑加入白名单。'}, {type: 'allow'})">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
@@ -324,12 +692,6 @@
                                     <span class="text-orange-600">真实攻击: 89</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-orange-700">可疑活动</span>
-                                </div>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <div class="flex flex-col">
                                     <span class="font-medium">5次</span>
@@ -344,6 +706,11 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check mr-1"></i>请勿封堵
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-monitoring text-white mb-1">
                                         <i class="fas fa-eye mr-1"></i>监控中
@@ -355,12 +722,13 @@
                                 <div class="flex space-x-2">
                                     <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">封堵</button>
                                     <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
+                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">永久封堵</button>
                                 </div>
                             </td>
                         </tr>
 
                         <!-- 攻击者 3 -->
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 clickable-row" onclick="openSidePanel('172.16.5.78', '🇩🇪 德国 柏林', '该IP地址显示正常的业务访问模式。在7天内产生45次告警，但仅有2次被识别为真实攻击，且都是误报。访问时间和频率符合正常业务模式，无恶意行为特征。虽然评估为正常业务访问，但仍需定期监控以确保访问行为的一致性。', 45, 2, {tag: '正常业务访问', isBusiness: true, reason: 'AI综合分析确认为正常业务访问：1）访问时间符合欧洲工作时段（UTC+1），与企业合作伙伴时区一致；2）访问频率稳定，无异常突增；3）主要访问业务API接口，未涉及敏感系统路径；4）HTTP请求头信息正常，使用标准浏览器；5）该IP段已在企业合作伙伴白名单中登记；6）访问行为模式与历史记录高度一致。建议维持放行状态并加入可信IP列表。'}, {type: 'observe'})">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
@@ -383,12 +751,6 @@
                                     <span class="text-green-600">真实攻击: 2</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-green-700">正常访问</span>
-                                </div>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <div class="flex flex-col">
                                     <span class="font-medium">0次</span>
@@ -404,182 +766,9 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-allowed text-white mb-1">
-                                        <i class="fas fa-check mr-1"></i>已放行
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-eye mr-1"></i>保持观察
                                     </span>
-                                    <div class="text-xs text-gray-500">持续放行</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-200 text-gray-400 rounded cursor-not-allowed">无需操作</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 4 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-secret text-red-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">45.234.12.67</div>
-                                        <div class="text-sm text-gray-500">🇷🇺 俄罗斯 莫斯科</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 523</span>
-                                    <span class="text-red-600">真实攻击: 498</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mr-2 pulse-bg"></div>
-                                    <span class="text-sm font-medium text-red-700">高级威胁</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">28次</span>
-                                    <span class="text-xs text-gray-500">最近: 3小时前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
-                                        非业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">持续尝试权限提升攻击</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
-                                        <i class="fas fa-shield-alt mr-1"></i>已封堵
-                                    </span>
-                                    <div class="text-xs text-gray-500">封堵时长: 3小时15分</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
-                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">黑名单</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 5 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-secret text-orange-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">118.89.156.23</div>
-                                        <div class="text-sm text-gray-500">🇨🇳 中国 上海</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 89</span>
-                                    <span class="text-orange-600">真实攻击: 67</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-orange-700">批量攻击</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">7次</span>
-                                    <span class="text-xs text-gray-500">最近: 1天前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-1">
-                                        待确认
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-monitoring text-white mb-1">
-                                        <i class="fas fa-eye mr-1"></i>监控中
-                                    </span>
-                                    <div class="text-xs text-gray-500">监控时长: 1天2小时</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">封堵</button>
-                                    <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 6 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-green-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">10.0.1.145</div>
-                                        <div class="text-sm text-gray-500">🇯🇵 日本 东京</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    未知
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 78</span>
-                                    <span class="text-green-600">真实攻击: 1</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-green-700">正常访问</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">0次</span>
-                                    <span class="text-xs text-gray-500">从未封堵</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-1">
-                                        业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">固定办公时间访问，行为稳定</div>
-                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
@@ -596,837 +785,7 @@
                             </td>
                         </tr>
 
-                        <!-- 攻击者 7 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-ninja text-red-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">165.232.89.42</div>
-                                        <div class="text-sm text-gray-500">🇰🇷 韩国 首尔</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 342</span>
-                                    <span class="text-red-600">真实攻击: 298</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-red-700">恶意攻击</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">18次</span>
-                                    <span class="text-xs text-gray-500">最近: 1小时前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
-                                        非业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">尝试植入木马程序</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
-                                        <i class="fas fa-ban mr-1"></i>已封堵
-                                    </span>
-                                    <div class="text-xs text-gray-500">封堵时长: 1小时30分</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
-                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">黑名单</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 8 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-blue-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">192.168.10.88</div>
-                                        <div class="text-sm text-gray-500">🇸🇬 新加坡</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                    可疑
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 123</span>
-                                    <span class="text-blue-600">真实攻击: 34</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-blue-700">可疑活动</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">3次</span>
-                                    <span class="text-xs text-gray-500">最近: 3天前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-1">
-                                        待确认
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-monitoring text-white mb-1">
-                                        <i class="fas fa-eye mr-1"></i>监控中
-                                    </span>
-                                    <div class="text-xs text-gray-500">监控时长: 3天</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">封堵</button>
-                                    <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 9 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-secret text-orange-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">87.251.75.123</div>
-                                        <div class="text-sm text-gray-500">🇫🇷 法国 巴黎</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 876</span>
-                                    <span class="text-orange-600">真实攻击: 745</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-orange-700">暴力攻击</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">45次</span>
-                                    <span class="text-xs text-gray-500">最近: 30分钟前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
-                                        非业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">字典攻击SSH登录</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
-                                        <i class="fas fa-ban mr-1"></i>已封堵
-                                    </span>
-                                    <div class="text-xs text-gray-500">封堵时长: 30分钟</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
-                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">黑名单</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 10 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-green-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">172.20.15.67</div>
-                                        <div class="text-sm text-gray-500">🇬🇧 英国 伦敦</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    未知
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 234</span>
-                                    <span class="text-green-600">真实攻击: 3</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-green-700">正常访问</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">0次</span>
-                                    <span class="text-xs text-gray-500">从未封堵</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-1">
-                                        业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">合作伙伴API调用，白名单用户</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-allowed text-white mb-1">
-                                        <i class="fas fa-check mr-1"></i>已放行
-                                    </span>
-                                    <div class="text-xs text-gray-500">持续放行</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-200 text-gray-400 rounded cursor-not-allowed">无需操作</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 11 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-ninja text-red-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">198.46.178.90</div>
-                                        <div class="text-sm text-gray-500">🇨🇦 加拿大 多伦多</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 167</span>
-                                    <span class="text-red-600">真实攻击: 134</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-red-700">恶意攻击</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">8次</span>
-                                    <span class="text-xs text-gray-500">最近: 4小时前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
-                                        非业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">尝试获取数据库敏感信息</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
-                                        <i class="fas fa-ban mr-1"></i>已封堵
-                                    </span>
-                                    <div class="text-xs text-gray-500">封堵时长: 4小时</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
-                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">黑名单</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 12 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-yellow-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">61.219.45.123</div>
-                                        <div class="text-sm text-gray-500">🇦🇺 澳大利亚 悉尼</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    未知
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 456</span>
-                                    <span class="text-yellow-600">真实攻击: 23</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-yellow-700">可疑活动</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">2次</span>
-                                    <span class="text-xs text-gray-500">最近: 1周前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-1">
-                                        待确认
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-monitoring text-white mb-1">
-                                        <i class="fas fa-eye mr-1"></i>监控中
-                                    </span>
-                                    <div class="text-xs text-gray-500">监控时长: 1周</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">封堵</button>
-                                    <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 13 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-secret text-purple-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">89.34.56.178</div>
-                                        <div class="text-sm text-gray-500">🇳🇱 荷兰 阿姆斯特丹</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                    可疑
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 67</span>
-                                    <span class="text-purple-600">真实攻击: 45</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-purple-700">可疑活动</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">15次</span>
-                                    <span class="text-xs text-gray-500">最近: 2小时前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-1">
-                                        待确认
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-monitoring text-white mb-1">
-                                        <i class="fas fa-eye mr-1"></i>监控中
-                                    </span>
-                                    <div class="text-xs text-gray-500">监控时长: 2小时</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">封堵</button>
-                                    <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 14 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-green-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">172.16.88.45</div>
-                                        <div class="text-sm text-gray-500">🇮🇳 印度 班加罗尔</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    未知
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 189</span>
-                                    <span class="text-green-600">真实攻击: 8</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-green-700">正常访问</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">1次</span>
-                                    <span class="text-xs text-gray-500">最近: 2周前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-1">
-                                        业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">API调试和测试活动</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-allowed text-white mb-1">
-                                        <i class="fas fa-check mr-1"></i>已放行
-                                    </span>
-                                    <div class="text-xs text-gray-500">持续放行</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-200 text-gray-400 rounded cursor-not-allowed">无需操作</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 15 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-ninja text-red-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">157.230.45.89</div>
-                                        <div class="text-sm text-gray-500">🇧🇷 巴西 圣保罗</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 298</span>
-                                    <span class="text-red-600">真实攻击: 267</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-red-700">恶意攻击</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">22次</span>
-                                    <span class="text-xs text-gray-500">最近: 45分钟前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
-                                        非业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">执行恶意JavaScript代码</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
-                                        <i class="fas fa-ban mr-1"></i>已封堵
-                                    </span>
-                                    <div class="text-xs text-gray-500">封堵时长: 45分钟</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
-                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">黑名单</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 16 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-blue-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">104.248.78.123</div>
-                                        <div class="text-sm text-gray-500">🇮🇹 意大利 米兰</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                    可疑
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 145</span>
-                                    <span class="text-blue-600">真实攻击: 56</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-blue-700">可疑活动</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">6次</span>
-                                    <span class="text-xs text-gray-500">最近: 12小时前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-1">
-                                        待确认
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-monitoring text-white mb-1">
-                                        <i class="fas fa-eye mr-1"></i>监控中
-                                    </span>
-                                    <div class="text-xs text-gray-500">监控时长: 12小时</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">封堵</button>
-                                    <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 17 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-secret text-orange-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">46.123.78.234</div>
-                                        <div class="text-sm text-gray-500">🇷🇴 罗马尼亚 布加勒斯特</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 678</span>
-                                    <span class="text-orange-600">真实攻击: 589</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-orange-700">端口扫描</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">35次</span>
-                                    <span class="text-xs text-gray-500">最近: 6小时前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
-                                        非业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">全端口扫描寻找漏洞</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
-                                        <i class="fas fa-ban mr-1"></i>已封堵
-                                    </span>
-                                    <div class="text-xs text-gray-500">封堵时长: 6小时</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
-                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">黑名单</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 18 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-green-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">192.168.1.234</div>
-                                        <div class="text-sm text-gray-500">🇪🇸 西班牙 马德里</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    未知
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 567</span>
-                                    <span class="text-green-600">真实攻击: 12</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-green-700">正常访问</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">0次</span>
-                                    <span class="text-xs text-gray-500">从未封堵</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-1">
-                                        业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">内网用户，正常办公访问</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-allowed text-white mb-1">
-                                        <i class="fas fa-check mr-1"></i>已放行
-                                    </span>
-                                    <div class="text-xs text-gray-500">持续放行</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-200 text-gray-400 rounded cursor-not-allowed">无需操作</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 19 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user-ninja text-red-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">94.156.78.234</div>
-                                        <div class="text-sm text-gray-500">🇺🇦 乌克兰 基辅</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    恶意
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 1,234</span>
-                                    <span class="text-red-600">真实攻击: 1,189</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mr-2 pulse-bg"></div>
-                                    <span class="text-sm font-medium text-red-700">DDoS攻击</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">67次</span>
-                                    <span class="text-xs text-gray-500">最近: 15分钟前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
-                                        非业务访问
-                                    </span>
-                                    <div class="text-xs text-gray-600">大流量DDoS攻击</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-blocked text-white mb-1">
-                                        <i class="fas fa-ban mr-1"></i>已封堵
-                                    </span>
-                                    <div class="text-xs text-gray-500">封堵时长: 15分钟</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200">解封</button>
-                                    <button class="px-2 py-1 text-xs bg-black text-white rounded hover:bg-gray-800">黑名单</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- 攻击者 20 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-yellow-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">203.189.67.123</div>
-                                        <div class="text-sm text-gray-500">🇹🇭 泰国 曼谷</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                    可疑
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">总计: 234</span>
-                                    <span class="text-yellow-600">真实攻击: 78</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-yellow-700">可疑活动</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">4次</span>
-                                    <span class="text-xs text-gray-500">最近: 8小时前</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-1">
-                                        待确认
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-monitoring text-white mb-1">
-                                        <i class="fas fa-eye mr-1"></i>监控中
-                                    </span>
-                                    <div class="text-xs text-gray-500">监控时长: 8小时</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">封堵</button>
-                                    <button class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">加白</button>
-                                </div>
-                            </td>
-                        </tr>
+                        <!-- 可以继续添加更多攻击者行... -->
                     </tbody>
                 </table>
             </div>
@@ -1449,9 +808,351 @@
                 </div>
             </div>
         </div>
+        </div>
+
+        <!-- 白名单配置Tab内容 -->
+        <div id="whitelist-config" class="tab-content hidden">
+            <div class="container mx-auto max-w-7xl">
+                
+                <!-- 页面头部 -->
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                        <i class="fas fa-shield-alt text-2xl text-blue-600"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">响应白名单配置</h1>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        为确保您的业务系统正常运行，请根据实际网络架构配置相应的白名单。
+                        以下场景需要特别关注，点击对应卡片进行配置。
+                    </p>
+                </div>
+
+                <!-- 配置进度指示器 -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mb-8">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">配置进度</span>
+                        <span class="text-sm text-gray-600" id="progress-text">1/4 已完成</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div class="bg-blue-500 h-2 rounded-full" id="progress-bar" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <!-- 四个配置区域 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    
+                    <!-- 1. 公有云服务器 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover cursor-pointer">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-cloud text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">公有云服务器</h3>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        待配置
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                                    添加您在公有云上，且与本地数据中心存在固定业务互访的服务器IP。
+                                    此举可保障您混合云业务的稳定性，防止可信流量被误判。
+                                </p>
+                                
+                                <!-- 示例场景 -->
+                                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <div class="flex items-center text-xs text-gray-600 mb-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                        <span class="font-medium">典型场景</span>
+                                    </div>
+                                    <div class="text-xs text-gray-600 space-y-1">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                            <span>阿里云/腾讯云数据库与本地应用互访</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                            <span>混合云备份服务器访问</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    立即配置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 分支机构/互联单位的出口IP -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover cursor-pointer">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-building text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">分支机构/互联单位的出口IP</h3>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        已配置
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                                    添加您公司各分支机构，或有可信业务往来的合作伙伴的公网出口IP地址。
+                                    用于保障跨区域协同办公、或业务系统之间的稳定访问。
+                                </p>
+                                
+                                <!-- 示例场景 -->
+                                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <div class="flex items-center text-xs text-gray-600 mb-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                        <span class="font-medium">典型场景</span>
+                                    </div>
+                                    <div class="text-xs text-gray-600 space-y-1">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                            <span>北京/上海分公司网络出口</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                            <span>合作伙伴业务系统对接</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full bg-gray-100 text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
+                                    <i class="fas fa-check mr-2"></i>
+                                    查看配置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 互联网出口IP -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover cursor-pointer">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-globe text-purple-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">互联网出口IP</h3>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        重要
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                                    如果您公司通过一个或多个固定的公网IP地址接入互联网，请将其加入白名单。
+                                    这可以防止智能响应策略误判由您内部用户发起的正常网络访问。
+                                </p>
+                                
+                                <!-- 示例场景 -->
+                                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <div class="flex items-center text-xs text-gray-600 mb-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                        <span class="font-medium">典型场景</span>
+                                    </div>
+                                    <div class="text-xs text-gray-600 space-y-1">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                            <span>办公网络固定出口IP</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors flex items-center justify-center">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    立即配置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 外网IP段内用 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-orange-200 p-6 card-hover cursor-pointer border-2">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-cog text-orange-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">外网IP段内用</h3>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        特殊配置
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                                    针对将公网IP地址用于内部服务器等特殊网络架构，为避免与全局策略产生冲突，
+                                    此类地址需要在专门的功能模块中进行定义。
+                                </p>
+                                
+                                <!-- 典型案例 -->
+                                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <div class="flex items-center text-xs text-gray-600 mb-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                        <span class="font-medium">典型案例</span>
+                                    </div>
+                                    <div class="text-xs text-gray-600 space-y-1">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                            <span>100.1.1.1 原本属于公网IP但被内网使用</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                            <span>特殊网络架构下的IP地址复用</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 警告提示 -->
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-exclamation-triangle text-orange-500 mr-2 mt-0.5"></i>
+                                        <div class="text-xs text-orange-800">
+                                            <div class="font-medium mb-1">注意事项</div>
+                                            <div>此配置会影响全局安全策略，请谨慎操作并确认网络架构的合理性。</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex space-x-2">
+                                    <button class="flex-1 bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center text-sm">
+                                        <i class="fas fa-external-link-alt mr-2"></i>
+                                        前往配置
+                                    </button>
+                                    <button class="px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                                        <i class="fas fa-question-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部操作区域 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">配置完成后的效果</h3>
+                            <p class="text-sm text-gray-600">白名单生效后，来自这些IP的流量将不会触发自动响应策略</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                                <i class="fas fa-history mr-2"></i>
+                                查看配置历史
+                            </button>
+                            <button class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-save mr-2"></i>
+                                保存配置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 帮助提示 -->
+                <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-500 mr-3 mt-0.5"></i>
+                        <div class="text-sm text-blue-800">
+                            <strong>配置建议：</strong>
+                            建议按优先级配置：互联网出口IP（必须）→ 分支机构/互联单位IP（重要）→ 公有云服务器（按需）→ 特殊配置（谨慎）。
+                            如有疑问，请联系技术支持团队。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Tab切换功能
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-tab');
+                    
+                    // 移除所有按钮的active状态
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('bg-blue-50', 'text-blue-600', 'border-blue-500');
+                        btn.classList.add('text-gray-500', 'border-transparent');
+                    });
+                    
+                    // 隐藏所有tab内容
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // 激活当前按钮
+                    button.classList.add('active');
+                    button.classList.add('bg-blue-50', 'text-blue-600', 'border-blue-500');
+                    button.classList.remove('text-gray-500', 'border-transparent');
+                    
+                    // 显示对应的tab内容
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+        
+        // 白名单配置页面功能
+        function initWhitelistConfig() {
+            // 卡片点击效果
+            document.querySelectorAll('#whitelist-config .card-hover').forEach(card => {
+                card.addEventListener('click', function() {
+                    // 模拟跳转到配置页面
+                    const title = this.querySelector('h3').textContent;
+                    console.log(`跳转到配置页面: ${title}`);
+                    
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+
+            // 进度更新模拟
+            function updateProgress() {
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                
+                if (progressBar && progressText) {
+                    // 模拟进度更新
+                    let progress = 25;
+                    const interval = setInterval(() => {
+                        progress += 25;
+                        if (progress > 100) {
+                            progress = 100;
+                            clearInterval(interval);
+                        }
+                        progressBar.style.width = progress + '%';
+                        progressText.textContent = `${progress/25}/4 已完成`;
+                    }, 2000);
+                }
+            }
+
+            // 页面加载后延迟启动进度更新
+            setTimeout(updateProgress, 3000);
+        }
+        
+        // 全局变量用于存储图表实例
+        let pieChart = null;
+        
         // 准确率趋势线图表（Sparkline）
         const accuracyCtx = document.getElementById('accuracyTrend').getContext('2d');
         new Chart(accuracyCtx, {
@@ -1511,6 +1212,132 @@
             }
         });
 
+        // 侧拉弹窗功能
+        function openSidePanel(ip, location, summary, totalAlerts, realAttacks, businessAnalysis, aiRecommendation) {
+            // 更新弹窗数据
+            document.getElementById('attackerIP').textContent = ip;
+            document.getElementById('attackerLocation').textContent = location;
+            document.getElementById('aiSummary').textContent = summary;
+            document.getElementById('totalAlerts').textContent = totalAlerts;
+            document.getElementById('realAttacks').textContent = realAttacks;
+            document.getElementById('blockedAttacks').textContent = realAttacks;
+            document.getElementById('accuracyRate').textContent = ((realAttacks / totalAlerts) * 100).toFixed(1) + '%';
+            
+            // 更新AI建议标签
+            const recommendationTag = document.querySelector('.bg-gradient-to-r .inline-flex');
+            if (aiRecommendation) {
+                switch(aiRecommendation.type) {
+                    case 'block':
+                        recommendationTag.innerHTML = '<i class="fas fa-ban mr-1"></i>建议封堵';
+                        recommendationTag.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+                        break;
+                    case 'observe':
+                        recommendationTag.innerHTML = '<i class="fas fa-eye mr-1"></i>保持观察';
+                        recommendationTag.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'allow':
+                        recommendationTag.innerHTML = '<i class="fas fa-check mr-1"></i>请勿封堵';
+                        recommendationTag.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                        break;
+                    default:
+                        recommendationTag.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>高危威胁';
+                        recommendationTag.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+                }
+            }
+            
+            // 更新业务分析数据
+            const businessTag = document.getElementById('businessAnalysisTag');
+            const businessReason = document.getElementById('businessAnalysisReason');
+            
+            if (businessAnalysis && businessAnalysis.isBusiness) {
+                businessTag.innerHTML = '<i class="fas fa-check mr-1"></i>' + businessAnalysis.tag;
+                businessTag.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800';
+            } else if (businessAnalysis && businessAnalysis.tag) {
+                if (businessAnalysis.tag.includes('疑似')) {
+                    businessTag.innerHTML = '<i class="fas fa-question mr-1"></i>' + businessAnalysis.tag;
+                    businessTag.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
+                } else {
+                    businessTag.innerHTML = '<i class="fas fa-times mr-1"></i>' + businessAnalysis.tag;
+                    businessTag.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800';
+                }
+            }
+            
+            if (businessAnalysis && businessAnalysis.reason) {
+                businessReason.textContent = businessAnalysis.reason;
+            }
+            
+            // 显示弹窗
+            document.getElementById('sidePanelOverlay').classList.add('show');
+            document.getElementById('sidePanel').classList.add('open');
+            
+            // 初始化饼状图
+            initPieChart();
+        }
+
+        function closeSidePanel() {
+            document.getElementById('sidePanelOverlay').classList.remove('show');
+            document.getElementById('sidePanel').classList.remove('open');
+            
+            // 销毁饼状图
+            if (pieChart) {
+                pieChart.destroy();
+                pieChart = null;
+            }
+        }
+
+        function initPieChart() {
+            const ctx = document.getElementById('alertPieChart').getContext('2d');
+            
+            // 如果图表已存在，先销毁
+            if (pieChart) {
+                pieChart.destroy();
+            }
+            
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['恶意攻击', '可疑活动', '误报', '正常访问'],
+                    datasets: [{
+                        data: [189, 35, 15, 8],
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f59e0b',
+                            '#6b7280',
+                            '#10b981'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '50%'
+                }
+            });
+        }
+
         // 实时数据更新模拟
         setInterval(() => {
             // 更新活跃攻击者数量
@@ -1544,6 +1371,22 @@
                 // 筛选逻辑可以在这里实现
                 console.log('筛选条件:', this.value);
             });
+        });
+
+        // 阻止事件冒泡，避免点击操作按钮时触发行点击事件
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON' && e.target.closest('td')) {
+                e.stopPropagation();
+            }
+        });
+        
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化Tab切换功能
+            initTabs();
+            
+            // 初始化白名单配置功能
+            initWhitelistConfig();
         });
     </script>
 </body>
