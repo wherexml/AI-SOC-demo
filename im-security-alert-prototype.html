@@ -93,7 +93,7 @@
                         <i class="fas fa-clock mr-1"></i>
                         2025-06-21 11:39:01
                     </div>
-                    <button class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
+                    <button onclick="openNotificationSettings()" class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
                         <i class="fas fa-cog"></i>
                     </button>
                 </div>
@@ -133,6 +133,91 @@
                 </button>
             </div>
             <p class="text-xs text-gray-500 mt-2 text-center">请使用指令按钮进行操作，或等待Bot推送新的安全事件</p>
+        </div>
+    </div>
+
+    <!-- 通知时间配置模态框 -->
+    <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">通知时间配置</h3>
+                <button onclick="closeNotificationSettings()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择通知时间</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">开始时间</label>
+                            <input type="time" id="startTime" value="09:00" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">结束时间</label>
+                            <input type="time" id="endTime" value="18:00" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择通知日期</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="monday" checked class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm">周一</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="tuesday" checked class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm">周二</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="wednesday" checked class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm">周三</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="thursday" checked class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm">周四</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="friday" checked class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm">周五</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="saturday" class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm">周六</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="sunday" class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm">周日</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 rounded-lg p-3">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
+                        <div class="text-sm text-blue-700">
+                            <p class="font-medium mb-1">当前配置</p>
+                            <p id="currentConfig">工作日 09:00-18:00 接收通知</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeNotificationSettings()" 
+                        class="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    取消
+                </button>
+                <button onclick="saveNotificationSettings()" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    保存设置
+                </button>
+            </div>
         </div>
     </div>
 
@@ -586,8 +671,87 @@ Upload successful. WAR deployed to /manager/html/malware</pre>
             `);
         }
 
-        // 页面加载后开始演示
+        // 通知时间配置功能
+        function openNotificationSettings() {
+            document.getElementById('notificationModal').classList.remove('hidden');
+            updateCurrentConfig();
+        }
+
+        function closeNotificationSettings() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
+        function updateCurrentConfig() {
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const days = [];
+            
+            const dayMap = {
+                'monday': '周一',
+                'tuesday': '周二', 
+                'wednesday': '周三',
+                'thursday': '周四',
+                'friday': '周五',
+                'saturday': '周六',
+                'sunday': '周日'
+            };
+            
+            Object.keys(dayMap).forEach(day => {
+                if (document.getElementById(day).checked) {
+                    days.push(dayMap[day]);
+                }
+            });
+            
+            let configText;
+            if (days.length === 7) {
+                configText = `每日 ${startTime}-${endTime} 接收通知`;
+            } else if (days.length === 5 && !document.getElementById('saturday').checked && !document.getElementById('sunday').checked) {
+                configText = `工作日 ${startTime}-${endTime} 接收通知`;
+            } else if (days.length === 0) {
+                configText = '暂停通知';
+            } else {
+                configText = `${days.join('、')} ${startTime}-${endTime} 接收通知`;
+            }
+            
+            document.getElementById('currentConfig').textContent = configText;
+        }
+
+        function saveNotificationSettings() {
+            updateCurrentConfig();
+            
+            // 显示保存成功提示
+            const currentTime = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+            addMessage(`
+                <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span class="text-sm text-green-800">
+                            <strong>通知时间配置已保存</strong>
+                        </span>
+                    </div>
+                    <p class="text-xs text-green-600 mt-1 ml-6">
+                        ${document.getElementById('currentConfig').textContent}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1 ml-6">
+                        配置时间：${currentTime}
+                    </p>
+                </div>
+            `);
+            
+            closeNotificationSettings();
+        }
+
+        // 监听时间和日期变化以实时更新配置显示
         document.addEventListener('DOMContentLoaded', function() {
+            // 添加事件监听器
+            ['startTime', 'endTime'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updateCurrentConfig);
+            });
+            
+            ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updateCurrentConfig);
+            });
+            
             startSecurityAlerts();
         });
     </script>

@@ -832,14 +832,14 @@
 
         // 联络员配置表单
         const LiaisonConfigForm = ({ config, setConfig }) => {
-            const [promptContent, setPromptContent] = useState(config.promptContent || `【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请在 [写出规则中设定的响应超时分钟数] 分钟 内确认并选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
+            const [promptContent, setPromptContent] = useState(config.promptContent || `【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
 ⸻
 • 事件名称：[填入事件完整名称]
 • GPT研判结论：[概括并填入AI的核心研判结论]
 • 受影响资产：[描述受影响资产的关键信息，包括其IP、端口和业务描述]
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
-请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：`);
+请回复以下任一指令：`);
 
             const [instructions, setInstructions] = useState(config.instructions || [
                 { label: '查看详情', description: '获取事件详细信息' },
@@ -850,6 +850,9 @@
             ]);
 
             const [showNotificationConfig, setShowNotificationConfig] = useState(false);
+            const [showDingTalkConfig, setShowDingTalkConfig] = useState(false);
+            const [showSmsConfig, setShowSmsConfig] = useState(false);
+            const [showEmailConfig, setShowEmailConfig] = useState(false);
 
             // 指令库
             const instructionLibrary = [
@@ -890,6 +893,19 @@
                     recipientType: config.recipientType || '资产责任人',
                     recipientDescription: config.recipientDescription || '',
                     notificationChannels: config.notificationChannels || ['企业微信'],
+                    notificationTime: config.notificationTime || {
+                        startTime: '09:00',
+                        endTime: '18:00',
+                        days: {
+                            monday: true,
+                            tuesday: true,
+                            wednesday: true,
+                            thursday: true,
+                            friday: true,
+                            saturday: false,
+                            sunday: false
+                        }
+                    },
                     wechatConfig: config.wechatConfig || {
                         webhook: '',
                         secret: '',
@@ -951,7 +967,7 @@
                                         value={promptContent}
                                         onChange={(e) => setPromptContent(e.target.value)}
                                         className="w-full p-3 border-0 resize-none focus:ring-0 focus:outline-none font-mono text-sm"
-                                        rows="20"
+                                        rows="12"
                                         placeholder="输入Prompt内容"
                                         style={{
                                             fontFamily: 'Monaco, Consolas, "Courier New", monospace',
@@ -970,6 +986,20 @@
                                         已包含完整的安全事件通知模板，包含输出格式和用户指令
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Prompt和指令衔接说明 */}
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                        <div className="flex items-start space-x-2">
+                            <i className="fas fa-link text-purple-600 mt-0.5"></i>
+                            <div className="text-sm">
+                                <p className="font-medium text-purple-900 mb-1">Prompt与指令衔接说明</p>
+                                <p className="text-purple-700">
+                                    上方Prompt模板中的"请回复以下任一指令："会自动衔接下方配置的用户指令。
+                                    系统会将配置的指令以按钮形式展示给用户，用户点击后触发对应的工作流分支。
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1036,65 +1066,286 @@
                         </p>
                     </div>
 
+                    {/* 通知时间配置 */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800">通知时间配置</h3>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div className="flex items-start">
+                                <i className="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
+                                <div className="text-sm text-blue-700">
+                                    <p className="font-medium mb-1">设置通知发送的时间范围</p>
+                                    <p>只有在指定的时间和日期范围内，系统才会发送通知给联络员</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">通知时间范围</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">开始时间</label>
+                                        <input
+                                            type="time"
+                                            value={config.notificationTime?.startTime || '09:00'}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                notificationTime: {
+                                                    ...config.notificationTime,
+                                                    startTime: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">结束时间</label>
+                                        <input
+                                            type="time"
+                                            value={config.notificationTime?.endTime || '18:00'}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                notificationTime: {
+                                                    ...config.notificationTime,
+                                                    endTime: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">通知日期</label>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[
+                                        { key: 'monday', label: '周一' },
+                                        { key: 'tuesday', label: '周二' },
+                                        { key: 'wednesday', label: '周三' },
+                                        { key: 'thursday', label: '周四' },
+                                        { key: 'friday', label: '周五' },
+                                        { key: 'saturday', label: '周六' },
+                                        { key: 'sunday', label: '周日' }
+                                    ].map(day => (
+                                        <label key={day.key} className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={config.notificationTime?.days?.[day.key] !== false}
+                                                onChange={(e) => {
+                                                    const currentDays = config.notificationTime?.days || {};
+                                                    setConfig({
+                                                        ...config,
+                                                        notificationTime: {
+                                                            ...config.notificationTime,
+                                                            days: {
+                                                                ...currentDays,
+                                                                [day.key]: e.target.checked
+                                                            }
+                                                        }
+                                                    });
+                                                }}
+                                                className="checkbox-input"
+                                            />
+                                            <span className="text-sm text-gray-700">{day.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <div className="mt-2 flex space-x-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const workdays = {
+                                                monday: true, tuesday: true, wednesday: true, 
+                                                thursday: true, friday: true, saturday: false, sunday: false
+                                            };
+                                            setConfig({
+                                                ...config,
+                                                notificationTime: {
+                                                    ...config.notificationTime,
+                                                    days: workdays
+                                                }
+                                            });
+                                        }}
+                                        className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                    >
+                                        工作日
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const allDays = {
+                                                monday: true, tuesday: true, wednesday: true, 
+                                                thursday: true, friday: true, saturday: true, sunday: true
+                                            };
+                                            setConfig({
+                                                ...config,
+                                                notificationTime: {
+                                                    ...config.notificationTime,
+                                                    days: allDays
+                                                }
+                                            });
+                                        }}
+                                        className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors"
+                                    >
+                                        全天
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                <div className="flex items-start">
+                                    <i className="fas fa-clock text-yellow-500 mt-0.5 mr-2"></i>
+                                    <div className="text-sm text-yellow-700">
+                                        <p className="font-medium mb-1">当前配置预览</p>
+                                        <p>
+                                            {(() => {
+                                                const startTime = config.notificationTime?.startTime || '09:00';
+                                                const endTime = config.notificationTime?.endTime || '18:00';
+                                                const days = config.notificationTime?.days || {};
+                                                const activeDays = Object.entries(days)
+                                                    .filter(([key, value]) => value !== false)
+                                                    .map(([key]) => key);
+                                                
+                                                const dayNames = {
+                                                    monday: '周一', tuesday: '周二', wednesday: '周三',
+                                                    thursday: '周四', friday: '周五', saturday: '周六', sunday: '周日'
+                                                };
+                                                
+                                                if (activeDays.length === 7) {
+                                                    return `每日 ${startTime}-${endTime} 发送通知`;
+                                                } else if (activeDays.length === 5 && 
+                                                          ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].every(d => days[d] !== false) &&
+                                                          days.saturday === false && days.sunday === false) {
+                                                    return `工作日 ${startTime}-${endTime} 发送通知`;
+                                                } else if (activeDays.length === 0) {
+                                                    return '暂停通知';
+                                                } else {
+                                                    const dayLabels = activeDays.map(day => dayNames[day]).join('、');
+                                                    return `${dayLabels} ${startTime}-${endTime} 发送通知`;
+                                                }
+                                            })()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* 通知渠道 */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-gray-800">通知渠道</h3>
-                        <div className="space-y-3">
-                            <label className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    checked={config.notificationChannels?.includes('企业微信') || false}
-                                    onChange={(e) => {
-                                        const channels = config.notificationChannels || [];
-                                        if (e.target.checked) {
-                                            setConfig({ ...config, notificationChannels: [...channels.filter(c => c !== '企业微信'), '企业微信'] });
-                                        } else {
-                                            setConfig({ ...config, notificationChannels: channels.filter(c => c !== '企业微信') });
-                                        }
-                                    }}
-                                    className="checkbox-input"
-                                />
-                                <span className="text-sm font-medium text-gray-700">企业微信</span>
-                            </label>
-                            <label className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    checked={config.notificationChannels?.includes('钉钉') || false}
-                                    onChange={(e) => {
-                                        const channels = config.notificationChannels || [];
-                                        if (e.target.checked) {
-                                            setConfig({ ...config, notificationChannels: [...channels.filter(c => c !== '钉钉'), '钉钉'] });
-                                        } else {
-                                            setConfig({ ...config, notificationChannels: channels.filter(c => c !== '钉钉') });
-                                        }
-                                    }}
-                                    className="checkbox-input"
-                                />
-                                <span className="text-sm font-medium text-gray-700">钉钉</span>
-                            </label>
-                            <label className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    checked={config.notificationChannels?.includes('短信') || false}
-                                    onChange={(e) => {
-                                        const channels = config.notificationChannels || [];
-                                        if (e.target.checked) {
-                                            setConfig({ ...config, notificationChannels: [...channels.filter(c => c !== '短信'), '短信'] });
-                                        } else {
-                                            setConfig({ ...config, notificationChannels: channels.filter(c => c !== '短信') });
-                                        }
-                                    }}
-                                    className="checkbox-input"
-                                />
-                                <span className="text-sm font-medium text-gray-700">短信</span>
-                            </label>
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <div className="flex items-start">
+                                <i className="fas fa-exclamation-triangle text-yellow-500 mt-0.5 mr-2"></i>
+                                <div className="text-sm text-yellow-700">
+                                    <p className="font-medium mb-1">单选模式</p>
+                                    <p>每个联络员节点只能选择一个通知渠道，请根据接收人类型选择合适的渠道</p>
+                                </div>
+                            </div>
                         </div>
-                        <button
-                            onClick={() => setShowNotificationConfig(true)}
-                            className="text-sm bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                            <i className="fas fa-cog mr-1"></i>通知配置
-                        </button>
+                        
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <label className="flex items-center space-x-3 cursor-pointer flex-1">
+                                    <input
+                                        type="radio"
+                                        name="notificationChannel"
+                                        value="企业微信"
+                                        checked={config.notificationChannels?.[0] === '企业微信' || (!config.notificationChannels && true)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setConfig({ ...config, notificationChannels: ['企业微信'] });
+                                            }
+                                        }}
+                                        className="radio-input"
+                                    />
+                                    <i className="fab fa-weixin text-green-600 text-lg"></i>
+                                    <span className="text-sm font-medium text-gray-700">企业微信</span>
+                                </label>
+                                <button
+                                    onClick={() => setShowNotificationConfig(true)}
+                                    className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors"
+                                >
+                                    <i className="fas fa-cog mr-1"></i>配置
+                                </button>
+                            </div>
+                            
+                            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <label className="flex items-center space-x-3 cursor-pointer flex-1">
+                                    <input
+                                        type="radio"
+                                        name="notificationChannel"
+                                        value="钉钉"
+                                        checked={config.notificationChannels?.[0] === '钉钉'}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setConfig({ ...config, notificationChannels: ['钉钉'] });
+                                            }
+                                        }}
+                                        className="radio-input"
+                                    />
+                                    <i className="fas fa-bell text-blue-600 text-lg"></i>
+                                    <span className="text-sm font-medium text-gray-700">钉钉</span>
+                                </label>
+                                <button
+                                    onClick={() => setShowDingTalkConfig(true)}
+                                    className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                >
+                                    <i className="fas fa-cog mr-1"></i>配置
+                                </button>
+                            </div>
+                            
+                            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <label className="flex items-center space-x-3 cursor-pointer flex-1">
+                                    <input
+                                        type="radio"
+                                        name="notificationChannel"
+                                        value="短信"
+                                        checked={config.notificationChannels?.[0] === '短信'}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setConfig({ ...config, notificationChannels: ['短信'] });
+                                            }
+                                        }}
+                                        className="radio-input"
+                                    />
+                                    <i className="fas fa-sms text-orange-600 text-lg"></i>
+                                    <span className="text-sm font-medium text-gray-700">短信</span>
+                                </label>
+                                <button
+                                    onClick={() => setShowSmsConfig(true)}
+                                    className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200 transition-colors"
+                                >
+                                    <i className="fas fa-cog mr-1"></i>配置
+                                </button>
+                            </div>
+                            
+                            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <label className="flex items-center space-x-3 cursor-pointer flex-1">
+                                    <input
+                                        type="radio"
+                                        name="notificationChannel"
+                                        value="邮件"
+                                        checked={config.notificationChannels?.[0] === '邮件'}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setConfig({ ...config, notificationChannels: ['邮件'] });
+                                            }
+                                        }}
+                                        className="radio-input"
+                                    />
+                                    <i className="fas fa-envelope text-purple-600 text-lg"></i>
+                                    <span className="text-sm font-medium text-gray-700">邮件</span>
+                                </label>
+                                <button
+                                    onClick={() => setShowEmailConfig(true)}
+                                    className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 transition-colors"
+                                >
+                                    <i className="fas fa-cog mr-1"></i>配置
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     {/* 接收人配置 */}
@@ -1206,6 +1457,269 @@
                                     <button 
                                         onClick={() => setShowNotificationConfig(false)}
                                         className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                    >
+                                        保存
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 钉钉配置弹窗 */}
+                    {showDingTalkConfig && (
+                        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+                            <div className="bg-white rounded-lg p-6 w-96 max-w-90vw border border-gray-200 shadow-xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-800">钉钉配置</h3>
+                                    <button 
+                                        onClick={() => setShowDingTalkConfig(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Webhook URL</label>
+                                        <input
+                                            type="text"
+                                            value={config.dingTalkConfig?.webhook || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                dingTalkConfig: {
+                                                    ...config.dingTalkConfig,
+                                                    webhook: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="https://oapi.dingtalk.com/robot/send?access_token=..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">签名密钥 (可选)</label>
+                                        <input
+                                            type="text"
+                                            value={config.dingTalkConfig?.secret || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                dingTalkConfig: {
+                                                    ...config.dingTalkConfig,
+                                                    secret: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="输入签名密钥"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex justify-end space-x-3">
+                                    <button 
+                                        onClick={() => setShowDingTalkConfig(false)}
+                                        className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                                    >
+                                        取消
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowDingTalkConfig(false)}
+                                        className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                    >
+                                        保存
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 短信配置弹窗 */}
+                    {showSmsConfig && (
+                        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+                            <div className="bg-white rounded-lg p-6 w-96 max-w-90vw border border-gray-200 shadow-xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-800">短信配置</h3>
+                                    <button 
+                                        onClick={() => setShowSmsConfig(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">短信接口地址</label>
+                                        <input
+                                            type="text"
+                                            value={config.smsConfig?.apiUrl || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                smsConfig: {
+                                                    ...config.smsConfig,
+                                                    apiUrl: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="https://api.sms.provider.com/send"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                                        <input
+                                            type="text"
+                                            value={config.smsConfig?.apiKey || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                smsConfig: {
+                                                    ...config.smsConfig,
+                                                    apiKey: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="输入API密钥"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">短信模板ID</label>
+                                        <input
+                                            type="text"
+                                            value={config.smsConfig?.templateId || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                smsConfig: {
+                                                    ...config.smsConfig,
+                                                    templateId: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="模板ID"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex justify-end space-x-3">
+                                    <button 
+                                        onClick={() => setShowSmsConfig(false)}
+                                        className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                                    >
+                                        取消
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowSmsConfig(false)}
+                                        className="px-4 py-2 text-sm bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+                                    >
+                                        保存
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 邮件配置弹窗 */}
+                    {showEmailConfig && (
+                        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+                            <div className="bg-white rounded-lg p-6 w-96 max-w-90vw border border-gray-200 shadow-xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-800">邮件配置</h3>
+                                    <button 
+                                        onClick={() => setShowEmailConfig(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">SMTP服务器</label>
+                                        <input
+                                            type="text"
+                                            value={config.emailConfig?.smtpServer || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                emailConfig: {
+                                                    ...config.emailConfig,
+                                                    smtpServer: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="smtp.example.com"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">端口</label>
+                                            <input
+                                                type="number"
+                                                value={config.emailConfig?.port || '587'}
+                                                onChange={(e) => setConfig({
+                                                    ...config,
+                                                    emailConfig: {
+                                                        ...config.emailConfig,
+                                                        port: e.target.value
+                                                    }
+                                                })}
+                                                className="form-input text-sm"
+                                                placeholder="587"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">加密方式</label>
+                                            <select
+                                                value={config.emailConfig?.encryption || 'TLS'}
+                                                onChange={(e) => setConfig({
+                                                    ...config,
+                                                    emailConfig: {
+                                                        ...config.emailConfig,
+                                                        encryption: e.target.value
+                                                    }
+                                                })}
+                                                className="form-select text-sm"
+                                            >
+                                                <option value="TLS">TLS</option>
+                                                <option value="SSL">SSL</option>
+                                                <option value="None">无</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">发送邮箱</label>
+                                        <input
+                                            type="email"
+                                            value={config.emailConfig?.username || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                emailConfig: {
+                                                    ...config.emailConfig,
+                                                    username: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="sender@example.com"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">邮箱密码</label>
+                                        <input
+                                            type="password"
+                                            value={config.emailConfig?.password || ''}
+                                            onChange={(e) => setConfig({
+                                                ...config,
+                                                emailConfig: {
+                                                    ...config.emailConfig,
+                                                    password: e.target.value
+                                                }
+                                            })}
+                                            className="form-input text-sm"
+                                            placeholder="输入邮箱密码或授权码"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex justify-end space-x-3">
+                                    <button 
+                                        onClick={() => setShowEmailConfig(false)}
+                                        className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                                    >
+                                        取消
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowEmailConfig(false)}
+                                        className="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                                     >
                                         保存
                                     </button>
@@ -1552,6 +2066,19 @@
                     recipientType: '资产责任人',
                     recipientDescription: '',
                     notificationChannels: ['企业微信'],
+                    notificationTime: {
+                        startTime: '09:00',
+                        endTime: '18:00',
+                        days: {
+                            monday: true,
+                            tuesday: true,
+                            wednesday: true,
+                            thursday: true,
+                            friday: true,
+                            saturday: false,
+                            sunday: false
+                        }
+                    },
                     promptTemplate: '安全事件通知模板',
                     instructions: [
                         { label: '查看详情', description: '获取事件详细信息' },
@@ -1565,14 +2092,14 @@
                         secret: '',
                         mentioned: []
                     },
-                    promptContent: `【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请在 [写出规则中设定的响应超时分钟数] 分钟 内确认并选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
+                    promptContent: `【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
 ⸻
 • 事件名称：[填入事件完整名称]
 • GPT研判结论：[概括并填入AI的核心研判结论]
 • 受影响资产：[描述受影响资产的关键信息，包括其IP、端口和业务描述]
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
-请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：`
+请回复以下任一指令：`
                 },
             },
             {
@@ -1992,6 +2519,19 @@
                             recipientType: '资产责任人',
                             recipientDescription: '',
                             notificationChannels: ['企业微信'],
+                            notificationTime: {
+                                startTime: '09:00',
+                                endTime: '18:00',
+                                days: {
+                                    monday: true,
+                                    tuesday: true,
+                                    wednesday: true,
+                                    thursday: true,
+                                    friday: true,
+                                    saturday: false,
+                                    sunday: false
+                                }
+                            },
                             promptTemplate: '安全事件通知模板',
                             instructions: [
                                 { label: '详情', description: '获取事件详细信息' },
@@ -2004,14 +2544,14 @@
                                 secret: '',
                                 mentioned: []
                             },
-                            promptContent: `【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请在 [写出规则中设定的响应超时分钟数] 分钟 内确认并选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
+                            promptContent: `【安全事件通知】您好！我是您的安全助手 Bot。系统于 [清晰地写出事件发生的具体时间] 监测到一条 [明确指出事件的严重等级]安全事件，请选择处置方式（测试阶段，如有打扰敬请諒解，或需人工协助请 @信息安全部-服务号）。
 ⸻
 • 事件名称：[填入事件完整名称]
 • GPT研判结论：[概括并填入AI的核心研判结论]
 • 受影响资产：[描述受影响资产的关键信息，包括其IP、端口和业务描述]
 • 检测详情：[使用GPT研判的总结内容]
 ⸻
-请回复以下任一指令（[写出规则中设定的响应超时分钟数] 分钟内有效）：`
+请回复以下任一指令：`
                         },
                         condition: {
                             conditionType: 'expression',
